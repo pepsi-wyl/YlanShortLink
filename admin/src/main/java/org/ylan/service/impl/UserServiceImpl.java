@@ -1,13 +1,13 @@
 package org.ylan.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
-import org.ylan.common.convention.exception.ClientException;
 import org.ylan.common.convention.enums.UserErrorCodeEnum;
+import org.ylan.common.convention.exception.ClientException;
 import org.ylan.mapper.UserMapper;
 import org.ylan.model.dto.resp.UserRespDTO;
 import org.ylan.model.entity.UserDO;
@@ -36,10 +36,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
             throw new ClientException(UserErrorCodeEnum.USER_NULL);
         }
 
-        // 实体类转化，复制属性
-        UserRespDTO result = new UserRespDTO();
-        BeanUtils.copyProperties(userDO, result);
-
-        return result;
+        return BeanUtil.toBean(userDO, UserRespDTO.class);
     }
 }

@@ -1,17 +1,15 @@
 package org.ylan.model.dto.resp;
 
 import lombok.Data;
-import org.ylan.common.desensitization.annotation.Desensitization;
-import org.ylan.common.desensitization.enums.DesensitizationTypeEnum;
 
 /**
- * 用户返回参数响应 脱敏
+ * 用户返回参数响应 不脱敏
  *
  * @author ylan
  */
 
 @Data
-public class UserRespDTO {
+public class UserActualRespDTO {
 
     /**
      * id
@@ -31,12 +29,10 @@ public class UserRespDTO {
     /**
      * 手机号
      */
-    @Desensitization(type = DesensitizationTypeEnum.MOBILE_PHONE)
     private String phone;
 
     /**
      * 邮箱
      */
-    @Desensitization(type = DesensitizationTypeEnum.EMAIL)
     private String mail;
 }
