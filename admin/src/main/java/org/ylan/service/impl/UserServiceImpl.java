@@ -2,6 +2,7 @@ package org.ylan.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,7 @@ import org.ylan.common.convention.enums.UserErrorCodeEnum;
 import org.ylan.common.convention.exception.ClientException;
 import org.ylan.mapper.UserMapper;
 import org.ylan.model.dto.req.UserRegisterReqDTO;
+import org.ylan.model.dto.req.UserUpdateReqDTO;
 import org.ylan.model.dto.resp.UserRespDTO;
 import org.ylan.model.entity.UserDO;
 import org.ylan.service.UserService;
@@ -107,6 +109,27 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
         // 没有获取到分布式锁直接抛出用户名已经存在的业务异常
         log.info("分布式锁{}获取失败,用户注册请求被拒绝", LOCK_USER_REGISTER_KEY + requestParam.getUsername());
         throw new ClientException(USER_NAME_EXIST);
+    }
+
+    @Override
+    public void update(UserUpdateReqDTO requestParam) {
+
+        // TODO 验证当前用户名是否为登录用户
+
+        // 利用布隆过滤器过滤不存在的请求，避免直接查询数据库
+        if (!hasUserByUsername(requestParam.getUsername())) {
+            throw new ClientException(USER_NULL);
+        }
+
+        // 修改用户
+        LambdaUpdateWrapper<UserDO> updateWrapper =
+                Wrappers.lambdaUpdate(UserDO.class).eq(UserDO::getUsername, requestParam.getUsername());
+        int update = baseMapper.update(BeanUtil.toBean(requestParam, UserDO.class), updateWrapper);
+        if (update < 0){
+            // 修改用户异常
+           throw new ClientException(USER_UPDATE_ERROR);
+        }
+
     }
 
 }

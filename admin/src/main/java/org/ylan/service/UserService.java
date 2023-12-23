@@ -2,6 +2,7 @@ package org.ylan.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.ylan.model.dto.req.UserRegisterReqDTO;
+import org.ylan.model.dto.req.UserUpdateReqDTO;
 import org.ylan.model.dto.resp.UserRespDTO;
 import org.ylan.model.entity.UserDO;
 
@@ -36,4 +37,10 @@ public interface UserService extends IService<UserDO> {
      */
     void register(UserRegisterReqDTO requestParam);
 
+    /**
+     * 根据用户名修改用户
+     *
+     * @param requestParam
+     */
+    void update(UserUpdateReqDTO requestParam);
 }

@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import org.ylan.common.convention.result.Result;
 import org.ylan.common.convention.result.Results;
 import org.ylan.model.dto.req.UserRegisterReqDTO;
+import org.ylan.model.dto.req.UserUpdateReqDTO;
 import org.ylan.model.dto.resp.UserActualRespDTO;
 import org.ylan.model.dto.resp.UserRespDTO;
 import org.ylan.service.UserService;
@@ -67,6 +68,15 @@ public class UserController {
     @PostMapping("/user")
     public Result<Void> register(@RequestBody UserRegisterReqDTO requestParam) {
         userService.register(requestParam);
+        return Results.success();
+    }
+
+    /**
+     * 根据用户名修改用户
+     */
+    @PutMapping("/user")
+    public Result<Void> update(@RequestBody UserUpdateReqDTO requestParam) {
+        userService.update(requestParam);
         return Results.success();
     }
 
