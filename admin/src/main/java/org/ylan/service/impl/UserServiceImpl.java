@@ -47,6 +47,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
 
     @Override
     public UserRespDTO getUserByUsername(String username) {
+
+        // 利用布隆过滤器过滤不存在的请求，避免直接查询数据库
+        if (!hasUserByUsername(username)) {
+            throw new ClientException(USER_NULL);
+        }
+
         LambdaQueryWrapper<UserDO> queryWrapper =
                 Wrappers.lambdaQuery(UserDO.class).eq(UserDO::getUsername, username);
         UserDO userDO = baseMapper.selectOne(queryWrapper);
