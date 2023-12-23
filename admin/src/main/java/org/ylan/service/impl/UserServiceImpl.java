@@ -1,6 +1,7 @@
 package org.ylan.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -11,19 +12,25 @@ import org.redisson.api.RBloomFilter;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.ylan.common.convention.enums.UserErrorCodeEnum;
 import org.ylan.common.convention.exception.ClientException;
 import org.ylan.mapper.UserMapper;
+import org.ylan.model.dto.req.UserLoginReqDTO;
 import org.ylan.model.dto.req.UserRegisterReqDTO;
 import org.ylan.model.dto.req.UserUpdateReqDTO;
+import org.ylan.model.dto.resp.UserLoginRespDTO;
 import org.ylan.model.dto.resp.UserRespDTO;
 import org.ylan.model.entity.UserDO;
 import org.ylan.service.UserService;
 
 import java.util.Objects;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import static org.ylan.common.constant.RedisCacheConstant.LOCK_USER_REGISTER_KEY;
+import static org.ylan.common.constant.RedisCacheConstant.LOGIN_PREFIX;
 import static org.ylan.common.convention.enums.UserErrorCodeEnum.*;
 
 /**
@@ -46,6 +53,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
      * RedissonClient分布式锁
      */
     private final RedissonClient redissonClient;
+
+    /**
+     * StringRedisTemplate 操作redis
+     */
+    private final StringRedisTemplate stringRedisTemplate;
 
     @Override
     public UserRespDTO getUserByUsername(String username) {
@@ -130,6 +142,58 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
            throw new ClientException(USER_UPDATE_ERROR);
         }
 
+    }
+
+    @Override
+    public UserLoginRespDTO login(UserLoginReqDTO requestParam) {
+
+        // 利用布隆过滤器过滤不存在的请求，避免直接查询数据库
+        if (!hasUserByUsername(requestParam.getUsername())) {
+            // 用户登录失败,用户名或密码错误
+            throw new ClientException(USER_LOGIN_ERROR);
+        }
+
+        // 根据Redis中数据判断是否重复登陆，防止重复刷接口
+        Boolean hasLogin = stringRedisTemplate.hasKey(LOGIN_PREFIX + requestParam.getUsername());
+        if (hasLogin){
+            // 重复登陆错误
+            throw new ClientException(USER_REPEAT_LOGIN_ERROR);
+        }
+
+        // 查询数据库判断用户是否可以登陆
+        LambdaQueryWrapper<UserDO> queryWrapper = Wrappers.lambdaQuery(UserDO.class)
+                .eq(UserDO::getUsername, requestParam.getUsername())
+                .eq(UserDO::getPassword, requestParam.getPassword());
+        UserDO userDO = baseMapper.selectOne(queryWrapper);
+        if (Objects.isNull(userDO)){
+            // 用户登录失败,用户名或密码错误
+            throw new ClientException(USER_LOGIN_ERROR);
+        }
+
+        // 生成token
+        String token = UUID.randomUUID().toString();
+
+        // 存入redis
+        stringRedisTemplate.opsForHash().put(LOGIN_PREFIX + requestParam.getUsername(), token, JSON.toJSONString(userDO));
+        stringRedisTemplate.expire(LOGIN_PREFIX + requestParam.getUsername(), 30L, TimeUnit.DAYS);
+
+        return UserLoginRespDTO.builder().token(token).build();
+    }
+
+    @Override
+    public Boolean checkLogin(String username, String token) {
+        return !Objects.isNull(stringRedisTemplate.opsForHash().get(LOGIN_PREFIX + username, token));
+    }
+
+    @Override
+    public Boolean logout(String username, String token) {
+        Boolean isLogin = checkLogin(username, token);
+        if (isLogin) {
+            // 删除Redis中登陆的信息
+            stringRedisTemplate.delete(LOGIN_PREFIX + username);
+            return true;
+        }
+        throw new ClientException(USER_LOGOUT_ERROR);
     }
 
 }

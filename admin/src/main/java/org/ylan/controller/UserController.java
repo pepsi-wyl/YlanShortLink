@@ -5,9 +5,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.ylan.common.convention.result.Result;
 import org.ylan.common.convention.result.Results;
+import org.ylan.model.dto.req.UserLoginReqDTO;
 import org.ylan.model.dto.req.UserRegisterReqDTO;
 import org.ylan.model.dto.req.UserUpdateReqDTO;
 import org.ylan.model.dto.resp.UserActualRespDTO;
+import org.ylan.model.dto.resp.UserLoginRespDTO;
 import org.ylan.model.dto.resp.UserRespDTO;
 import org.ylan.service.UserService;
 
@@ -78,6 +80,30 @@ public class UserController {
     public Result<Void> update(@RequestBody UserUpdateReqDTO requestParam) {
         userService.update(requestParam);
         return Results.success();
+    }
+
+    /**
+     * 用户登录
+     */
+    @PostMapping("/user/login")
+    public Result<UserLoginRespDTO> login(@RequestBody UserLoginReqDTO requestParam) {
+        return Results.success(userService.login(requestParam));
+    }
+
+    /**
+     * 检查用户是否登录
+     */
+    @GetMapping("/user/check-login")
+    public Result<Boolean> checkLogin(@RequestParam("username") String username, @RequestParam("token") String token) {
+        return Results.success(userService.checkLogin(username, token));
+    }
+
+    /**
+     * 用户退出登录
+     */
+    @DeleteMapping("/user/logout")
+    public Result<Boolean> logout(@RequestParam("username") String username, @RequestParam("token") String token) {
+        return Results.success(userService.logout(username, token));
     }
 
 }
