@@ -191,6 +191,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
         if (isLogin) {
             // 删除Redis中登陆的信息
             stringRedisTemplate.delete(LOGIN_PREFIX + username);
+            // 设置注销时间戳
+            LambdaUpdateWrapper<UserDO> updateWrapper =
+                    Wrappers.lambdaUpdate(UserDO.class).eq(UserDO::getUsername, username);
+            int update = baseMapper.update(UserDO.builder().deletionTime(System.currentTimeMillis()).build(), updateWrapper);
+            if (update < 0){
+                throw new ClientException(USER_LOGOUT_ERROR);
+            }
             return true;
         }
         throw new ClientException(USER_LOGOUT_ERROR);

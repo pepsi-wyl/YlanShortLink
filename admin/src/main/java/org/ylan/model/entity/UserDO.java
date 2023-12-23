@@ -1,7 +1,10 @@
 package org.ylan.model.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.ylan.common.database.BaseDO;
 
 /**
@@ -11,6 +14,9 @@ import org.ylan.common.database.BaseDO;
  */
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @TableName("t_user")
 public class UserDO extends BaseDO {
 
