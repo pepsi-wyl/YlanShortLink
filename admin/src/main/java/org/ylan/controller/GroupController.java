@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import org.ylan.common.convention.result.Result;
 import org.ylan.common.convention.result.Results;
 import org.ylan.model.dto.req.GroupSaveReqDTO;
+import org.ylan.model.dto.req.GroupSortReqDTO;
 import org.ylan.model.dto.req.GroupUpdateReqDTO;
 import org.ylan.model.dto.resp.GroupRespDTO;
 import org.ylan.service.GroupService;
@@ -59,4 +60,11 @@ public class GroupController {
         return Results.success(groupService.deleteGroup(gid));
     }
 
+    /**
+     * 短链接分组排序
+     */
+    @PostMapping("/group/sort")
+    public Result<Boolean> sortGroup(@RequestBody List<GroupSortReqDTO> requestParam) {
+        return Results.success(groupService.sortGroup(requestParam));
+    }
 }

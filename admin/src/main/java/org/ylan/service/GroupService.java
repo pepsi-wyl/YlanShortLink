@@ -2,6 +2,7 @@ package org.ylan.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.ylan.model.dto.req.GroupSaveReqDTO;
+import org.ylan.model.dto.req.GroupSortReqDTO;
 import org.ylan.model.dto.req.GroupUpdateReqDTO;
 import org.ylan.model.dto.resp.GroupRespDTO;
 import org.ylan.model.entity.GroupDO;
@@ -45,4 +46,11 @@ public interface GroupService extends IService<GroupDO> {
      * @param gid 短链接分组标识
      */
     Boolean deleteGroup(String gid);
+
+    /**
+     * 短链接分组排序
+     *
+     * @param requestParam 短链接分组排序参数
+     */
+    Boolean sortGroup(List<GroupSortReqDTO> requestParam);
 }

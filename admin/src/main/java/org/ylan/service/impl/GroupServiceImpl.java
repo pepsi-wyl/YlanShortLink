@@ -12,6 +12,7 @@ import org.ylan.common.bit.user.UserContext;
 import org.ylan.common.convention.exception.ClientException;
 import org.ylan.mapper.GroupMapper;
 import org.ylan.model.dto.req.GroupSaveReqDTO;
+import org.ylan.model.dto.req.GroupSortReqDTO;
 import org.ylan.model.dto.req.GroupUpdateReqDTO;
 import org.ylan.model.dto.resp.GroupRespDTO;
 import org.ylan.model.entity.GroupDO;
@@ -103,6 +104,22 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
                 .eq(GroupDO::getUsername, UserContext.getUsername())
                 .eq(GroupDO::getGid, gid);
         baseMapper.delete(updateWrapper);
+        return true;
+    }
+
+    @Override
+    public Boolean sortGroup(List<GroupSortReqDTO> requestParam) {
+        requestParam.forEach(groupSortReqDTO -> {
+            // 更新之后的sort值
+            GroupDO groupDO = GroupDO.builder()
+                    .sortOrder(groupSortReqDTO.getSortOrder())
+                    .build();
+            // 更新条件 username gid
+            LambdaUpdateWrapper<GroupDO> updateWrapper = Wrappers.lambdaUpdate(GroupDO.class)
+                    .eq(GroupDO::getUsername, UserContext.getUsername())
+                    .eq(GroupDO::getGid, groupSortReqDTO.getGid());
+            baseMapper.update(groupDO, updateWrapper);
+        });
         return true;
     }
 
