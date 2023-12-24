@@ -196,7 +196,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
                     Wrappers.lambdaUpdate(UserDO.class).eq(UserDO::getUsername, username);
             int update = baseMapper.update(UserDO.builder().deletionTime(System.currentTimeMillis()).build(), updateWrapper);
             if (update < 0){
-                throw new ClientException(USER_LOGOUT_ERROR);
+                throw new ClientException(USER_LOGOUT_UPDATE_ERROR);
             }
             return true;
         }
