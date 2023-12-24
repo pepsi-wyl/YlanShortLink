@@ -19,6 +19,7 @@ import org.ylan.utils.RandomGeneratorUtils;
 import java.util.List;
 import java.util.Objects;
 
+import static org.ylan.common.convention.enums.GroupErrorCodeEnum.GROUP_NAME_EXISTS_ERROR;
 import static org.ylan.common.convention.enums.GroupErrorCodeEnum.GROUP_SAVE_ERROR;
 
 /**
@@ -35,13 +36,16 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
     @Override
     public Boolean saveGroup(GroupSaveReqDTO requestParam) {
 
-        // todo 查询该用户下是否存在给name的分组
+        // 判断分组名称是否重复
+        if (hasName(UserContext.getUsername(),requestParam.getName())){
+            throw new ClientException(GROUP_NAME_EXISTS_ERROR);
+        }
 
         // 生成不可重复的gid
         String gid = null;
         do {
             gid = RandomGeneratorUtils.generateRandom();
-        }while (hasGid(null, gid));
+        }while (hasGid(UserContext.getUsername(), gid));
 
         GroupDO groupDO = GroupDO.builder()
                 .gid(gid)
@@ -70,6 +74,21 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
     }
 
     /**
+     * 判断分组name是否存在
+     *
+     * @param username
+     * @param name
+     * @return
+     */
+    private boolean hasName(String username, String name){
+        LambdaQueryWrapper<GroupDO> queryWrapper =
+                Wrappers.lambdaQuery(GroupDO.class)
+                        .eq(GroupDO::getName, name)
+                        .eq(GroupDO::getUsername,username);
+        return !Objects.isNull(baseMapper.selectOne(queryWrapper));
+    }
+
+    /**
      * 判断分组gid是否存在
      *
      * @param username
@@ -80,7 +99,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
         LambdaQueryWrapper<GroupDO> queryWrapper =
                 Wrappers.lambdaQuery(GroupDO.class)
                         .eq(GroupDO::getGid, gid)
-                        .eq(GroupDO::getUsername,null);
+                        .eq(GroupDO::getUsername,username);
         return !Objects.isNull(baseMapper.selectOne(queryWrapper));
     }
 

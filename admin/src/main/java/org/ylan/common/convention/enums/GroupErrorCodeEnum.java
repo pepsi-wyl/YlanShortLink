@@ -10,7 +10,9 @@ import org.ylan.common.convention.errorcode.IErrorCode;
 
 public enum GroupErrorCodeEnum implements IErrorCode {
 
-    GROUP_SAVE_ERROR("B000301","分组记录新增失败");
+    GROUP_SAVE_ERROR("B000301","分组记录新增失败"),
+
+    GROUP_NAME_EXISTS_ERROR("B000302","分组名称已存在");
 
     private final String code;
 
