@@ -14,6 +14,7 @@ import org.redisson.api.RedissonClient;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+import org.ylan.common.bit.user.UserContext;
 import org.ylan.common.convention.enums.UserErrorCodeEnum;
 import org.ylan.common.convention.exception.ClientException;
 import org.ylan.mapper.UserMapper;
@@ -126,7 +127,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
     @Override
     public void update(UserUpdateReqDTO requestParam) {
 
-        // TODO 验证当前用户名是否为登录用户
+        //  校验用户是否为当前登录用户
+        if (!Objects.equals(UserContext.getUsername(), requestParam.getUsername())){
+            throw new ClientException(USER_NOT_LOGIN_ERROR);
+        }
 
         // 利用布隆过滤器过滤不存在的请求，避免直接查询数据库
         if (!hasUserByUsername(requestParam.getUsername())) {
