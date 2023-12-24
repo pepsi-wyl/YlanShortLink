@@ -155,7 +155,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
 
         // 根据Redis中数据判断是否重复登陆，防止重复刷接口
         Boolean hasLogin = stringRedisTemplate.hasKey(LOGIN_PREFIX + requestParam.getUsername());
-        if (hasLogin){
+        if (hasLogin != null && hasLogin){
             // 重复登陆错误
             throw new ClientException(USER_REPEAT_LOGIN_ERROR);
         }
