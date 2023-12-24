@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import org.ylan.common.convention.result.Result;
 import org.ylan.common.convention.result.Results;
 import org.ylan.model.dto.req.GroupSaveReqDTO;
+import org.ylan.model.dto.req.GroupUpdateReqDTO;
 import org.ylan.model.dto.resp.GroupRespDTO;
 import org.ylan.service.GroupService;
 
@@ -40,6 +41,14 @@ public class GroupController {
     @GetMapping("/group")
     public Result<List<GroupRespDTO>> listGroup(){
         return Results.success(groupService.listGroup());
+    }
+
+    /**
+     * 修改短链接分组
+     */
+    @PutMapping("/group")
+    public Result<Boolean> updateGroup(@RequestBody GroupUpdateReqDTO requestParam){
+        return Results.success(groupService.updateGroup(requestParam));
     }
 
 }

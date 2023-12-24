@@ -2,6 +2,7 @@ package org.ylan.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +12,7 @@ import org.ylan.common.bit.user.UserContext;
 import org.ylan.common.convention.exception.ClientException;
 import org.ylan.mapper.GroupMapper;
 import org.ylan.model.dto.req.GroupSaveReqDTO;
+import org.ylan.model.dto.req.GroupUpdateReqDTO;
 import org.ylan.model.dto.resp.GroupRespDTO;
 import org.ylan.model.entity.GroupDO;
 import org.ylan.service.GroupService;
@@ -71,6 +73,27 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
                 .orderByDesc(GroupDO::getSortOrder, GroupDO::getUpdateTime);
         List<GroupDO> groupDOList = baseMapper.selectList(queryWrapper);
         return BeanUtil.copyToList(groupDOList, GroupRespDTO.class);
+    }
+
+    @Override
+    public Boolean updateGroup(GroupUpdateReqDTO requestParam) {
+
+        // 判断分组名称是否重复
+        if (hasName(UserContext.getUsername(),requestParam.getName())){
+            throw new ClientException(GROUP_NAME_EXISTS_ERROR);
+        }
+
+        // 更新条件 username name
+        LambdaUpdateWrapper<GroupDO> updateWrapper = Wrappers.lambdaUpdate(GroupDO.class)
+                .eq(GroupDO::getUsername, UserContext.getUsername())
+                .eq(GroupDO::getGid, requestParam.getGid());
+        // 更新的分组名称
+        GroupDO groupDO = GroupDO.builder()
+                .name(requestParam.getName())
+                .build();
+
+        baseMapper.update(groupDO, updateWrapper);
+        return true;
     }
 
     /**
