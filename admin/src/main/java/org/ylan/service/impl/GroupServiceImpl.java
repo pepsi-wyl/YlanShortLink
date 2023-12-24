@@ -1,5 +1,6 @@
 package org.ylan.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -9,10 +10,12 @@ import org.springframework.stereotype.Service;
 import org.ylan.common.convention.exception.ClientException;
 import org.ylan.mapper.GroupMapper;
 import org.ylan.model.dto.req.GroupSaveReqDTO;
+import org.ylan.model.dto.resp.GroupRespDTO;
 import org.ylan.model.entity.GroupDO;
 import org.ylan.service.GroupService;
 import org.ylan.utils.RandomGeneratorUtils;
 
+import java.util.List;
 import java.util.Objects;
 
 import static org.ylan.common.convention.enums.GroupErrorCodeEnum.GROUP_SAVE_ERROR;
@@ -53,6 +56,18 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
         }
 
         return true;
+    }
+
+    @Override
+    public List<GroupRespDTO> listGroup() {
+        // todo 获取当前用户名
+
+        // 查询该用户下的所有分组
+        LambdaQueryWrapper<GroupDO> queryWrapper = Wrappers.lambdaQuery(GroupDO.class)
+                .eq(GroupDO::getUsername, "ylan")
+                .orderByDesc(GroupDO::getSortOrder, GroupDO::getUpdateTime);
+        List<GroupDO> groupDOList = baseMapper.selectList(queryWrapper);
+        return BeanUtil.copyToList(groupDOList, GroupRespDTO.class);
     }
 
     /**

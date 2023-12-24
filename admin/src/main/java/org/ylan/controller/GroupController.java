@@ -1,14 +1,14 @@
 package org.ylan.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.ylan.common.convention.result.Result;
 import org.ylan.common.convention.result.Results;
 import org.ylan.model.dto.req.GroupSaveReqDTO;
+import org.ylan.model.dto.resp.GroupRespDTO;
 import org.ylan.service.GroupService;
+
+import java.util.List;
 
 /**
  * 短链接分组控制器
@@ -32,6 +32,14 @@ public class GroupController {
     @PostMapping("/group")
     public Result<Boolean> saveGroup(@RequestBody GroupSaveReqDTO requestParam){
         return Results.success(groupService.saveGroup(requestParam));
+    }
+
+    /**
+     * 查询用户短链接分组集合
+     */
+    @GetMapping("/group")
+    public Result<List<GroupRespDTO>> listGroup(){
+        return Results.success(groupService.listGroup());
     }
 
 }
