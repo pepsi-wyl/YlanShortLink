@@ -83,7 +83,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
             throw new ClientException(GROUP_NAME_EXISTS_ERROR);
         }
 
-        // 更新条件 username name
+        // 更新条件 username gid
         LambdaUpdateWrapper<GroupDO> updateWrapper = Wrappers.lambdaUpdate(GroupDO.class)
                 .eq(GroupDO::getUsername, UserContext.getUsername())
                 .eq(GroupDO::getGid, requestParam.getGid());
@@ -93,6 +93,16 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
                 .build();
 
         baseMapper.update(groupDO, updateWrapper);
+        return true;
+    }
+
+    @Override
+    public Boolean deleteGroup(String gid) {
+        // 删除条件 username gid
+        LambdaUpdateWrapper<GroupDO> updateWrapper = Wrappers.lambdaUpdate(GroupDO.class)
+                .eq(GroupDO::getUsername, UserContext.getUsername())
+                .eq(GroupDO::getGid, gid);
+        baseMapper.delete(updateWrapper);
         return true;
     }
 

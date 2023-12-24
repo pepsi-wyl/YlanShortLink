@@ -38,4 +38,11 @@ public interface GroupService extends IService<GroupDO> {
      * @return 成功返回True 失败抛异常
      */
     Boolean updateGroup(GroupUpdateReqDTO requestParam);
+
+    /**
+     * 删除短链接分组
+     *
+     * @param gid 短链接分组标识
+     */
+    Boolean deleteGroup(String gid);
 }
