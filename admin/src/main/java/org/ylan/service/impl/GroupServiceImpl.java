@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.ylan.common.bit.user.UserContext;
 import org.ylan.common.convention.exception.ClientException;
 import org.ylan.mapper.GroupMapper;
 import org.ylan.model.dto.req.GroupSaveReqDTO;
@@ -45,7 +46,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
         GroupDO groupDO = GroupDO.builder()
                 .gid(gid)
                 .sortOrder(0)
-                .username(null)
+                .username(UserContext.getUsername())
                 .name(requestParam.getName())
                 .build();
 
@@ -60,11 +61,9 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
 
     @Override
     public List<GroupRespDTO> listGroup() {
-        // todo 获取当前用户名
-
         // 查询该用户下的所有分组
         LambdaQueryWrapper<GroupDO> queryWrapper = Wrappers.lambdaQuery(GroupDO.class)
-                .eq(GroupDO::getUsername, "ylan")
+                .eq(GroupDO::getUsername, UserContext.getUsername())
                 .orderByDesc(GroupDO::getSortOrder, GroupDO::getUpdateTime);
         List<GroupDO> groupDOList = baseMapper.selectList(queryWrapper);
         return BeanUtil.copyToList(groupDOList, GroupRespDTO.class);
