@@ -22,6 +22,7 @@ import org.ylan.service.ShortLinkService;
 import org.ylan.utils.HashUtils;
 
 import java.util.Objects;
+import java.util.UUID;
 
 import static org.ylan.common.convention.enums.ShortLinkErrorCodeEnum.*;
 
@@ -72,7 +73,7 @@ public class ShrotLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
         } catch (DuplicateKeyException ex) {
             // 完整短链接重复错误
             if (!Objects.isNull(baseMapper.selectOne(Wrappers.lambdaQuery(ShortLinkDO.class).eq(ShortLinkDO::getFullShortUrl, fullShortUrl)))) {
-                log.error("短链接：{} 重复入库", fullShortUrl);
+                log.error("短链接：{} 重复入库，ex：{}", fullShortUrl,ex.getMessage());
                 throw new ServiceException(SHORT_LINK_GENERATE_REPEAT_ERROR);
             }
         }
@@ -101,9 +102,9 @@ public class ShrotLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                 throw new ServiceException(SHORT_LINK_GENERATE_ERROR);
             }
 
-            // 生成短链接后缀 原始链接 加入 时间戳(随机盐) 之后去调用 短链接生产算法 防止重复
-            shortUri = HashUtils.hashToBase62(StrBuilder.create(requestParam.getOriginUrl()).append(System.currentTimeMillis()).toString());
-
+            // 生成短链接后缀 原始链接 加入 时间戳(随机盐) 之后去调用 短链接生产算法 防止重复 <去除时间戳，因为在高并发情况下，时间戳可能重复，以至于短链接重复>
+            // 生成短链接后缀 原始链接 加入 UUID(随机盐) 之后去调用 短链接生产算法 防止重复
+            shortUri = HashUtils.hashToBase62(StrBuilder.create(requestParam.getOriginUrl()).append(UUID.randomUUID()).toString());
             // 完整短链接
             String fullShortUrl = StrBuilder.create(requestParam.getDomain())
                     .append("/")
