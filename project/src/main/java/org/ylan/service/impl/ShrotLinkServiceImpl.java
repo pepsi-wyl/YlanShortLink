@@ -1,6 +1,9 @@
 package org.ylan.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.text.StrBuilder;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +14,9 @@ import org.springframework.stereotype.Service;
 import org.ylan.common.convention.exception.ServiceException;
 import org.ylan.mapper.ShortLinkMapper;
 import org.ylan.model.dto.req.ShortLinkCreateReqDTO;
+import org.ylan.model.dto.req.ShortLinkPageReqDTO;
 import org.ylan.model.dto.resp.ShortLinkCreateRespDTO;
+import org.ylan.model.dto.resp.ShortLinkPageRespDTO;
 import org.ylan.model.entity.ShortLinkDO;
 import org.ylan.service.ShortLinkService;
 import org.ylan.utils.HashUtils;
@@ -110,6 +115,20 @@ public class ShrotLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                 return shortUri;
             }
         }
+    }
+
+    @Override
+    public IPage<ShortLinkPageRespDTO> pageShortLink(ShortLinkPageReqDTO requestParam) {
+        // 查询条件
+        LambdaQueryWrapper<ShortLinkDO> queryWrapper = Wrappers.lambdaQuery(ShortLinkDO.class)
+                .eq(ShortLinkDO::getGid, requestParam.getGid()) // gid
+                .eq(ShortLinkDO::getEnableStatus, 0)       // 启用
+                .orderByDesc(ShortLinkDO::getCreateTime);       // 创建时间降序排列
+        // 查询page
+        IPage<ShortLinkDO> resultPage = baseMapper.selectPage(requestParam, queryWrapper);
+
+        // page记录类型转化
+        return resultPage.convert((shortLinkDO)->BeanUtil.toBean(shortLinkDO, ShortLinkPageRespDTO.class));
     }
 
 }
