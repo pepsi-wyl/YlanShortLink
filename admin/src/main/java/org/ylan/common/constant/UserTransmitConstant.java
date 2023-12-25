@@ -19,4 +19,8 @@ public class UserTransmitConstant {
             "/api/short-link/admin/v1/user/login",
             "/api/short-link/admin/v1/user/has-username"
     );
+
+    public static final String REGISTER_API = "/api/short-link/admin/v1/user";
+
+    public static final String REGISTER_API_METHOD = "POST";
 }

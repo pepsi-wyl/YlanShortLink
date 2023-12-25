@@ -40,12 +40,12 @@ public class UserTransmitFilter implements Filter {
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
         String requestURI = httpServletRequest.getRequestURI();
+        String method = httpServletRequest.getMethod();
 
         // 过滤不需要token的uri
         if (!IGNORE_URI.contains(requestURI)) {
-            String method = httpServletRequest.getMethod();
-
-            if (!(Objects.equals(requestURI, "/api/short-link/admin/v1/user") && Objects.equals(method, "POST"))) {
+            // 过滤注册接口
+            if (!(Objects.equals(REGISTER_API, requestURI) && Objects.equals(REGISTER_API_METHOD, method))) {
 
                 // 获取请求中的 username 和 token
                 String username = httpServletRequest.getHeader(USER_NAME);
