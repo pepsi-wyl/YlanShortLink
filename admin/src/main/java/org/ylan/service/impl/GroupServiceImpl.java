@@ -10,17 +10,21 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.ylan.common.bit.user.UserContext;
 import org.ylan.common.convention.exception.ClientException;
+import org.ylan.common.convention.result.Result;
 import org.ylan.mapper.GroupMapper;
 import org.ylan.model.dto.req.GroupSaveReqDTO;
 import org.ylan.model.dto.req.GroupSortReqDTO;
 import org.ylan.model.dto.req.GroupUpdateReqDTO;
 import org.ylan.model.dto.resp.GroupRespDTO;
 import org.ylan.model.entity.GroupDO;
+import org.ylan.remote.dto.ShortLinkRemoteService;
+import org.ylan.remote.dto.resp.GroupCountQueryRespDTO;
 import org.ylan.service.GroupService;
 import org.ylan.utils.RandomGeneratorUtils;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import static org.ylan.common.convention.enums.GroupErrorCodeEnum.GROUP_NAME_EXISTS_ERROR;
 import static org.ylan.common.convention.enums.GroupErrorCodeEnum.GROUP_SAVE_ERROR;
@@ -35,6 +39,11 @@ import static org.ylan.common.convention.enums.GroupErrorCodeEnum.GROUP_SAVE_ERR
 @Service
 @RequiredArgsConstructor
 public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implements GroupService {
+
+    /**
+     * 短链接中台服务
+     */
+    private final ShortLinkRemoteService shortLinkRemoteService;
 
     @Override
     public Boolean saveGroup(GroupSaveReqDTO requestParam) {
@@ -73,7 +82,17 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
                 .eq(GroupDO::getUsername, UserContext.getUsername())
                 .orderByDesc(GroupDO::getSortOrder, GroupDO::getUpdateTime);
         List<GroupDO> groupDOList = baseMapper.selectList(queryWrapper);
-        return BeanUtil.copyToList(groupDOList, GroupRespDTO.class);
+        // 查询每个分组下的短链数量
+        Result<List<GroupCountQueryRespDTO>> listResult = shortLinkRemoteService.listGroupShortLinkCount(groupDOList.stream().map(GroupDO::getGid).toList());
+        // 进行链接数量设置
+        List<GroupRespDTO> groupRespDTOList = BeanUtil.copyToList(groupDOList, GroupRespDTO.class);
+        groupRespDTOList.forEach(groupRespDTO -> {
+            Optional<GroupCountQueryRespDTO> first = listResult.getData().stream()
+                    .filter(groupCountQueryRespDTO -> Objects.equals(groupCountQueryRespDTO.getGid(), groupRespDTO.getGid()))
+                    .findFirst();
+            first.ifPresent(item -> groupRespDTO.setShortLinkCount(first.get().getShortLinkCount()));
+        });
+        return groupRespDTOList;
     }
 
     @Override

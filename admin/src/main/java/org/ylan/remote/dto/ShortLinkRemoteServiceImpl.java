@@ -10,10 +10,12 @@ import org.springframework.stereotype.Service;
 import org.ylan.common.convention.result.Result;
 import org.ylan.remote.dto.req.ShortLinkCreateReqDTO;
 import org.ylan.remote.dto.req.ShortLinkPageReqDTO;
+import org.ylan.remote.dto.resp.GroupCountQueryRespDTO;
 import org.ylan.remote.dto.resp.ShortLinkCreateRespDTO;
 import org.ylan.remote.dto.resp.ShortLinkPageRespDTO;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -53,6 +55,17 @@ public class ShortLinkRemoteServiceImpl implements ShortLinkRemoteService{
         // 发送请求
         String resultBodyStr = HttpUtil.get(HOST + "/api/short-link/v1/page", requestMap);
         log.info("【 分页查询短链接 】 【 {} 】", resultBodyStr);
+        // 转化响应
+        return JSON.parseObject(resultBodyStr, new TypeReference<>() {});
+    }
+
+    @Override
+    public Result<List<GroupCountQueryRespDTO>> listGroupShortLinkCount(List<String> requestParam) {
+        // 封装请求参数
+        Map<String, Object> requestMap = new HashMap<>();
+        requestMap.put("requestParam", requestParam);
+        // 发送请求
+        String resultBodyStr = HttpUtil.get(HOST + "/api/short-link/v1/group/count", requestMap);
         // 转化响应
         return JSON.parseObject(resultBodyStr, new TypeReference<>() {});
     }
