@@ -3,6 +3,7 @@ package org.ylan.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.text.StrBuilder;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -16,11 +17,14 @@ import org.ylan.mapper.ShortLinkMapper;
 import org.ylan.model.dto.req.ShortLinkCreateReqDTO;
 import org.ylan.model.dto.req.ShortLinkPageReqDTO;
 import org.ylan.model.dto.resp.ShortLinkCreateRespDTO;
+import org.ylan.model.dto.resp.ShortLinkGroupCountQueryRespDTO;
 import org.ylan.model.dto.resp.ShortLinkPageRespDTO;
 import org.ylan.model.entity.ShortLinkDO;
 import org.ylan.service.ShortLinkService;
 import org.ylan.utils.HashUtils;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -130,6 +134,20 @@ public class ShrotLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
 
         // page记录类型转化
         return resultPage.convert((shortLinkDO)->BeanUtil.toBean(shortLinkDO, ShortLinkPageRespDTO.class));
+    }
+
+    @Override
+    public List<ShortLinkGroupCountQueryRespDTO> listGroupShortLinkCount(List<String> requestParam) {
+        // 查询条件
+        QueryWrapper<ShortLinkDO> queryWrapper = Wrappers.query(new ShortLinkDO())
+                .select("gid as gid, count(*) as shortLinkCount")
+                .in("gid", requestParam)
+                .eq("enable_status", 0)
+                .groupBy("gid");
+        // 查询记录
+        List<Map<String, Object>> shortLinkDOList = baseMapper.selectMaps(queryWrapper);
+        // 返回数据
+        return BeanUtil.copyToList(shortLinkDOList, ShortLinkGroupCountQueryRespDTO.class);
     }
 
 }

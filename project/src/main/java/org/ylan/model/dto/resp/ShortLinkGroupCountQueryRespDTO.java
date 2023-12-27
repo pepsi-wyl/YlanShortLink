@@ -1,0 +1,28 @@
+package org.ylan.model.dto.resp;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+/**
+ * 查询短链接分组内链接数量响应DTO
+ */
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+public class ShortLinkGroupCountQueryRespDTO {
+
+    /**
+     * 分组标识
+     */
+    private String gid;
+
+    /**
+     * 短链接数量
+     */
+    private Integer shortLinkCount;
+
+}

@@ -9,8 +9,11 @@ import org.ylan.common.convention.result.Results;
 import org.ylan.model.dto.req.ShortLinkCreateReqDTO;
 import org.ylan.model.dto.req.ShortLinkPageReqDTO;
 import org.ylan.model.dto.resp.ShortLinkCreateRespDTO;
+import org.ylan.model.dto.resp.ShortLinkGroupCountQueryRespDTO;
 import org.ylan.model.dto.resp.ShortLinkPageRespDTO;
 import org.ylan.service.ShortLinkService;
+
+import java.util.List;
 
 /**
  * 短链接控制器
@@ -43,6 +46,14 @@ public class ShortLinkController {
     @GetMapping("/api/short-link/v1/page")
     public Result<IPage<ShortLinkPageRespDTO>> pageShortLink(ShortLinkPageReqDTO requestParam) {
         return Results.success(shortLinkService.pageShortLink(requestParam));
+    }
+
+    /**
+     * 查询短链接分组内链接数量
+     */
+    @GetMapping("/api/short-link/v1/group/count")
+    public Result<List<ShortLinkGroupCountQueryRespDTO>> listGroupShortLinkCount(@RequestParam("requestParam") List<String> requestParam){
+        return Results.success(shortLinkService.listGroupShortLinkCount(requestParam));
     }
 
 }
