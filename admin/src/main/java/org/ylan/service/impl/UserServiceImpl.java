@@ -18,12 +18,14 @@ import org.ylan.common.bit.user.UserContext;
 import org.ylan.common.convention.enums.UserErrorCodeEnum;
 import org.ylan.common.convention.exception.ClientException;
 import org.ylan.mapper.UserMapper;
+import org.ylan.model.dto.req.GroupSaveReqDTO;
 import org.ylan.model.dto.req.UserLoginReqDTO;
 import org.ylan.model.dto.req.UserRegisterReqDTO;
 import org.ylan.model.dto.req.UserUpdateReqDTO;
 import org.ylan.model.dto.resp.UserLoginRespDTO;
 import org.ylan.model.dto.resp.UserRespDTO;
 import org.ylan.model.entity.UserDO;
+import org.ylan.service.GroupService;
 import org.ylan.service.UserService;
 
 import java.util.Objects;
@@ -49,6 +51,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
      * 防止用户注册查询数据库的布隆过滤器
      */
     private final RBloomFilter<String> userRegisterCachePenetrationBloomFilter;
+
+    /**
+     * 短链接分组服务
+     */
+    private final GroupService groupService;
 
     /**
      * RedissonClient分布式锁
@@ -110,6 +117,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
 
                 // 用户数据插入布隆过滤器
                 userRegisterCachePenetrationBloomFilter.add(requestParam.getUsername());
+                // 用户创建默认分组
+                groupService.saveGroup(requestParam.getUsername(),GroupSaveReqDTO.builder().name("默认分组").build());
             } catch (DuplicateKeyException ex) {
                 //  用户名重复抛出业务异常 数据库层username设置为唯一索引
                 throw new ClientException(USER_EXIST);

@@ -47,9 +47,13 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
 
     @Override
     public Boolean saveGroup(GroupSaveReqDTO requestParam) {
+         return saveGroup(UserContext.getUsername(),requestParam);
+    }
 
+    @Override
+    public Boolean saveGroup(String username, GroupSaveReqDTO requestParam) {
         // 判断分组名称是否重复
-        if (hasName(UserContext.getUsername(),requestParam.getName())){
+        if (hasName(username, requestParam.getName())){
             throw new ClientException(GROUP_NAME_EXISTS_ERROR);
         }
 
@@ -57,12 +61,12 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
         String gid = null;
         do {
             gid = RandomGeneratorUtils.generateRandom();
-        }while (hasGid(UserContext.getUsername(), gid));
+        }while (hasGid(username, gid));
 
         GroupDO groupDO = GroupDO.builder()
                 .gid(gid)
                 .sortOrder(0)
-                .username(UserContext.getUsername())
+                .username(username)
                 .name(requestParam.getName())
                 .build();
 

@@ -26,6 +26,15 @@ public interface GroupService extends IService<GroupDO> {
     Boolean saveGroup(GroupSaveReqDTO requestParam);
 
     /**
+     * 新增短链接分组
+     *
+     * @param username  用户名
+     * @param requestParam 短链接分组创建参数
+     * @return 成功返回True 失败抛异常
+     */
+    Boolean saveGroup(String username, GroupSaveReqDTO requestParam);
+
+    /**
      * 查询用户短链接分组集合
      *
      * @return 用户短链接分组集合

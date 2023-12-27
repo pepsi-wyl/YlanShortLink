@@ -1,6 +1,9 @@
 package org.ylan.model.dto.req;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * 短链接分组创建参数
@@ -9,6 +12,9 @@ import lombok.Data;
  */
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class GroupSaveReqDTO {
 
     /**
