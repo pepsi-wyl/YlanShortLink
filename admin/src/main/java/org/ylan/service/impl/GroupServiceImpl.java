@@ -122,6 +122,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
 
     @Override
     public Boolean deleteGroup(String gid) {
+        // todo 删除分组 如果下面有链接 则不能删除
         // 删除条件 username gid
         LambdaUpdateWrapper<GroupDO> updateWrapper = Wrappers.lambdaUpdate(GroupDO.class)
                 .eq(GroupDO::getUsername, UserContext.getUsername())
