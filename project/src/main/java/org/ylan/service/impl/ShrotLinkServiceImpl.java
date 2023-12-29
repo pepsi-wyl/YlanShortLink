@@ -7,12 +7,17 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RBloomFilter;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.ylan.common.convention.exception.ServiceException;
+import org.ylan.mapper.ShortLinkGotoMapper;
 import org.ylan.mapper.ShortLinkMapper;
 import org.ylan.model.dto.req.ShortLinkCreateReqDTO;
 import org.ylan.model.dto.req.ShortLinkPageReqDTO;
@@ -20,14 +25,18 @@ import org.ylan.model.dto.resp.ShortLinkCreateRespDTO;
 import org.ylan.model.dto.resp.ShortLinkGroupCountQueryRespDTO;
 import org.ylan.model.dto.resp.ShortLinkPageRespDTO;
 import org.ylan.model.entity.ShortLinkDO;
+import org.ylan.model.entity.ShortLinkGotoDO;
 import org.ylan.service.ShortLinkService;
 import org.ylan.utils.HashUtils;
+import org.ylan.utils.NetUtils;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
+import static org.ylan.common.constant.NetConstant.HTTP;
+import static org.ylan.common.constant.NetConstant.URL_SPLIT;
 import static org.ylan.common.convention.enums.ShortLinkErrorCodeEnum.*;
 
 /**
@@ -46,13 +55,27 @@ public class ShrotLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
      */
     private final RBloomFilter<String> shortUriCreateCachePenetrationBloomFilter;
 
+    /**
+     * 短链接跳转持久层
+     */
+    private final ShortLinkGotoMapper shortLinkGotoMapper;
+
+    @SneakyThrows
+    @Override
+    public void restoreUrl(String shortUri, ServletRequest request, ServletResponse response) {
+
+
+
+    }
+
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public ShortLinkCreateRespDTO createShortLink(ShortLinkCreateReqDTO requestParam) {
 
         // 生成的短链接url后缀
         String shortUri = generateSuffix(requestParam);
         // 生成的短链接url
-        String fullShortUrl = StrBuilder.create(requestParam.getDomain()).append("/").append(shortUri).toString();
+        String fullShortUrl = StrBuilder.create(NetUtils.removalProtocol(requestParam.getDomain())).append(URL_SPLIT).append(shortUri).toString();
 
         // 短链接实体数据
         ShortLinkDO shortLinkDO = ShortLinkDO.builder()
@@ -67,12 +90,21 @@ public class ShrotLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                 .describe(requestParam.getDescribe())
                 .enableStatus(0)
                 .build();
-
+        // 短链接跳转实体
+        ShortLinkGotoDO shortLinkGotoDO = ShortLinkGotoDO.builder()
+                .gid(requestParam.getGid())
+                .fullShortUrl(fullShortUrl)
+                .build();
         try {
             // 插入短链接实体数据
             int insert = baseMapper.insert(shortLinkDO);
             if (insert < 1){
                 throw new ServiceException(SHORT_LINK_SAVE_ERROR);
+            }
+            // 插入短链接跳转实体数据
+            int insertShortLinkGoTo = shortLinkGotoMapper.insert(shortLinkGotoDO);
+            if (insertShortLinkGoTo < 1){
+                throw new ServiceException(SHORT_LINK_GOTO_SAVE_ERROR);
             }
         } catch (DuplicateKeyException ex) {
             // 完整短链接重复错误
@@ -89,7 +121,7 @@ public class ShrotLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
         return ShortLinkCreateRespDTO.builder()
                 .gid(requestParam.getGid())
                 .originUrl(requestParam.getOriginUrl())
-                .fullShortUrl(fullShortUrl)
+                .fullShortUrl(HTTP + fullShortUrl)
                 .build();
     }
 
@@ -110,10 +142,7 @@ public class ShrotLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
             // 生成短链接后缀 原始链接 加入 UUID(随机盐) 之后去调用 短链接生产算法 防止重复
             shortUri = HashUtils.hashToBase62(StrBuilder.create(requestParam.getOriginUrl()).append(UUID.randomUUID()).toString());
             // 完整短链接
-            String fullShortUrl = StrBuilder.create(requestParam.getDomain())
-                    .append("/")
-                    .append(shortUri)
-                    .toString();
+            String fullShortUrl = StrBuilder.create(NetUtils.removalProtocol(requestParam.getDomain())).append(URL_SPLIT).append(shortUri).toString();
 
             // 完整短链接 布隆过滤器中没有则直接返回
             if (!shortUriCreateCachePenetrationBloomFilter.contains(fullShortUrl)) {
@@ -133,7 +162,11 @@ public class ShrotLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
         IPage<ShortLinkDO> resultPage = baseMapper.selectPage(requestParam, queryWrapper);
 
         // page记录类型转化
-        return resultPage.convert((shortLinkDO)->BeanUtil.toBean(shortLinkDO, ShortLinkPageRespDTO.class));
+        return resultPage.convert((shortLinkDO)->{
+            ShortLinkPageRespDTO bean = BeanUtil.toBean(shortLinkDO, ShortLinkPageRespDTO.class);
+            bean.setFullShortUrl(HTTP + bean.getFullShortUrl());
+            return bean;
+        });
     }
 
     @Override
