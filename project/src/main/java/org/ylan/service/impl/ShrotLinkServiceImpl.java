@@ -9,6 +9,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -64,8 +65,37 @@ public class ShrotLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
     @Override
     public void restoreUrl(String shortUri, ServletRequest request, ServletResponse response) {
 
+        String domain = request.getServerName();
+        String fullShortUrl =  domain + URL_SPLIT + shortUri;
 
 
+        boolean bLoomFilterContain = shortUriCreateCachePenetrationBloomFilter.contains(fullShortUrl);
+        if (!bLoomFilterContain){
+            return;
+        }
+
+        // 根据短链接查询GoTo路由表
+        LambdaQueryWrapper<ShortLinkGotoDO> linkGotoQueryWrapper =
+                Wrappers.lambdaQuery(ShortLinkGotoDO.class).eq(ShortLinkGotoDO::getFullShortUrl, fullShortUrl);
+        ShortLinkGotoDO shortLinkGotoDO = shortLinkGotoMapper.selectOne(linkGotoQueryWrapper);
+
+        if (Objects.isNull(shortLinkGotoDO)){
+            return;
+        }
+
+        // 查询短链接表
+        LambdaQueryWrapper<ShortLinkDO> shortLinkQueryWrapper = Wrappers.lambdaQuery(ShortLinkDO.class)
+                .eq(ShortLinkDO::getGid, shortLinkGotoDO.getGid())
+                .eq(ShortLinkDO::getFullShortUrl, fullShortUrl)
+                .eq(ShortLinkDO::getEnableStatus, 0);
+        ShortLinkDO shortLinkDO = baseMapper.selectOne(shortLinkQueryWrapper);
+
+        if (Objects.isNull(shortLinkDO)){
+            return;
+        }
+
+        // 浏览器302重定向URL
+        ((HttpServletResponse) response).sendRedirect(shortLinkDO.getOriginUrl());
     }
 
     @Transactional(rollbackFor = Exception.class)
