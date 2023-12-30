@@ -13,10 +13,15 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.redisson.api.RBloomFilter;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.ylan.common.convention.enums.VailDateTypeEnum;
 import org.ylan.common.convention.exception.ServiceException;
 import org.ylan.mapper.ShortLinkGotoMapper;
 import org.ylan.mapper.ShortLinkMapper;
@@ -29,15 +34,15 @@ import org.ylan.model.entity.ShortLinkDO;
 import org.ylan.model.entity.ShortLinkGotoDO;
 import org.ylan.service.ShortLinkService;
 import org.ylan.utils.HashUtils;
+import org.ylan.utils.LinkUtil;
 import org.ylan.utils.NetUtils;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import static org.ylan.common.constant.NetConstant.HTTP;
 import static org.ylan.common.constant.NetConstant.URL_SPLIT;
+import static org.ylan.common.constant.RedisCacheConstant.*;
 import static org.ylan.common.convention.enums.ShortLinkErrorCodeEnum.*;
 
 /**
@@ -57,6 +62,16 @@ public class ShrotLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
     private final RBloomFilter<String> shortUriCreateCachePenetrationBloomFilter;
 
     /**
+     * Redis缓存
+     */
+    private final StringRedisTemplate stringRedisTemplate;
+
+    /**
+     * Redis分布式锁
+     */
+    private final RedissonClient redissonClient;
+
+    /**
      * 短链接跳转持久层
      */
     private final ShortLinkGotoMapper shortLinkGotoMapper;
@@ -68,34 +83,82 @@ public class ShrotLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
         String domain = request.getServerName();
         String fullShortUrl =  domain + URL_SPLIT + shortUri;
 
-
+        // 利用 布隆过滤器 进行过滤 ，不存在的FullShortUrl 直接过滤 并跳转不存在
         boolean bLoomFilterContain = shortUriCreateCachePenetrationBloomFilter.contains(fullShortUrl);
         if (!bLoomFilterContain){
+            // TODO 跳转NoPage
             return;
         }
 
-        // 根据短链接查询GoTo路由表
-        LambdaQueryWrapper<ShortLinkGotoDO> linkGotoQueryWrapper =
-                Wrappers.lambdaQuery(ShortLinkGotoDO.class).eq(ShortLinkGotoDO::getFullShortUrl, fullShortUrl);
-        ShortLinkGotoDO shortLinkGotoDO = shortLinkGotoMapper.selectOne(linkGotoQueryWrapper);
-
-        if (Objects.isNull(shortLinkGotoDO)){
+        // 查询缓存 判断缓存中是否存在 要跳转的FullShortUrl，存在直接返回
+        String originalLink = stringRedisTemplate.opsForValue().get(String.format(GOTO_SHORT_LINK_KEY, fullShortUrl));
+        if (StringUtils.isNotBlank(originalLink)){
+            // 浏览器302重定向URL
+            jumpLink(request, response, fullShortUrl, originalLink);
             return;
         }
 
-        // 查询短链接表
-        LambdaQueryWrapper<ShortLinkDO> shortLinkQueryWrapper = Wrappers.lambdaQuery(ShortLinkDO.class)
-                .eq(ShortLinkDO::getGid, shortLinkGotoDO.getGid())
-                .eq(ShortLinkDO::getFullShortUrl, fullShortUrl)
-                .eq(ShortLinkDO::getEnableStatus, 0);
-        ShortLinkDO shortLinkDO = baseMapper.selectOne(shortLinkQueryWrapper);
-
-        if (Objects.isNull(shortLinkDO)){
+        // 查询缓存 判断缓存中是否存在 Null值FullShortUrl，存在直接返回，避免查询数据库 造成缓存穿透 并跳转不存在
+        String gotoIsNullShortLink = stringRedisTemplate.opsForValue().get(String.format(GOTO_IS_NULL_SHORT_LINK_KEY, fullShortUrl));
+        if (StringUtils.isNotBlank(gotoIsNullShortLink)){
+            // TODO 跳转NoPage
             return;
         }
 
-        // 浏览器302重定向URL
-        ((HttpServletResponse) response).sendRedirect(shortLinkDO.getOriginUrl());
+        // 分布式锁锁住相同FullShortUrl的请求，只能由一个去构建缓存
+        RLock lock = redissonClient.getLock(String.format(LOCK_GOTO_SHORT_LINK_KEY, fullShortUrl));
+        lock.lock();
+        try {
+            // 双重检查 检查是否有请求构建跳转的FullShortUrl缓存成功
+            originalLink = stringRedisTemplate.opsForValue().get(String.format(GOTO_SHORT_LINK_KEY, fullShortUrl));
+            if (StringUtils.isNotBlank(originalLink)){
+                // 浏览器302重定向URL
+                jumpLink(request, response, fullShortUrl, originalLink);
+                return;
+            }
+
+            // 双重检查 检查是否有请求构建构建Null值FullShortUrl缓存成功
+            gotoIsNullShortLink = stringRedisTemplate.opsForValue().get(String.format(GOTO_IS_NULL_SHORT_LINK_KEY, fullShortUrl));
+            if (StringUtils.isNotBlank(gotoIsNullShortLink)){
+                // TODO 跳转NoPage
+                return;
+            }
+
+            // 根据短链接查询GoTo路由表
+            LambdaQueryWrapper<ShortLinkGotoDO> linkGotoQueryWrapper =
+                    Wrappers.lambdaQuery(ShortLinkGotoDO.class).eq(ShortLinkGotoDO::getFullShortUrl, fullShortUrl);
+            ShortLinkGotoDO shortLinkGotoDO = shortLinkGotoMapper.selectOne(linkGotoQueryWrapper);
+            // 如果路由表中不存在则直接 构建Null值FullShortUrl 缓存 30分钟 并跳转不存在
+            if (Objects.isNull(shortLinkGotoDO)){
+                stringRedisTemplate.opsForValue().set(String.format(GOTO_IS_NULL_SHORT_LINK_KEY, fullShortUrl), "-", 30, TimeUnit.MINUTES);
+                // TODO 跳转NoPage
+                return;
+            }
+
+            // 查询短链接表
+            LambdaQueryWrapper<ShortLinkDO> shortLinkQueryWrapper = Wrappers.lambdaQuery(ShortLinkDO.class)
+                    .eq(ShortLinkDO::getGid, shortLinkGotoDO.getGid())
+                    .eq(ShortLinkDO::getFullShortUrl, fullShortUrl)
+                    .eq(ShortLinkDO::getEnableStatus, 0);
+            ShortLinkDO shortLinkDO = baseMapper.selectOne(shortLinkQueryWrapper);
+            // 如果短链接表不存在 或者 短链接有效期过期 构建Null值FullShortUrl 缓存 30分钟 并跳转不存在
+            if (Objects.isNull(shortLinkDO) || (VailDateTypeEnum.CUSTOM.getType().equals(shortLinkDO.getValidDateType()) && shortLinkDO.getValidDate().before(new Date()))){
+                stringRedisTemplate.opsForValue().set(String.format(GOTO_IS_NULL_SHORT_LINK_KEY, fullShortUrl), "-", 30, TimeUnit.MINUTES);
+                // TODO 跳转NoPage
+                return;
+            }
+
+            // 构建短链接跳转缓存 并设置有效期
+            stringRedisTemplate.opsForValue().set(String.format(GOTO_SHORT_LINK_KEY, fullShortUrl), shortLinkDO.getOriginUrl(),
+                    LinkUtil.getLinkCacheValidTime(shortLinkDO.getValidDate()), TimeUnit.MILLISECONDS
+            );
+            // 浏览器302重定向URL
+            jumpLink(request, response, fullShortUrl, shortLinkDO.getOriginUrl());
+
+        }finally {
+            lock.lock();
+        }
+
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -147,6 +210,11 @@ public class ShrotLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
         // 完整短链接 加入布隆过滤器中
         shortUriCreateCachePenetrationBloomFilter.add(fullShortUrl);
 
+        // 创建短链接时 进行缓存预热
+        stringRedisTemplate.opsForValue().set(String.format(GOTO_SHORT_LINK_KEY, fullShortUrl), shortLinkDO.getOriginUrl(),
+                LinkUtil.getLinkCacheValidTime(shortLinkDO.getValidDate()), TimeUnit.MILLISECONDS
+        );
+
         // 返回 ShortLinkCreateRespDTO 对象
         return ShortLinkCreateRespDTO.builder()
                 .gid(requestParam.getGid())
@@ -178,6 +246,25 @@ public class ShrotLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
             if (!shortUriCreateCachePenetrationBloomFilter.contains(fullShortUrl)) {
                 return shortUri;
             }
+        }
+    }
+
+    /**
+     * 短链接跳转
+     *
+     * @param request       ServletRequest
+     * @param response      ServletResponse
+     * @param fullShortUrl  完整短链接
+     * @param originalLink  原始链接
+     */
+    @SneakyThrows
+    private void jumpLink(ServletRequest request, ServletResponse response, String fullShortUrl, String originalLink){
+        try {
+            // 浏览器302重定向URL
+            ((HttpServletResponse) response).sendRedirect(originalLink);
+        }catch (Exception e){
+            log.error(fullShortUrl + " ===> " +originalLink +" 跳转失败");
+            throw new ServiceException(SHORT_LINK_JUMP_ERROR);
         }
     }
 
