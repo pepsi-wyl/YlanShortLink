@@ -23,5 +23,5 @@ public enum VailDateTypeEnum {
      */
     CUSTOM(1);
 
-    private final int type;
+    private final Integer type;
 }
