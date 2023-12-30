@@ -18,7 +18,9 @@ public enum ShortLinkErrorCodeEnum implements IErrorCode {
 
     SHORT_LINK_GENERATE_REPEAT_ERROR("B000403","短链接生成重复"),
 
-    SHORT_LINK_GOTO_SAVE_ERROR("B000404", "短链跳转接保存失败");
+    SHORT_LINK_GOTO_SAVE_ERROR("B000404", "短链跳转接保存失败"),
+
+    SHORT_LINK_JUMP_ERROR("B00405", "   短链接跳转失败");
 
     private final String code;
 
