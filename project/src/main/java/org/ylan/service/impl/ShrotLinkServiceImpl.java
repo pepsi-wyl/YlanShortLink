@@ -174,7 +174,7 @@ public class ShrotLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
         ShortLinkDO shortLinkDO = ShortLinkDO.builder()
                 .gid(requestParam.getGid())
                 .originUrl(requestParam.getOriginUrl())
-                .domain(requestParam.getDomain())
+                .domain(NetUtils.removalProtocol(requestParam.getDomain()))
                 .shortUri(shortUri)
                 .fullShortUrl(fullShortUrl)
                 .createdType(requestParam.getCreatedType())
