@@ -86,7 +86,7 @@ public class ShrotLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
         // 利用 布隆过滤器 进行过滤 ，不存在的FullShortUrl 直接过滤 并跳转不存在
         boolean bLoomFilterContain = shortUriCreateCachePenetrationBloomFilter.contains(fullShortUrl);
         if (!bLoomFilterContain){
-            // TODO 跳转NoPage
+            jumpNotFound(request, response ,fullShortUrl, null);
             return;
         }
 
@@ -101,7 +101,7 @@ public class ShrotLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
         // 查询缓存 判断缓存中是否存在 Null值FullShortUrl，存在直接返回，避免查询数据库 造成缓存穿透 并跳转不存在
         String gotoIsNullShortLink = stringRedisTemplate.opsForValue().get(String.format(GOTO_IS_NULL_SHORT_LINK_KEY, fullShortUrl));
         if (StringUtils.isNotBlank(gotoIsNullShortLink)){
-            // TODO 跳转NoPage
+            jumpNotFound(request, response ,fullShortUrl, originalLink);
             return;
         }
 
@@ -120,7 +120,7 @@ public class ShrotLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
             // 双重检查 检查是否有请求构建构建Null值FullShortUrl缓存成功
             gotoIsNullShortLink = stringRedisTemplate.opsForValue().get(String.format(GOTO_IS_NULL_SHORT_LINK_KEY, fullShortUrl));
             if (StringUtils.isNotBlank(gotoIsNullShortLink)){
-                // TODO 跳转NoPage
+                jumpNotFound(request, response ,fullShortUrl, originalLink);
                 return;
             }
 
@@ -131,7 +131,7 @@ public class ShrotLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
             // 如果路由表中不存在则直接 构建Null值FullShortUrl 缓存 30分钟 并跳转不存在
             if (Objects.isNull(shortLinkGotoDO)){
                 stringRedisTemplate.opsForValue().set(String.format(GOTO_IS_NULL_SHORT_LINK_KEY, fullShortUrl), "-", 30, TimeUnit.MINUTES);
-                // TODO 跳转NoPage
+                jumpNotFound(request, response ,fullShortUrl, originalLink);
                 return;
             }
 
@@ -144,7 +144,7 @@ public class ShrotLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
             // 如果短链接表不存在 或者 短链接有效期过期 构建Null值FullShortUrl 缓存 30分钟 并跳转不存在
             if (Objects.isNull(shortLinkDO) || (VailDateTypeEnum.CUSTOM.getType().equals(shortLinkDO.getValidDateType()) && shortLinkDO.getValidDate().before(new Date()))){
                 stringRedisTemplate.opsForValue().set(String.format(GOTO_IS_NULL_SHORT_LINK_KEY, fullShortUrl), "-", 30, TimeUnit.MINUTES);
-                // TODO 跳转NoPage
+                jumpNotFound(request, response ,fullShortUrl, originalLink);
                 return;
             }
 
@@ -265,6 +265,25 @@ public class ShrotLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
         }catch (Exception e){
             log.error(fullShortUrl + " ===> " +originalLink +" 跳转失败");
             throw new ServiceException(SHORT_LINK_JUMP_ERROR);
+        }
+    }
+
+    /**
+     * 短链接跳转失败页面
+     *
+     * @param request       ServletRequest
+     * @param response      ServletResponse
+     * @param fullShortUrl  完整短链接
+     * @param originalLink  原始链接
+     */
+    @SneakyThrows
+    private void jumpNotFound(ServletRequest request, ServletResponse response, String fullShortUrl, String originalLink){
+        ((HttpServletResponse) response).sendRedirect("/page/notfound");
+        if (StringUtils.isBlank(originalLink)){
+            log.info(fullShortUrl + " <===> " + "跳转链接失败，短链接系统中不存在");
+        }
+        else {
+            log.info(fullShortUrl + " ===> " +originalLink + "跳转链接失败，短链接系统中不存在");
         }
     }
 
