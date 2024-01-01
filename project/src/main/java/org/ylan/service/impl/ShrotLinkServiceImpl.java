@@ -160,7 +160,7 @@ public class ShrotLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
             jumpLink(request, response, fullShortUrl, shortLinkDO.getOriginUrl());
 
         }finally {
-            lock.lock();
+            lock.unlock();
         }
 
     }
