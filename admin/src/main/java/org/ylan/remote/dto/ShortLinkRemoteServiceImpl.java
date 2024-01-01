@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.ylan.common.convention.result.Result;
+import org.ylan.remote.dto.req.RecycleBinSaveReqDTO;
 import org.ylan.remote.dto.req.ShortLinkCreateReqDTO;
 import org.ylan.remote.dto.req.ShortLinkPageReqDTO;
 import org.ylan.remote.dto.resp.GroupCountQueryRespDTO;
@@ -91,6 +92,18 @@ public class ShortLinkRemoteServiceImpl implements ShortLinkRemoteService{
         log.info("【 获取网页的Title标题-GET-请求参数 】【 {} 】", requestMap);
         String resultBodyStr = HttpUtil.get(HOST + "/api/short-link/v1/title" , requestMap);
         log.info("【 获取网页的Title标题 】 【 {} 】", resultBodyStr);
+        return JSON.parseObject(resultBodyStr, new TypeReference<>() {});
+    }
+
+    @Override
+    public Result<Boolean> saveRecycleBin(RecycleBinSaveReqDTO requestParam) {
+        // 封装请求参数
+        String jsonString = JSON.toJSONString(requestParam);
+        log.info("【 移至回收站-POST-请求参数 】【 {} 】", jsonString);
+        // 发送请求
+        String resultBodyStr = HttpUtil.post(HOST + "/api/short-link/v1/recycle-bin/save", jsonString);
+        log.info("【 移至回收站响应结果 】 【 {} 】", resultBodyStr);
+        // 转化响应
         return JSON.parseObject(resultBodyStr, new TypeReference<>() {});
     }
 
