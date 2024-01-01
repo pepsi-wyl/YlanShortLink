@@ -969,6 +969,24 @@ CREATE TABLE `t_link_15`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
+# t_link 添加标题字段
+alter table t_link_0 add column title varchar(256) DEFAULT NULL COMMENT '标题' after favicon;
+alter table t_link_1 add column title varchar(256) DEFAULT NULL COMMENT '标题' after favicon;
+alter table t_link_2 add column title varchar(256) DEFAULT NULL COMMENT '标题' after favicon;
+alter table t_link_3 add column title varchar(256) DEFAULT NULL COMMENT '标题' after favicon;
+alter table t_link_4 add column title varchar(256) DEFAULT NULL COMMENT '标题' after favicon;
+alter table t_link_5 add column title varchar(256) DEFAULT NULL COMMENT '标题' after favicon;
+alter table t_link_6 add column title varchar(256) DEFAULT NULL COMMENT '标题' after favicon;
+alter table t_link_7 add column title varchar(256) DEFAULT NULL COMMENT '标题' after favicon;
+alter table t_link_8 add column title varchar(256) DEFAULT NULL COMMENT '标题' after favicon;
+alter table t_link_9 add column title varchar(256) DEFAULT NULL COMMENT '标题' after favicon;
+alter table t_link_10 add column title varchar(256) DEFAULT NULL COMMENT '标题' after favicon;
+alter table t_link_11 add column title varchar(256) DEFAULT NULL COMMENT '标题' after favicon;
+alter table t_link_12 add column title varchar(256) DEFAULT NULL COMMENT '标题' after favicon;
+alter table t_link_13 add column title varchar(256) DEFAULT NULL COMMENT '标题' after favicon;
+alter table t_link_14 add column title varchar(256) DEFAULT NULL COMMENT '标题' after favicon;
+alter table t_link_15 add column title varchar(256) DEFAULT NULL COMMENT '标题' after favicon;
+
 # 短链接跳转表
 CREATE TABLE `t_link_goto_0`
 (

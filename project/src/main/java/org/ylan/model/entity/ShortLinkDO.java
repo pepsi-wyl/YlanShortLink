@@ -80,6 +80,11 @@ public class ShortLinkDO extends BaseDO {
     private String favicon;
 
     /**
+     * 网站标题
+     */
+    private String title;
+
+    /**
      * 启用标识 0：启用 1：未启用
      */
     private Integer enableStatus;
