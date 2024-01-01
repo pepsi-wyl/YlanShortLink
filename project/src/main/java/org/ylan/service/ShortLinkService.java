@@ -55,4 +55,20 @@ public interface ShortLinkService extends IService<ShortLinkDO> {
      * @return
      */
     List<ShortLinkGroupCountQueryRespDTO> listGroupShortLinkCount(List<String> requestParam);
+
+    /**
+     * 获取网页的Favicon图标
+     *
+     * @param url 目标网站地址
+     * @return 网站图标链接
+     */
+    String getFaviconByUrl(String url);
+
+    /**
+     * 获取网页的Title标题
+     *
+     * @param url 目标网站地址
+     * @return 网站标题
+     */
+    String getTitleByUrl(String url);
 }

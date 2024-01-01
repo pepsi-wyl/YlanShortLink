@@ -14,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Element;
 import org.redisson.api.RBloomFilter;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
@@ -37,6 +39,8 @@ import org.ylan.utils.HashUtils;
 import org.ylan.utils.LinkUtil;
 import org.ylan.utils.NetUtils;
 
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -181,6 +185,8 @@ public class ShrotLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                 .validDateType(requestParam.getValidDateType())
                 .validDate(requestParam.getValidDate())
                 .describe(requestParam.getDescribe())
+                .favicon(getFaviconByUrl(requestParam.getOriginUrl()))
+                .title(getTitleByUrl(requestParam.getOriginUrl()))
                 .enableStatus(0)
                 .build();
         // 短链接跳转实体
@@ -285,6 +291,43 @@ public class ShrotLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
         else {
             log.info(fullShortUrl + " ===> " +originalLink + "跳转链接失败，短链接系统中不存在");
         }
+    }
+
+    @SneakyThrows
+    @Override
+    public String getFaviconByUrl(String url) {
+        // 发送请求获取连接
+        HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+        connection.setRequestMethod("GET");
+        connection.connect();
+        if (HttpURLConnection.HTTP_OK == connection.getResponseCode()) {
+            // 获取网页的Favicon图标
+            Element faviconLink = Jsoup.connect(url).get().select("link[rel~=(?i)^(shortcut )?icon]").first();
+            if (!Objects.isNull(faviconLink)) {
+                String favicon = faviconLink.attr("abs:href");
+                log.info("获取网页的favicon图标成功， [URL:{}] [favicon:{}]", url, favicon);
+                return favicon;
+            }
+        }
+        log.error("获取网页的favicon图标失败，URL:{}", url);
+        return null;
+    }
+
+    @SneakyThrows
+    @Override
+    public String getTitleByUrl(String url) {
+        // 发送请求获取连接
+        HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+        connection.setRequestMethod("GET");
+        connection.connect();
+        if (HttpURLConnection.HTTP_OK == connection.getResponseCode()) {
+            // 获取网页的Title标题
+            String title = Jsoup.connect(url).get().title();
+            log.info("获取网页的Title成功， [URL:{}] [favicon:{}]", url, title);
+            return title;
+        }
+        log.error("获取网页的Title失败，URL:{}", url);
+        return null;
     }
 
     @Override
