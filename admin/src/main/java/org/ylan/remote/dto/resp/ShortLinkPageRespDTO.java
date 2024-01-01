@@ -70,4 +70,9 @@ public class ShortLinkPageRespDTO {
      * 网站标识
      */
     private String favicon;
+
+    /**
+     * 网站标题
+     */
+    private String title;
 }
