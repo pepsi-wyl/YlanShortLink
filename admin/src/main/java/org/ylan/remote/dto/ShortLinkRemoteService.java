@@ -44,4 +44,20 @@ public interface ShortLinkRemoteService {
      */
     Result<List<GroupCountQueryRespDTO>> listGroupShortLinkCount(List<String> requestParam);
 
+    /**
+     * 获取网页的Favicon图标
+     *
+     * @param url 目标网站地址
+     * @return 网站图标链接
+     */
+    Result<String> getFaviconByUrl(String url);
+
+    /**
+     * 获取网页的Title标题
+     *
+     * @param url 目标网站地址
+     * @return 网站标题
+     */
+    Result<String> getTitleByUrl(String url);
+
 }

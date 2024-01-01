@@ -72,4 +72,26 @@ public class ShortLinkRemoteServiceImpl implements ShortLinkRemoteService{
         return JSON.parseObject(resultBodyStr, new TypeReference<>() {});
     }
 
+    @Override
+    public Result<String> getFaviconByUrl(String url) {
+        // 封装请求参数
+        Map<String, Object> requestMap = new HashMap<>();
+        requestMap.put("url", url);
+        log.info("【 获取网页的Favicon图标-GET-请求参数 】【 {} 】", requestMap);
+        String resultBodyStr = HttpUtil.get(HOST + "/api/short-link/v1/favicon", requestMap);
+        log.info("【 获取网页的Favicon图标 】 【 {} 】", resultBodyStr);
+        return JSON.parseObject(resultBodyStr, new TypeReference<>() {});
+    }
+
+    @Override
+    public Result<String> getTitleByUrl(String url) {
+        // 封装请求参数
+        Map<String, Object> requestMap = new HashMap<>();
+        requestMap.put("url", url);
+        log.info("【 获取网页的Title标题-GET-请求参数 】【 {} 】", requestMap);
+        String resultBodyStr = HttpUtil.get(HOST + "/api/short-link/v1/title" , requestMap);
+        log.info("【 获取网页的Title标题 】 【 {} 】", resultBodyStr);
+        return JSON.parseObject(resultBodyStr, new TypeReference<>() {});
+    }
+
 }
