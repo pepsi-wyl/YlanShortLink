@@ -2,10 +2,9 @@ package org.ylan.remote.dto;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.ylan.common.convention.result.Result;
-import org.ylan.remote.dto.req.RecycleBinSaveReqDTO;
-import org.ylan.remote.dto.req.ShortLinkCreateReqDTO;
-import org.ylan.remote.dto.req.ShortLinkPageReqDTO;
+import org.ylan.remote.dto.req.*;
 import org.ylan.remote.dto.resp.GroupCountQueryRespDTO;
+import org.ylan.remote.dto.resp.RecycleBinPageRespDTO;
 import org.ylan.remote.dto.resp.ShortLinkCreateRespDTO;
 import org.ylan.remote.dto.resp.ShortLinkPageRespDTO;
 
@@ -69,4 +68,29 @@ public interface ShortLinkRemoteService {
      * @return 成功返回True 失败抛异常
      */
     Result<Boolean> saveRecycleBin(RecycleBinSaveReqDTO requestParam);
+
+    /**
+     * 移出回收站
+     *
+     * @param requestParam 移出回收站请求参数
+     * @return 成功返回True 失败抛异常
+     */
+    Result<Boolean> recoverRecycleBin(RecycleBinRecoverReqDTO requestParam);
+
+    /**
+     * 移除回收站
+     *
+     * @param requestParam 移除回收站请求参数
+     * @return 成功返回True 失败抛异常
+     */
+    Result<Boolean> removeRecycleBin(RecycleBinRemoveReqDTO requestParam);
+
+    /**
+     * 分页查询回收站短链接
+     *
+     * @param requestParam 回收站短链接分页请求参数
+     * @return 回收站短链接分页返回结果 失败抛异常
+     */
+    Result<IPage<RecycleBinPageRespDTO>> pageRecycleBin(RecycleBinPageReqDTO requestParam);
+
 }
