@@ -12,7 +12,8 @@ public enum RecycleBinCodeEnum implements IErrorCode {
 
     RECYCLE_BIN_SAVE_ERROR("B000501", "短链接移至回收站失败"),
     RECYCLE_BIN_RECOVER_ERROR("B000502","短链接移出回收站失败"),
-    RECYCLE_BIN_REMOVE_ERROR("B000503","短链接移除回收站失败");
+    RECYCLE_BIN_REMOVE_ERROR("B000503","短链接移除回收站失败"),
+    RECYCLE_BIN_PAGE_PARAM_ERROR("B000504","短链接分页参数错误");
 
     private final String code;
 
