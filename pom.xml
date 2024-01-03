@@ -11,6 +11,7 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>common</module>
         <module>admin</module>
         <module>project</module>
         <module>gateway</module>
