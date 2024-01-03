@@ -1,6 +1,10 @@
 package org.ylan.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -9,15 +13,15 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.ylan.common.convention.exception.ServiceException;
 import org.ylan.mapper.ShortLinkMapper;
-import org.ylan.model.dto.req.RecycleBinRecoverReqDTO;
-import org.ylan.model.dto.req.RecycleBinRemoveReqDTO;
-import org.ylan.model.dto.req.RecycleBinSaveReqDTO;
+import org.ylan.model.dto.req.*;
+import org.ylan.model.dto.resp.*;
 import org.ylan.model.entity.ShortLinkDO;
 import org.ylan.service.RecycleBinService;
 import org.ylan.utils.NetUtils;
 
 import java.util.concurrent.TimeUnit;
 
+import static org.ylan.common.constant.NetConstant.HTTP;
 import static org.ylan.common.constant.RedisCacheConstant.GOTO_IS_NULL_SHORT_LINK_KEY;
 import static org.ylan.common.constant.RedisCacheConstant.GOTO_SHORT_LINK_KEY;
 import static org.ylan.common.convention.enums.RecycleBinCodeEnum.*;
@@ -100,6 +104,29 @@ public class RecycleBinServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLin
         }
 
         return true;
+    }
+
+    @Override
+    public IPage<RecycleBinPageRespDTO> pageRecycleBin(RecycleBinPageReqDTO requestParam) {
+        // 参数GiList判断
+        if (CollectionUtils.isEmpty(requestParam.getGidList())){
+                throw new ServiceException(RECYCLE_BIN_PAGE_PARAM_ERROR);
+        }
+
+        // 查询条件
+        LambdaQueryWrapper<ShortLinkDO> queryWrapper = Wrappers.lambdaQuery(ShortLinkDO.class)
+                .in(ShortLinkDO::getGid, requestParam.getGidList())
+                .eq(ShortLinkDO::getEnableStatus, 1)
+                .orderByDesc(ShortLinkDO::getUpdateTime);
+        // 查询page
+        IPage<ShortLinkDO> resultPage = baseMapper.selectPage(requestParam, queryWrapper);
+
+        // page记录类型转化
+        return resultPage.convert((shortLinkDO)->{
+            RecycleBinPageRespDTO bean = BeanUtil.toBean(shortLinkDO, RecycleBinPageRespDTO.class);
+            bean.setFullShortUrl(HTTP + bean.getFullShortUrl());
+            return bean;
+        });
     }
 
 }

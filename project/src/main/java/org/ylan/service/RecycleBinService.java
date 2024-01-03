@@ -1,9 +1,9 @@
 package org.ylan.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
-import org.ylan.model.dto.req.RecycleBinRecoverReqDTO;
-import org.ylan.model.dto.req.RecycleBinRemoveReqDTO;
-import org.ylan.model.dto.req.RecycleBinSaveReqDTO;
+import org.ylan.model.dto.req.*;
+import org.ylan.model.dto.resp.*;
 import org.ylan.model.entity.ShortLinkDO;
 
 /**
@@ -37,4 +37,13 @@ public interface RecycleBinService extends IService<ShortLinkDO> {
      * @return 成功返回True 失败抛异常
      */
     Boolean removeRecycleBin(RecycleBinRemoveReqDTO requestParam);
+
+    /**
+     * 分页查询回收站短链接
+     *
+     * @param requestParam 回收站短链接分页请求参数
+     * @return 回收站短链接分页返回结果 失败抛异常
+     */
+    IPage<RecycleBinPageRespDTO> pageRecycleBin(RecycleBinPageReqDTO requestParam);
+
 }
