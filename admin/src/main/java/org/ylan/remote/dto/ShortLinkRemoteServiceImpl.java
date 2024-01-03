@@ -51,7 +51,7 @@ public class ShortLinkRemoteServiceImpl implements ShortLinkRemoteService{
         requestMap.put("gid", requestParam.getGid());
         requestMap.put("current", requestParam.getCurrent());
         requestMap.put("size", requestParam.getSize());
-        log.info("【 分页查询短链接-POST-请求参数 】【 {} 】", requestMap);
+        log.info("【 分页查询短链接-GET-请求参数 】【 {} 】", requestMap);
         // 发送请求
         String resultBodyStr = HttpUtil.get(HOST + "/api/short-link/v1/page", requestMap);
         log.info("【 分页查询短链接 】 【 {} 】", resultBodyStr);
@@ -68,6 +68,19 @@ public class ShortLinkRemoteServiceImpl implements ShortLinkRemoteService{
         // 发送请求
         String resultBodyStr = HttpUtil.get(HOST + "/api/short-link/v1/group/count", requestMap);
         log.info("【 查询短链接分组内链接数量 】 【 {} 】", resultBodyStr);
+        // 转化响应
+        return JSON.parseObject(resultBodyStr, new TypeReference<>() {});
+    }
+
+    @Override
+    public Result<Boolean> deleteGroupShortLink(String gid) {
+        // 封装请求参数
+        Map<String, Object> requestMap = new HashMap<>();
+        requestMap.put("gid", gid);
+        log.info("【 查询短链接分组是否可以删除-GET-请求参数 】【 {} 】", requestMap);
+        // 发送请求
+        String resultBodyStr = HttpUtil.get(HOST + "/api/short-link/v1/group/delete", requestMap);
+        log.info("【 查询短链接分组是否可以删除 】 【 {} 】", resultBodyStr);
         // 转化响应
         return JSON.parseObject(resultBodyStr, new TypeReference<>() {});
     }

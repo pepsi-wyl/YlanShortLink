@@ -45,6 +45,14 @@ public interface ShortLinkRemoteService {
     Result<List<GroupCountQueryRespDTO>> listGroupShortLinkCount(List<String> requestParam);
 
     /**
+     * 查询短链接分组是否可以删除
+     *
+     * @param gid 分组gid
+     * @return 可以删除返回True 不能删除抛异常
+     */
+    Result<Boolean> deleteGroupShortLink(String gid);
+
+    /**
      * 获取网页的Favicon图标
      *
      * @param url 目标网站地址
