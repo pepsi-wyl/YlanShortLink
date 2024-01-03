@@ -5,6 +5,8 @@ import org.redisson.api.RedissonClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import static org.ylan.common.constant.RedisCacheConstant.BLOOM_FILTER_URI_CREATE;
+
 /**
  * 布隆过滤器配置
  *
@@ -19,7 +21,7 @@ public class RBloomFilterConfiguration {
      */
     @Bean
     public RBloomFilter<String> shortUriCreateCachePenetrationBloomFilter(RedissonClient redissonClient) {
-        RBloomFilter<String> cachePenetrationBloomFilter = redissonClient.getBloomFilter("shortUriCreateCachePenetrationBloomFilter");
+        RBloomFilter<String> cachePenetrationBloomFilter = redissonClient.getBloomFilter(BLOOM_FILTER_URI_CREATE);
         cachePenetrationBloomFilter.tryInit(100000000L, 0.001);
         return cachePenetrationBloomFilter;
     }

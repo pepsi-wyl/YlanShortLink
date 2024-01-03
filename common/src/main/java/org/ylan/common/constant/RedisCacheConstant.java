@@ -31,4 +31,14 @@ public class RedisCacheConstant {
      * 短链接跳转锁前缀 分布式锁 Key
      */
     public static final String LOCK_GOTO_SHORT_LINK_KEY = "short-link_lock_goto_%s";
+
+    /**
+     * 防止用户注册查询数据库的布隆过滤器 Key
+     */
+    public static final String BLOOM_FILTER_USER_REGISTER = "userRegisterCachePenetrationBloomFilter";
+
+    /**
+     * 防止短链接创建查询数据库的布隆过滤器 key
+     */
+    public static final String BLOOM_FILTER_URI_CREATE = "shortUriCreateCachePenetrationBloomFilter";
 }

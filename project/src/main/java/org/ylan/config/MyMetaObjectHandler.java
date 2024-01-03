@@ -6,6 +6,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.Date;
 
+import static org.ylan.common.constant.MybatisFiledConstant.*;
+
 /**
  * MyBatis-Plus 原数据自动填充类
  *
@@ -14,11 +16,6 @@ import java.util.Date;
 
 @Component
 public class MyMetaObjectHandler implements MetaObjectHandler {
-
-    // 字段常量
-    private static final String CREATE_TIME = "createTime";
-    private static final String UPDATE_TIME = "updateTime";
-    private  static final String DEL_FLAG = "delFlag";
 
     @Override
     public void insertFill(MetaObject metaObject) {
