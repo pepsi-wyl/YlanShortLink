@@ -66,4 +66,12 @@ public class ShortLinkController {
         return Results.success(shortLinkService.listGroupShortLinkCount(requestParam));
     }
 
+    /**
+     * 查询短链接分组是否可以删除
+     */
+    @GetMapping("/api/short-link/v1/group/delete")
+    public Result<Boolean> deleteGroupShortLink(@RequestParam("gid") String gid){
+       return Results.success(shortLinkService.deleteGroupShortLink(gid));
+    }
+
 }

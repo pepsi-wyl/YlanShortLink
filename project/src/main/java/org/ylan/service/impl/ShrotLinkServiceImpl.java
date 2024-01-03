@@ -5,6 +5,7 @@ import cn.hutool.core.text.StrBuilder;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.servlet.ServletRequest;
@@ -47,6 +48,8 @@ import java.util.concurrent.TimeUnit;
 import static org.ylan.common.constant.NetConstant.HTTP;
 import static org.ylan.common.constant.NetConstant.URL_SPLIT;
 import static org.ylan.common.constant.RedisCacheConstant.*;
+import static org.ylan.common.convention.enums.GroupErrorCodeEnum.GROUP_HAS_RECYCLE_BIN_SHORT_LINK_ERROR;
+import static org.ylan.common.convention.enums.GroupErrorCodeEnum.GROUP_HAS_SHORT_LINK;
 import static org.ylan.common.convention.enums.ShortLinkErrorCodeEnum.*;
 
 /**
@@ -360,6 +363,29 @@ public class ShrotLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
         List<Map<String, Object>> shortLinkDOList = baseMapper.selectMaps(queryWrapper);
         // 返回数据
         return BeanUtil.copyToList(shortLinkDOList, ShortLinkGroupCountQueryRespDTO.class);
+    }
+
+    @Override
+    public Boolean deleteGroupShortLink(String gid) {
+        // 查询条件
+        LambdaQueryWrapper<ShortLinkDO> hasShortLinkQueryWrapper = Wrappers.lambdaQuery(ShortLinkDO.class)
+                .eq(ShortLinkDO::getGid, gid)
+                .eq(ShortLinkDO::getEnableStatus, 0); // 存在启用的短链接
+        List<ShortLinkDO> hasShortLinkList = baseMapper.selectList(hasShortLinkQueryWrapper);
+        if (!CollectionUtils.isEmpty(hasShortLinkList)){
+            throw new ServiceException(GROUP_HAS_SHORT_LINK);
+        }
+
+        // 查询条件
+        LambdaQueryWrapper<ShortLinkDO> hasRecycleBinShortLinkQueryWrapper = Wrappers.lambdaQuery(ShortLinkDO.class)
+                .eq(ShortLinkDO::getGid, gid)
+                .eq(ShortLinkDO::getEnableStatus, 1); // 存在未启用，即在回收站中的短链接
+        List<ShortLinkDO> hasRecycleBinShortLinkLinkList = baseMapper.selectList(hasRecycleBinShortLinkQueryWrapper);
+        if (!CollectionUtils.isEmpty(hasRecycleBinShortLinkLinkList)){
+            throw new ServiceException(GROUP_HAS_RECYCLE_BIN_SHORT_LINK_ERROR);
+        }
+
+        return true;
     }
 
 }

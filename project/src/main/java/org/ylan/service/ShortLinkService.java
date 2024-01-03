@@ -71,4 +71,13 @@ public interface ShortLinkService extends IService<ShortLinkDO> {
      * @return 网站标题
      */
     String getTitleByUrl(String url);
+
+    /**
+     * 查询短链接分组是否可以删除
+     *
+     * @param gid 分组gid
+     * @return 可以删除返回True 不能删除抛异常
+     */
+    Boolean deleteGroupShortLink(String gid);
+
 }
