@@ -14,7 +14,13 @@ public enum GroupErrorCodeEnum implements IErrorCode {
 
     GROUP_NAME_EXISTS_ERROR("B000302","分组名称已存在"),
 
-    GROUP_LIST_NOT_FOUND_ERROR("B000303","用户分组记录不存在");
+    GROUP_LIST_NOT_FOUND_ERROR("B000303","用户分组记录不存在"),
+
+    GROUP_HAS_SHORT_LINK("B000304","该分组下存在短链接，无法删除"),
+
+    GROUP_HAS_RECYCLE_BIN_SHORT_LINK_ERROR("B000305","该分组下存在回收站中的短链接，无法删除"),
+
+    GROUP_DELETE_ERROR("B000306","分组记录删除失败");
 
     private final String code;
 

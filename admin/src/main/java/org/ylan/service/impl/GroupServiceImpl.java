@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.ylan.common.bit.user.UserContext;
 import org.ylan.common.convention.exception.ClientException;
+import org.ylan.common.convention.exception.ServiceException;
 import org.ylan.common.convention.result.Result;
 import org.ylan.mapper.GroupMapper;
 import org.ylan.model.dto.req.GroupSaveReqDTO;
@@ -26,8 +27,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import static org.ylan.common.convention.enums.GroupErrorCodeEnum.GROUP_NAME_EXISTS_ERROR;
-import static org.ylan.common.convention.enums.GroupErrorCodeEnum.GROUP_SAVE_ERROR;
+import static org.ylan.common.convention.enums.GroupErrorCodeEnum.*;
 
 /**
  * 短链接分组接口实现层
@@ -122,12 +122,22 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
 
     @Override
     public Boolean deleteGroup(String gid) {
-        // todo 删除分组 如果下面有链接 则不能删除
+
+        // 删除分组 如果下面有链接 则不能删除
+        Result<Boolean> result = shortLinkRemoteService.deleteGroupShortLink(gid);
+        if (!Objects.isNull(result) && !Result.SUCCESS_CODE.equals(result.getCode())){
+            throw new ServiceException(result.getMessage());
+        }
+
         // 删除条件 username gid
         LambdaUpdateWrapper<GroupDO> updateWrapper = Wrappers.lambdaUpdate(GroupDO.class)
                 .eq(GroupDO::getUsername, UserContext.getUsername())
                 .eq(GroupDO::getGid, gid);
-        baseMapper.delete(updateWrapper);
+        int delete = baseMapper.delete(updateWrapper);
+        if (delete< 1){
+            throw new ServiceException(GROUP_DELETE_ERROR);
+        }
+
         return true;
     }
 
