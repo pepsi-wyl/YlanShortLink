@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.ylan.common.convention.exception.ServiceException;
 import org.ylan.mapper.ShortLinkMapper;
 import org.ylan.model.dto.req.RecycleBinRecoverReqDTO;
+import org.ylan.model.dto.req.RecycleBinRemoveReqDTO;
 import org.ylan.model.dto.req.RecycleBinSaveReqDTO;
 import org.ylan.model.entity.ShortLinkDO;
 import org.ylan.service.RecycleBinService;
@@ -19,8 +20,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.ylan.common.constant.RedisCacheConstant.GOTO_IS_NULL_SHORT_LINK_KEY;
 import static org.ylan.common.constant.RedisCacheConstant.GOTO_SHORT_LINK_KEY;
-import static org.ylan.common.convention.enums.RecycleBinCodeEnum.RECYCLE_BIN_RECOVER_ERROR;
-import static org.ylan.common.convention.enums.RecycleBinCodeEnum.RECYCLE_BIN_SAVE_ERROR;
+import static org.ylan.common.convention.enums.RecycleBinCodeEnum.*;
 
 /**
  * 回收站接口实现层
@@ -84,4 +84,22 @@ public class RecycleBinServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLin
 
         return true;
     }
+
+    @Override
+    public Boolean removeRecycleBin(RecycleBinRemoveReqDTO requestParam) {
+        // 更新条件
+        LambdaUpdateWrapper<ShortLinkDO> updateWrapper = Wrappers.lambdaUpdate(ShortLinkDO.class)
+                .eq(ShortLinkDO::getGid, requestParam.getGid())
+                .eq(ShortLinkDO::getFullShortUrl, NetUtils.removalProtocol(requestParam.getFullShortUrl()))
+                .eq(ShortLinkDO::getEnableStatus, 1);
+
+        // 执行删除操作
+        int delete = baseMapper.delete(updateWrapper);
+        if (delete < 1){
+            throw new ServiceException(RECYCLE_BIN_REMOVE_ERROR);
+        }
+
+        return true;
+    }
+
 }

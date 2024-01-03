@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.ylan.common.convention.result.Result;
 import org.ylan.common.convention.result.Results;
 import org.ylan.model.dto.req.RecycleBinRecoverReqDTO;
+import org.ylan.model.dto.req.RecycleBinRemoveReqDTO;
 import org.ylan.model.dto.req.RecycleBinSaveReqDTO;
 import org.ylan.service.RecycleBinService;
 
@@ -43,6 +44,14 @@ public class RecycleBinController {
     @PostMapping("/recover")
     public Result<Boolean> recoverRecycleBin(@RequestBody RecycleBinRecoverReqDTO requestParam) {
         return Results.success(recycleBinService.recoverRecycleBin(requestParam));
+    }
+
+    /**
+     * 移除回收站
+     */
+    @PostMapping("/remove")
+    public Result<Boolean> removeRecycleBin(@RequestBody RecycleBinRemoveReqDTO requestParam) {
+        return Results.success(recycleBinService.removeRecycleBin(requestParam));
     }
 
 }
