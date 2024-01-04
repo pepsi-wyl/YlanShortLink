@@ -970,22 +970,38 @@ CREATE TABLE `t_link_15`
   DEFAULT CHARSET = utf8mb4;
 
 # t_link 添加标题字段
-alter table t_link_0 add column title varchar(256) DEFAULT NULL COMMENT '标题' after favicon;
-alter table t_link_1 add column title varchar(256) DEFAULT NULL COMMENT '标题' after favicon;
-alter table t_link_2 add column title varchar(256) DEFAULT NULL COMMENT '标题' after favicon;
-alter table t_link_3 add column title varchar(256) DEFAULT NULL COMMENT '标题' after favicon;
-alter table t_link_4 add column title varchar(256) DEFAULT NULL COMMENT '标题' after favicon;
-alter table t_link_5 add column title varchar(256) DEFAULT NULL COMMENT '标题' after favicon;
-alter table t_link_6 add column title varchar(256) DEFAULT NULL COMMENT '标题' after favicon;
-alter table t_link_7 add column title varchar(256) DEFAULT NULL COMMENT '标题' after favicon;
-alter table t_link_8 add column title varchar(256) DEFAULT NULL COMMENT '标题' after favicon;
-alter table t_link_9 add column title varchar(256) DEFAULT NULL COMMENT '标题' after favicon;
-alter table t_link_10 add column title varchar(256) DEFAULT NULL COMMENT '标题' after favicon;
-alter table t_link_11 add column title varchar(256) DEFAULT NULL COMMENT '标题' after favicon;
-alter table t_link_12 add column title varchar(256) DEFAULT NULL COMMENT '标题' after favicon;
-alter table t_link_13 add column title varchar(256) DEFAULT NULL COMMENT '标题' after favicon;
-alter table t_link_14 add column title varchar(256) DEFAULT NULL COMMENT '标题' after favicon;
-alter table t_link_15 add column title varchar(256) DEFAULT NULL COMMENT '标题' after favicon;
+alter table t_link_0
+    add column title varchar(256) DEFAULT NULL COMMENT '标题' after favicon;
+alter table t_link_1
+    add column title varchar(256) DEFAULT NULL COMMENT '标题' after favicon;
+alter table t_link_2
+    add column title varchar(256) DEFAULT NULL COMMENT '标题' after favicon;
+alter table t_link_3
+    add column title varchar(256) DEFAULT NULL COMMENT '标题' after favicon;
+alter table t_link_4
+    add column title varchar(256) DEFAULT NULL COMMENT '标题' after favicon;
+alter table t_link_5
+    add column title varchar(256) DEFAULT NULL COMMENT '标题' after favicon;
+alter table t_link_6
+    add column title varchar(256) DEFAULT NULL COMMENT '标题' after favicon;
+alter table t_link_7
+    add column title varchar(256) DEFAULT NULL COMMENT '标题' after favicon;
+alter table t_link_8
+    add column title varchar(256) DEFAULT NULL COMMENT '标题' after favicon;
+alter table t_link_9
+    add column title varchar(256) DEFAULT NULL COMMENT '标题' after favicon;
+alter table t_link_10
+    add column title varchar(256) DEFAULT NULL COMMENT '标题' after favicon;
+alter table t_link_11
+    add column title varchar(256) DEFAULT NULL COMMENT '标题' after favicon;
+alter table t_link_12
+    add column title varchar(256) DEFAULT NULL COMMENT '标题' after favicon;
+alter table t_link_13
+    add column title varchar(256) DEFAULT NULL COMMENT '标题' after favicon;
+alter table t_link_14
+    add column title varchar(256) DEFAULT NULL COMMENT '标题' after favicon;
+alter table t_link_15
+    add column title varchar(256) DEFAULT NULL COMMENT '标题' after favicon;
 
 # 短链接跳转表
 CREATE TABLE `t_link_goto_0`
@@ -994,109 +1010,145 @@ CREATE TABLE `t_link_goto_0`
     `gid`            varchar(32)  DEFAULT 'default' COMMENT '分组标识',
     `full_short_url` varchar(128) DEFAULT NULL COMMENT '完整短链接',
     PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;;
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;;
 CREATE TABLE `t_link_goto_1`
 (
     `id`             bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
     `gid`            varchar(32)  DEFAULT 'default' COMMENT '分组标识',
     `full_short_url` varchar(128) DEFAULT NULL COMMENT '完整短链接',
     PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;;
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;;
 CREATE TABLE `t_link_goto_2`
 (
     `id`             bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
     `gid`            varchar(32)  DEFAULT 'default' COMMENT '分组标识',
     `full_short_url` varchar(128) DEFAULT NULL COMMENT '完整短链接',
     PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;;
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;;
 CREATE TABLE `t_link_goto_3`
 (
     `id`             bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
     `gid`            varchar(32)  DEFAULT 'default' COMMENT '分组标识',
     `full_short_url` varchar(128) DEFAULT NULL COMMENT '完整短链接',
     PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;;
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;;
 CREATE TABLE `t_link_goto_4`
 (
     `id`             bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
     `gid`            varchar(32)  DEFAULT 'default' COMMENT '分组标识',
     `full_short_url` varchar(128) DEFAULT NULL COMMENT '完整短链接',
     PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;;
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;;
 CREATE TABLE `t_link_goto_5`
 (
     `id`             bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
     `gid`            varchar(32)  DEFAULT 'default' COMMENT '分组标识',
     `full_short_url` varchar(128) DEFAULT NULL COMMENT '完整短链接',
     PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;;
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;;
 CREATE TABLE `t_link_goto_6`
 (
     `id`             bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
     `gid`            varchar(32)  DEFAULT 'default' COMMENT '分组标识',
     `full_short_url` varchar(128) DEFAULT NULL COMMENT '完整短链接',
     PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;;
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;;
 CREATE TABLE `t_link_goto_7`
 (
     `id`             bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
     `gid`            varchar(32)  DEFAULT 'default' COMMENT '分组标识',
     `full_short_url` varchar(128) DEFAULT NULL COMMENT '完整短链接',
     PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;;
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;;
 CREATE TABLE `t_link_goto_8`
 (
     `id`             bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
     `gid`            varchar(32)  DEFAULT 'default' COMMENT '分组标识',
     `full_short_url` varchar(128) DEFAULT NULL COMMENT '完整短链接',
     PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;;
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;;
 CREATE TABLE `t_link_goto_9`
 (
     `id`             bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
     `gid`            varchar(32)  DEFAULT 'default' COMMENT '分组标识',
     `full_short_url` varchar(128) DEFAULT NULL COMMENT '完整短链接',
     PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;;
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;;
 CREATE TABLE `t_link_goto_10`
 (
     `id`             bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
     `gid`            varchar(32)  DEFAULT 'default' COMMENT '分组标识',
     `full_short_url` varchar(128) DEFAULT NULL COMMENT '完整短链接',
     PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
 CREATE TABLE `t_link_goto_11`
 (
     `id`             bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
     `gid`            varchar(32)  DEFAULT 'default' COMMENT '分组标识',
     `full_short_url` varchar(128) DEFAULT NULL COMMENT '完整短链接',
     PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
 CREATE TABLE `t_link_goto_12`
 (
     `id`             bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
     `gid`            varchar(32)  DEFAULT 'default' COMMENT '分组标识',
     `full_short_url` varchar(128) DEFAULT NULL COMMENT '完整短链接',
     PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
 CREATE TABLE `t_link_goto_13`
 (
     `id`             bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
     `gid`            varchar(32)  DEFAULT 'default' COMMENT '分组标识',
     `full_short_url` varchar(128) DEFAULT NULL COMMENT '完整短链接',
     PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
 CREATE TABLE `t_link_goto_14`
 (
     `id`             bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
     `gid`            varchar(32)  DEFAULT 'default' COMMENT '分组标识',
     `full_short_url` varchar(128) DEFAULT NULL COMMENT '完整短链接',
     PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
 CREATE TABLE `t_link_goto_15`
 (
     `id`             bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
     `gid`            varchar(32)  DEFAULT 'default' COMMENT '分组标识',
     `full_short_url` varchar(128) DEFAULT NULL COMMENT '完整短链接',
     PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
+
+# 基础访问监控表
+CREATE TABLE `t_link_access_stats`
+(
+    `id`             bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
+    `gid`            varchar(32)     DEFAULT 'default' COMMENT '分组标识',
+    `full_short_url` varchar(128)    DEFAULT NULL COMMENT '完整短链接',
+    `date`           date       NULL DEFAULT NULL COMMENT '日期',
+    `hour`           int        NULL DEFAULT NULL COMMENT '小时',
+    `weekday`        int        NULL DEFAULT NULL COMMENT '星期',
+    `pv`             int        NULL DEFAULT NULL COMMENT '访问量',
+    `uv`             int        NULL DEFAULT NULL COMMENT '独立访问数',
+    `uip`            int        NULL DEFAULT NULL COMMENT '独立IP数',
+    `create_time`    datetime   NULL DEFAULT NULL COMMENT '创建时间',
+    `update_time`    datetime   NULL DEFAULT NULL COMMENT '修改时间',
+    `del_flag`       tinyint(1) NULL DEFAULT NULL COMMENT '删除标识：0 未删除 1 已删除',
+    PRIMARY KEY (`id`) USING BTREE,
+    UNIQUE KEY `idx_unique_access_stats` (`gid`, `full_short_url`, `date`, `hour`, `weekday`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
