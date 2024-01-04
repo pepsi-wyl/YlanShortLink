@@ -1152,3 +1152,24 @@ CREATE TABLE `t_link_access_stats`
     UNIQUE KEY `idx_unique_access_stats` (`gid`, `full_short_url`, `date`, `hour`, `weekday`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
+
+# 短链接地区访问监控表
+CREATE TABLE `t_link_locale_stats`
+(
+    `id`             bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
+    `gid`            varchar(32)  DEFAULT 'default' COMMENT '分组标识',
+    `full_short_url` varchar(128) DEFAULT NULL COMMENT '完整短链接',
+    `date`           date         DEFAULT NULL COMMENT '日期',
+    `country`        varchar(64)  DEFAULT NULL COMMENT '国家名称',
+    `province`       varchar(64)  DEFAULT NULL COMMENT '省份名称',
+    `city`           varchar(64)  DEFAULT NULL COMMENT '市区名称',
+    `adcode`         varchar(64)  DEFAULT NULL COMMENT '城市编码',
+    `cnt`            int(11)      DEFAULT NULL COMMENT '访问量',
+    `create_time`    datetime     DEFAULT NULL COMMENT '创建时间',
+    `update_time`    datetime     DEFAULT NULL COMMENT '修改时间',
+    `del_flag`       tinyint(1)   DEFAULT NULL COMMENT '删除标识 0：未删除 1：已删除',
+    PRIMARY KEY (`id`) USING BTREE,
+    UNIQUE KEY `idx_unique_locale_stats` (`gid`, `full_short_url`, `date`, `country`, `province`, `city`,
+                                          `adcode`) USING BTREE
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
