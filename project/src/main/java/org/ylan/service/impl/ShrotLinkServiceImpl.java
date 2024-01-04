@@ -3,6 +3,7 @@ package org.ylan.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.text.StrBuilder;
+import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -13,6 +14,8 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -49,10 +52,13 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.ylan.common.constant.NetConstant.HTTP;
 import static org.ylan.common.constant.NetConstant.URL_SPLIT;
 import static org.ylan.common.constant.RedisCacheConstant.*;
+import static org.ylan.common.constant.ShortLinkStatsConstant.*;
 import static org.ylan.common.convention.enums.GroupErrorCodeEnum.GROUP_HAS_RECYCLE_BIN_SHORT_LINK_ERROR;
 import static org.ylan.common.convention.enums.GroupErrorCodeEnum.GROUP_HAS_SHORT_LINK;
 import static org.ylan.common.convention.enums.ShortLinkErrorCodeEnum.*;
@@ -185,6 +191,63 @@ public class ShrotLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
     }
 
     private void shortLinkStats(String gid, String fullShortUrl, ServletRequest request, ServletResponse response) {
+
+        // 获取到客户端 cookies
+        Cookie[] cookies = ((HttpServletRequest) request).getCookies();
+        // UV Flag Atomic
+        AtomicBoolean uvFlagAtomic = new AtomicBoolean();
+        // UV Value Atomic
+        AtomicReference<String> uvValueAtomic = new AtomicReference<>();
+
+        Runnable addResponseCookieTask = () -> {
+            // uvValue设置
+            uvValueAtomic.set(cn.hutool.core.lang.UUID.fastUUID().toString());
+
+            // 设置Cookie 1. uv-uvValue 2.过期时间30天 3.域 /shortUrl
+            Cookie uvCookie = new Cookie(UV_STATS_COOKIE_NAME, uvValueAtomic.get());
+            uvCookie.setMaxAge(UV_STATS_COOKIE_TIME);
+            uvCookie.setPath(StrUtil.sub(fullShortUrl, fullShortUrl.indexOf(URL_SPLIT), fullShortUrl.length()));
+            ((HttpServletResponse) response).addCookie(uvCookie);
+
+            // Redis中添加set集合
+            Long uvAdded = stringRedisTemplate.opsForSet().add(SHORT_LINK_STATS_UV_PREFIX + fullShortUrl, uvValueAtomic.get());
+            // uvFlagAtomic 设置 根据添加的Set集合进行判断是否是第一次访问
+            uvFlagAtomic.set(uvAdded != null && uvAdded > 0L);
+        };
+
+        if (ArrayUtil.isNotEmpty(cookies)) {
+            Arrays.stream(cookies)
+                    // 取第一个 Cookie 名为 UV_STATS_COOKIE_NAME 的 Cookie
+                    .filter(cookie -> Objects.equals(cookie.getName(), UV_STATS_COOKIE_NAME))
+                    .findFirst()
+                    // 取 Cookie Value
+                    .map(Cookie::getValue)
+                    .ifPresentOrElse(uvValue -> {
+                        // uvValue设置
+                        uvValueAtomic.set(uvValue);
+                        // Redis中添加Set集合
+                        Long uvAdded = stringRedisTemplate.opsForSet().add(SHORT_LINK_STATS_UV_PREFIX + fullShortUrl, uvValue);
+                        // uvFlagAtomic 设置 根据添加的Set集合进行判断是否锁第一次访问
+                        uvFlagAtomic.set(uvAdded != null && uvAdded > 0L);
+                    }, addResponseCookieTask);
+        } else {
+            // 该用户首次访问该链接并且cookies为空
+            addResponseCookieTask.run();
+        }
+
+
+
+        // UIP Flag Atomic
+        AtomicBoolean uipFlagAtomic = new AtomicBoolean();
+        // 用户真实IP
+        String remoteAddr = LinkUtil.getActualIp(((HttpServletRequest) request));
+        // Redis中添加Set集合
+        Long uipAdded = stringRedisTemplate.opsForSet().add(SHORT_LINK_STATS_UIP_PREFIX + fullShortUrl, remoteAddr);
+        // uipFlagAtomic 设置 根据添加的Set集合进行判断是否锁第一次访问
+        uipFlagAtomic.set(uipAdded != null && uipAdded > 0L);
+
+
+
         // 当前时间
         Date currentTime = new Date();
 
@@ -196,7 +259,7 @@ public class ShrotLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
             gid = shortLinkGotoDO.getGid();
         }
 
-        // 短链接基础访问监控
+        // 短链接基础访问监控数据准备
         LinkAccessStatsDO linkAccessStatsDO = LinkAccessStatsDO.builder()
                 .id(IdUtil.getSnowflake(1, 1).nextId())
                 .gid(gid)
@@ -204,14 +267,14 @@ public class ShrotLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                 .date(currentTime)
                 .hour(DateUtil.hour(currentTime, true))
                 .weekday(DateUtil.dayOfWeekEnum(currentTime).getIso8601Value())
-                .pv(1)
-                .uv(1)
-                .uip(1)
+                .pv(1)                                  // PV
+                .uv(uvFlagAtomic.get() ? 1 : 0)         // UV
+                .uip(uipFlagAtomic.get()? 1 : 0)        // UIP
                 .build();
         linkAccessStatsDO.setCreateTime(currentTime);
         linkAccessStatsDO.setUpdateTime(currentTime);
         linkAccessStatsDO.setDelFlag(0);
-
+        // 短链接基础访问监控插入数据
         linkAccessStatsMapper.shortLinkStats(linkAccessStatsDO);
 
     }
