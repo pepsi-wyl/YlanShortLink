@@ -41,4 +41,14 @@ public class RedisCacheConstant {
      * 防止短链接创建查询数据库的布隆过滤器 key
      */
     public static final String BLOOM_FILTER_URI_CREATE = "shortUriCreateCachePenetrationBloomFilter";
+
+    /**
+     * 短链接监控状态UV状态前缀
+     */
+    public static final String SHORT_LINK_STATS_UV_PREFIX = "short-link:stats:uv:";
+
+    /**
+     * 短链接监控状态UIP状态前缀
+     */
+    public static final String SHORT_LINK_STATS_UIP_PREFIX = "short-link:stats:uip:";
 }
