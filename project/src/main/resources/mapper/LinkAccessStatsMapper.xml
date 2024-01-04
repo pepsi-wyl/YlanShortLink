@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.ylan.mapper.LinkAccessStatsMapper">
+
+    <insert id="shortLinkStats" parameterType="LinkAccessStatsDO">
+        INSERT INTO t_link_access_stats
+
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="linkAccessStats.id != null">
+                id,
+            </if>
+            <if test="linkAccessStats.gid != null">
+                gid,
+            </if>
+            <if test="linkAccessStats.fullShortUrl != null">
+                full_short_url,
+            </if>
+            <if test="linkAccessStats.date != null">
+                date,
+            </if>
+            <if test="linkAccessStats.hour != null">
+                hour,
+            </if>
+            <if test="linkAccessStats.weekday != null">
+                weekday,
+            </if>
+            <if test="linkAccessStats.pv != null">
+                pv,
+            </if>
+            <if test="linkAccessStats.uv != null">
+                uv,
+            </if>
+            <if test="linkAccessStats.uip != null">
+                uip,
+            </if>
+            <if test="linkAccessStats.createTime != null">
+                create_time,
+            </if>
+            <if test="linkAccessStats.updateTime != null">
+                update_time,
+            </if>
+            <if test="linkAccessStats.delFlag != null">
+                del_flag,
+            </if>
+        </trim>
+
+        VALUES
+
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="linkAccessStats.id != null">
+                #{linkAccessStats.id},
+            </if>
+            <if test="linkAccessStats.gid != null">
+                #{linkAccessStats.gid},
+            </if>
+            <if test="linkAccessStats.fullShortUrl != null">
+                #{linkAccessStats.fullShortUrl},
+            </if>
+            <if test="linkAccessStats.date != null">
+                #{linkAccessStats.date},
+            </if>
+            <if test="linkAccessStats.hour != null">
+                #{linkAccessStats.hour},
+            </if>
+            <if test="linkAccessStats.weekday != null">
+                #{linkAccessStats.weekday},
+            </if>
+            <if test="linkAccessStats.pv != null">
+                #{linkAccessStats.pv},
+            </if>
+            <if test="linkAccessStats.uv != null">
+                #{linkAccessStats.uv},
+            </if>
+            <if test="linkAccessStats.uip != null">
+                #{linkAccessStats.uip},
+            </if>
+            <if test="linkAccessStats.createTime != null">
+                #{linkAccessStats.createTime},
+            </if>
+            <if test="linkAccessStats.updateTime != null">
+                #{linkAccessStats.updateTime},
+            </if>
+            <if test="linkAccessStats.delFlag != null">
+                #{linkAccessStats.delFlag},
+            </if>
+        </trim>
+
+        ON DUPLICATE KEY UPDATE
+
+        pv = pv + #{linkAccessStats.pv},
+        uv = uv + #{linkAccessStats.uv},
+        uip = uip + #{linkAccessStats.uip},
+        update_time = NOW();
+    </insert>
+
+</mapper>
