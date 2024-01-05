@@ -17,11 +17,21 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@Builder
 
 @Alias("LinkBrowserStatsDO")
 @TableName("t_link_browser_stats")
 public class LinkBrowserStatsDO extends BaseDO {
+
+    @Builder
+    public LinkBrowserStatsDO(Long id, String gid, String fullShortUrl, Date date, String browser, Integer cnt, Date createTime, Date updateTime, Integer delFlag) {
+        super(createTime, updateTime, delFlag);
+        this.id = id;
+        this.gid = gid;
+        this.fullShortUrl = fullShortUrl;
+        this.date = date;
+        this.browser = browser;
+        this.cnt = cnt;
+    }
 
     /**
      * id

@@ -17,11 +17,24 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@Builder
 
 @Alias("LinkAccessStatsDO")
 @TableName("t_link_access_stats")
 public class LinkAccessStatsDO extends BaseDO {
+
+    @Builder
+    public LinkAccessStatsDO(Long id, String gid, String fullShortUrl, Date date, Integer hour, Integer weekday, Integer pv, Integer uv, Integer uip, Date createTime, Date updateTime, Integer delFlag) {
+        super(createTime, updateTime, delFlag);
+        this.id = id;
+        this.gid = gid;
+        this.fullShortUrl = fullShortUrl;
+        this.date = date;
+        this.hour = hour;
+        this.weekday = weekday;
+        this.pv = pv;
+        this.uv = uv;
+        this.uip = uip;
+    }
 
     /**
      * id

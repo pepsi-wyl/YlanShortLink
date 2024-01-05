@@ -17,11 +17,24 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@Builder
 
 @Alias("LinkLocaleStatsDO")
 @TableName("t_link_locale_stats")
 public class LinkLocaleStatsDO extends BaseDO {
+
+    @Builder
+    public LinkLocaleStatsDO(Long id, String gid, String fullShortUrl, Date date, String country, String province, String city, String adcode, Integer cnt, Date createTime, Date updateTime, Integer delFlag) {
+        super(createTime, updateTime, delFlag);
+        this.id = id;
+        this.gid = gid;
+        this.fullShortUrl = fullShortUrl;
+        this.date = date;
+        this.country = country;
+        this.province = province;
+        this.city = city;
+        this.adcode = adcode;
+        this.cnt = cnt;
+    }
 
     /**
      * id
