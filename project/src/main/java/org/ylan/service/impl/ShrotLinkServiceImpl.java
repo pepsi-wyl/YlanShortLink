@@ -299,10 +299,10 @@ public class ShrotLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                 .pv(1)                                  // PV
                 .uv(uvFlagAtomic.get() ? 1 : 0)         // UV
                 .uip(uipFlagAtomic.get()? 1 : 0)        // UIP
+                .createTime(currentTime)
+                .updateTime(currentTime)
+                .delFlag(0)
                 .build();
-        linkAccessStatsDO.setCreateTime(currentTime);
-        linkAccessStatsDO.setUpdateTime(currentTime);
-        linkAccessStatsDO.setDelFlag(0);
         // 短链接基础访问监控插入数据
         linkAccessStatsMapper.shortLinkStats(linkAccessStatsDO);
 
@@ -341,10 +341,10 @@ public class ShrotLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                     .city(actualCity = cityFlag ? "未知" : city)
                     .adcode(actualAdcode=  adcodeFlag ? "未知" : adcode)
                     .cnt(1)
+                    .createTime(currentTime)
+                    .updateTime(currentTime)
+                    .delFlag(0)
                     .build();
-            linkLocaleStatsDO.setCreateTime(currentTime);
-            linkLocaleStatsDO.setUpdateTime(currentTime);
-            linkLocaleStatsDO.setDelFlag(0);
             // 短链接地区统计访问监控插入数据
             linkLocaleStatsMapper.shortLinkLocaleState(linkLocaleStatsDO);
         }
@@ -361,10 +361,10 @@ public class ShrotLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                 .date(currentTime)
                 .browser(browser)
                 .cnt(1)
+                .createTime(currentTime)
+                .updateTime(currentTime)
+                .delFlag(0)
                 .build();
-        linkBrowserStatsDO.setCreateTime(currentTime);
-        linkBrowserStatsDO.setUpdateTime(currentTime);
-        linkBrowserStatsDO.setDelFlag(0);
         // 短链接浏览器统计访问监控插入数据
         linkBrowserStatsMapper.shortLinkBrowserState(linkBrowserStatsDO);
 
