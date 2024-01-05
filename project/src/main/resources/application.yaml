@@ -22,3 +22,11 @@ mybatis-plus:
       logic-not-delete-value: 0     # 逻辑未删除值(默认为 0)
   type-aliases-package:             # 配置MP别名扫描包
     org.ylan.model.entity
+
+short-link:
+  # 统计配置
+  stats:
+    # 地区统计📉
+    locale:
+      amap-remote-url: https://restapi.amap.com/v3/ip
+      amap-key: 824c511f0997586ea016f979fdb23087
