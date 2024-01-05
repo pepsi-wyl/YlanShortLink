@@ -10,7 +10,7 @@ import org.ylan.model.entity.LinkLocaleStatsDO;
  * @author ylan
  */
 
-public interface LinkLocaleStatsMapper extends BaseMapper<LinkLocaleStatsMapper> {
+public interface LinkLocaleStatsMapper extends BaseMapper<LinkLocaleStatsDO> {
 
     /**
      * 短链接地区统计访问监控
