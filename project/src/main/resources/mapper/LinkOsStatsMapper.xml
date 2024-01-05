@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.ylan.mapper.LinkOsStatsMapper">
+
+    <insert id="shortLinkOsState" parameterType="LinkOsStatsDO">
+        INSERT INTO t_link_os_stats
+
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="linkOsStats.id != null">
+                id,
+            </if>
+            <if test="linkOsStats.gid != null">
+                gid,
+            </if>
+            <if test="linkOsStats.fullShortUrl != null">
+                full_short_url,
+            </if>
+            <if test="linkOsStats.date != null">
+                date,
+            </if>
+            <if test="linkOsStats.os != null">
+                os,
+            </if>
+            <if test="linkOsStats.cnt != null">
+                cnt,
+            </if>
+            <if test="linkOsStats.createTime != null">
+                create_time,
+            </if>
+            <if test="linkOsStats.updateTime != null">
+                update_time,
+            </if>
+            <if test="linkOsStats.delFlag != null">
+                del_flag,
+            </if>
+        </trim>
+
+        VALUES
+
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="linkOsStats.id != null">
+                #{linkOsStats.id},
+            </if>
+            <if test="linkOsStats.gid != null">
+                #{linkOsStats.gid},
+            </if>
+            <if test="linkOsStats.fullShortUrl != null">
+                #{linkOsStats.fullShortUrl},
+            </if>
+            <if test="linkOsStats.date != null">
+                #{linkOsStats.date},
+            </if>
+            <if test="linkOsStats.os != null">
+                #{linkOsStats.os},
+            </if>
+            <if test="linkOsStats.cnt != null">
+                #{linkOsStats.cnt},
+            </if>
+            <if test="linkOsStats.createTime != null">
+                #{linkOsStats.createTime},
+            </if>
+            <if test="linkOsStats.updateTime != null">
+                #{linkOsStats.updateTime},
+            </if>
+            <if test="linkOsStats.delFlag != null">
+                #{linkOsStats.delFlag},
+            </if>
+        </trim>
+
+        ON DUPLICATE KEY UPDATE
+
+        cnt = cnt + #{linkOsStats.cnt},
+        update_time = NOW();
+    </insert>
+
+</mapper>
