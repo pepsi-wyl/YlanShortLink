@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.ylan.mapper.LinkBrowserStatsMapper">
+
+    <insert id="shortLinkBrowserState" parameterType="LinkBrowserStatsDO">
+        INSERT INTO t_link_browser_stats
+
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="linkBrowserStats.id != null">
+                id,
+            </if>
+            <if test="linkBrowserStats.gid != null">
+                gid,
+            </if>
+            <if test="linkBrowserStats.fullShortUrl != null">
+                full_short_url,
+            </if>
+            <if test="linkBrowserStats.date != null">
+                date,
+            </if>
+            <if test="linkBrowserStats.browser != null">
+                browser,
+            </if>
+            <if test="linkBrowserStats.cnt != null">
+                cnt,
+            </if>
+            <if test="linkBrowserStats.createTime != null">
+                create_time,
+            </if>
+            <if test="linkBrowserStats.updateTime != null">
+                update_time,
+            </if>
+            <if test="linkBrowserStats.delFlag != null">
+                del_flag,
+            </if>
+        </trim>
+
+        VALUES
+
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="linkBrowserStats.id != null">
+                #{linkBrowserStats.id},
+            </if>
+            <if test="linkBrowserStats.gid != null">
+                #{linkBrowserStats.gid},
+            </if>
+            <if test="linkBrowserStats.fullShortUrl != null">
+                #{linkBrowserStats.fullShortUrl},
+            </if>
+            <if test="linkBrowserStats.date != null">
+                #{linkBrowserStats.date},
+            </if>
+            <if test="linkBrowserStats.browser != null">
+                #{linkBrowserStats.browser},
+            </if>
+            <if test="linkBrowserStats.cnt != null">
+                #{linkBrowserStats.cnt},
+            </if>
+            <if test="linkBrowserStats.createTime != null">
+                #{linkBrowserStats.createTime},
+            </if>
+            <if test="linkBrowserStats.updateTime != null">
+                #{linkBrowserStats.updateTime},
+            </if>
+            <if test="linkBrowserStats.delFlag != null">
+                #{linkBrowserStats.delFlag},
+            </if>
+        </trim>
+
+        ON DUPLICATE KEY UPDATE
+
+        cnt = cnt + #{linkBrowserStats.cnt},
+        update_time = NOW();
+    </insert>
+
+</mapper>
