@@ -118,6 +118,11 @@ public class ShrotLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
     private final LinkDeviceStatsMapper linkDeviceStatsMapper;
 
     /**
+     * 短链接网络访问统计访问持久层
+     */
+    private final LinkNetworkStatsMapper linkNetworkStatsMapper;
+
+    /**
      * AMAP URL
      */
     @Value("${short-link.stats.locale.amap-remote-url}")
@@ -406,6 +411,25 @@ public class ShrotLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                 .build();
         // 短链接设备统计访问监控插入数据
         linkDeviceStatsMapper.shortLinkDeviceState(linkDeviceStatsDO);
+
+
+
+        // 获取网络数据
+        String network = LinkUtil.getNetwork(((HttpServletRequest) request));
+        // 短链接网络统计访问数据准备
+        LinkNetworkStatsDO linkNetworkStatsDO = LinkNetworkStatsDO.builder()
+                .id(IdUtil.getSnowflake(1, 1).nextId())
+                .gid(gid)
+                .fullShortUrl(fullShortUrl)
+                .date(currentTime)
+                .network(network)
+                .cnt(1)
+                .createTime(currentTime)
+                .updateTime(currentTime)
+                .delFlag(0)
+                .build();
+        // 短链接网络统计访问监控插入数据
+        linkNetworkStatsMapper.shortLinkNetworkState(linkNetworkStatsDO);
 
     }
 
