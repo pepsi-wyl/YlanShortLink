@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.ylan.mapper.LinkLocaleStatsMapper">
+
+    <insert id="shortLinkLocaleState" parameterType="LinkLocaleStatsDO">
+        INSERT INTO t_link_locale_stats
+
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="linkLocaleStats.id != null">
+                id,
+            </if>
+            <if test="linkLocaleStats.gid != null">
+                gid,
+            </if>
+            <if test="linkLocaleStats.fullShortUrl != null">
+                full_short_url,
+            </if>
+            <if test="linkLocaleStats.date != null">
+                date,
+            </if>
+            <if test="linkLocaleStats.country != null">
+                country,
+            </if>
+            <if test="linkLocaleStats.province != null">
+                province,
+            </if>
+            <if test="linkLocaleStats.city != null">
+                city,
+            </if>
+            <if test="linkLocaleStats.adcode != null">
+                adcode,
+            </if>
+            <if test="linkLocaleStats.cnt != null">
+                cnt,
+            </if>
+            <if test="linkLocaleStats.createTime != null">
+                create_time,
+            </if>
+            <if test="linkLocaleStats.updateTime != null">
+                update_time,
+            </if>
+            <if test="linkLocaleStats.delFlag != null">
+                del_flag,
+            </if>
+        </trim>
+
+        VALUES
+
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="linkLocaleStats.id != null">
+                #{linkLocaleStats.id},
+            </if>
+            <if test="linkLocaleStats.gid != null">
+                #{linkLocaleStats.gid},
+            </if>
+            <if test="linkLocaleStats.fullShortUrl != null">
+                #{linkLocaleStats.fullShortUrl},
+            </if>
+            <if test="linkLocaleStats.date != null">
+                #{linkLocaleStats.date},
+            </if>
+            <if test="linkLocaleStats.country != null">
+                #{linkLocaleStats.country},
+            </if>
+            <if test="linkLocaleStats.province != null">
+                #{linkLocaleStats.province},
+            </if>
+            <if test="linkLocaleStats.city != null">
+                #{linkLocaleStats.city},
+            </if>
+            <if test="linkLocaleStats.adcode != null">
+                #{linkLocaleStats.adcode},
+            </if>
+            <if test="linkLocaleStats.cnt != null">
+                #{linkLocaleStats.cnt},
+            </if>
+            <if test="linkLocaleStats.createTime != null">
+                #{linkLocaleStats.createTime},
+            </if>
+            <if test="linkLocaleStats.updateTime != null">
+                #{linkLocaleStats.updateTime},
+            </if>
+            <if test="linkLocaleStats.delFlag != null">
+                #{linkLocaleStats.delFlag},
+            </if>
+        </trim>
+
+        ON DUPLICATE KEY UPDATE
+
+        cnt = cnt + #{linkLocaleStats.cnt},
+        update_time = NOW();
+    </insert>
+
+</mapper>
