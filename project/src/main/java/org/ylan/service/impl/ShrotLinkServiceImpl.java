@@ -6,6 +6,9 @@ import cn.hutool.core.text.StrBuilder;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.http.HttpUtil;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -26,6 +29,7 @@ import org.jsoup.nodes.Element;
 import org.redisson.api.RBloomFilter;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -33,6 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.ylan.common.convention.enums.VailDateTypeEnum;
 import org.ylan.common.convention.exception.ServiceException;
 import org.ylan.mapper.LinkAccessStatsMapper;
+import org.ylan.mapper.LinkLocaleStatsMapper;
 import org.ylan.mapper.ShortLinkGotoMapper;
 import org.ylan.mapper.ShortLinkMapper;
 import org.ylan.model.dto.req.ShortLinkCreateReqDTO;
@@ -41,6 +46,7 @@ import org.ylan.model.dto.resp.ShortLinkCreateRespDTO;
 import org.ylan.model.dto.resp.ShortLinkGroupCountQueryRespDTO;
 import org.ylan.model.dto.resp.ShortLinkPageRespDTO;
 import org.ylan.model.entity.LinkAccessStatsDO;
+import org.ylan.model.entity.LinkLocaleStatsDO;
 import org.ylan.model.entity.ShortLinkDO;
 import org.ylan.model.entity.ShortLinkGotoDO;
 import org.ylan.service.ShortLinkService;
@@ -55,10 +61,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static org.ylan.common.constant.ApiConstant.*;
 import static org.ylan.common.constant.NetConstant.HTTP;
 import static org.ylan.common.constant.NetConstant.URL_SPLIT;
 import static org.ylan.common.constant.RedisCacheConstant.*;
-import static org.ylan.common.constant.ShortLinkStatsConstant.*;
+import static org.ylan.common.constant.ShortLinkStatsConstant.UV_STATS_COOKIE_NAME;
+import static org.ylan.common.constant.ShortLinkStatsConstant.UV_STATS_COOKIE_TIME;
 import static org.ylan.common.convention.enums.GroupErrorCodeEnum.GROUP_HAS_RECYCLE_BIN_SHORT_LINK_ERROR;
 import static org.ylan.common.convention.enums.GroupErrorCodeEnum.GROUP_HAS_SHORT_LINK;
 import static org.ylan.common.convention.enums.ShortLinkErrorCodeEnum.*;
@@ -98,6 +106,23 @@ public class ShrotLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
      * 短链接基础访问监控持久层
      */
     private final LinkAccessStatsMapper linkAccessStatsMapper;
+
+    /**
+     * 短链接地区统计访问持久层
+     */
+    private final LinkLocaleStatsMapper linkLocaleStatsMapper;
+
+    /**
+     * AMAP URL
+     */
+    @Value("${short-link.stats.locale.amap-remote-url}")
+    private String statsLocaleAmapRemoteUrl;
+
+    /**
+     * AMAP KEY
+     */
+    @Value("${short-link.stats.locale.amap-key}")
+    private String statsLocaleAmapKey;
 
     @SneakyThrows
     @Override
@@ -276,6 +301,49 @@ public class ShrotLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
         linkAccessStatsDO.setDelFlag(0);
         // 短链接基础访问监控插入数据
         linkAccessStatsMapper.shortLinkStats(linkAccessStatsDO);
+
+
+
+        String actualProvince;
+        String actualCity;
+        String actualAdcode;
+        // 准备高德地图API参数
+        Map<String, Object> localeParamMap = new HashMap<>();
+        localeParamMap.put(AMAP_KEY, statsLocaleAmapKey);
+        localeParamMap.put(AMAP_IP, remoteAddr);
+        // 发送Get请求 并解析为JSONObject
+        String localeResultStr = HttpUtil.get(statsLocaleAmapRemoteUrl, localeParamMap);
+        JSONObject localeResultObj = JSON.parseObject(localeResultStr);
+        // 响应成功 返回码值为 AMAP_RESP_INFOCODE_SUCCESS
+        String infoCode = localeResultObj.getString(AMAP_RESP_INFOCODE);
+        if (StrUtil.isNotBlank(infoCode) && StrUtil.equals(infoCode, AMAP_RESP_INFOCODE_SUCCESS)) {
+
+            // 解析响应JSONObject
+            String province = localeResultObj.getString(AMAP_RESP_PROVINCE);
+            String city = localeResultObj.getString(AMAP_RESP_CITY);
+            String adcode = localeResultObj.getString(AMAP_RESP_ADCODE);
+            // 判断解析到的信息 是否为空
+            boolean provinceFlag = StrUtil.equals(province, AMAP_RESP_PROVINCE_EMPTY);
+            boolean cityFlag = StrUtil.equals(city, AMAP_RESP_CITY_EMPTY);
+            boolean adcodeFlag = StrUtil.equals(adcode, AMAP_RESP_ADCODE_EMPTY);
+            // 短链接地区统计访问数据准备
+            LinkLocaleStatsDO linkLocaleStatsDO = LinkLocaleStatsDO.builder()
+                    .id(IdUtil.getSnowflake(1, 1).nextId())
+                    .gid(gid)
+                    .fullShortUrl(fullShortUrl)
+                    .date(currentTime)
+                    .country("中国")
+                    .province(actualProvince = provinceFlag ? "未知" : province)
+                    .city(actualCity = cityFlag ? "未知" : city)
+                    .adcode(actualAdcode=  adcodeFlag ? "未知" : adcode)
+                    .cnt(1)
+                    .build();
+            linkLocaleStatsDO.setCreateTime(currentTime);
+            linkLocaleStatsDO.setUpdateTime(currentTime);
+            linkLocaleStatsDO.setDelFlag(0);
+            // 短链接地区统计访问监控插入数据
+            linkLocaleStatsMapper.shortLinkLocaleState(linkLocaleStatsDO);
+        }
 
     }
 
