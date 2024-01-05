@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.ylan.mapper.LinkDeviceStatsMapper">
+
+    <insert id="shortLinkDeviceState" parameterType="LinkDeviceStatsDO">
+        INSERT INTO t_link_device_stats
+
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="linkDeviceStats.id != null">
+                id,
+            </if>
+            <if test="linkDeviceStats.gid != null">
+                gid,
+            </if>
+            <if test="linkDeviceStats.fullShortUrl != null">
+                full_short_url,
+            </if>
+            <if test="linkDeviceStats.date != null">
+                date,
+            </if>
+            <if test="linkDeviceStats.device != null">
+                device,
+            </if>
+            <if test="linkDeviceStats.cnt != null">
+                cnt,
+            </if>
+            <if test="linkDeviceStats.createTime != null">
+                create_time,
+            </if>
+            <if test="linkDeviceStats.updateTime != null">
+                update_time,
+            </if>
+            <if test="linkDeviceStats.delFlag != null">
+                del_flag,
+            </if>
+        </trim>
+
+        VALUES
+
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="linkDeviceStats.id != null">
+                #{linkDeviceStats.id},
+            </if>
+            <if test="linkDeviceStats.gid != null">
+                #{linkDeviceStats.gid},
+            </if>
+            <if test="linkDeviceStats.fullShortUrl != null">
+                #{linkDeviceStats.fullShortUrl},
+            </if>
+            <if test="linkDeviceStats.date != null">
+                #{linkDeviceStats.date},
+            </if>
+            <if test="linkDeviceStats.device != null">
+                #{linkDeviceStats.device},
+            </if>
+            <if test="linkDeviceStats.cnt != null">
+                #{linkDeviceStats.cnt},
+            </if>
+            <if test="linkDeviceStats.createTime != null">
+                #{linkDeviceStats.createTime},
+            </if>
+            <if test="linkDeviceStats.updateTime != null">
+                #{linkDeviceStats.updateTime},
+            </if>
+            <if test="linkDeviceStats.delFlag != null">
+                #{linkDeviceStats.delFlag},
+            </if>
+        </trim>
+
+        ON DUPLICATE KEY UPDATE
+
+        cnt = cnt + #{linkDeviceStats.cnt},
+        update_time = NOW();
+    </insert>
+
+</mapper>
