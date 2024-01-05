@@ -6,9 +6,6 @@ import cn.hutool.core.text.StrBuilder;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.http.HttpUtil;
-import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -55,7 +52,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static org.ylan.common.constant.ApiConstant.*;
 import static org.ylan.common.constant.NetConstant.HTTP;
 import static org.ylan.common.constant.NetConstant.URL_SPLIT;
 import static org.ylan.common.constant.RedisCacheConstant.*;
@@ -115,6 +111,11 @@ public class ShrotLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
      * 操作系统统计访问监控持久层
      */
     private final LinkOsStatsMapper linkOsStatsMapper;
+
+    /**
+     * 短链接设备访问持久层
+     */
+    private final LinkDeviceStatsMapper linkDeviceStatsMapper;
 
     /**
      * AMAP URL
@@ -308,46 +309,46 @@ public class ShrotLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
 
 
 
-        String actualProvince;
-        String actualCity;
-        String actualAdcode;
-        // 准备高德地图API参数
-        Map<String, Object> localeParamMap = new HashMap<>();
-        localeParamMap.put(AMAP_KEY, statsLocaleAmapKey);
-        localeParamMap.put(AMAP_IP, remoteAddr);
-        // 发送Get请求 并解析为JSONObject
-        String localeResultStr = HttpUtil.get(statsLocaleAmapRemoteUrl, localeParamMap);
-        JSONObject localeResultObj = JSON.parseObject(localeResultStr);
-        // 响应成功 返回码值为 AMAP_RESP_INFOCODE_SUCCESS
-        String infoCode = localeResultObj.getString(AMAP_RESP_INFOCODE);
-        if (StrUtil.isNotBlank(infoCode) && StrUtil.equals(infoCode, AMAP_RESP_INFOCODE_SUCCESS)) {
-
-            // 解析响应JSONObject
-            String province = localeResultObj.getString(AMAP_RESP_PROVINCE);
-            String city = localeResultObj.getString(AMAP_RESP_CITY);
-            String adcode = localeResultObj.getString(AMAP_RESP_ADCODE);
-            // 判断解析到的信息 是否为空
-            boolean provinceFlag = StrUtil.equals(province, AMAP_RESP_PROVINCE_EMPTY);
-            boolean cityFlag = StrUtil.equals(city, AMAP_RESP_CITY_EMPTY);
-            boolean adcodeFlag = StrUtil.equals(adcode, AMAP_RESP_ADCODE_EMPTY);
-            // 短链接地区统计访问数据准备
-            LinkLocaleStatsDO linkLocaleStatsDO = LinkLocaleStatsDO.builder()
-                    .id(IdUtil.getSnowflake(1, 1).nextId())
-                    .gid(gid)
-                    .fullShortUrl(fullShortUrl)
-                    .date(currentTime)
-                    .country("中国")
-                    .province(actualProvince = provinceFlag ? "未知" : province)
-                    .city(actualCity = cityFlag ? "未知" : city)
-                    .adcode(actualAdcode=  adcodeFlag ? "未知" : adcode)
-                    .cnt(1)
-                    .createTime(currentTime)
-                    .updateTime(currentTime)
-                    .delFlag(0)
-                    .build();
-            // 短链接地区统计访问监控插入数据
-            linkLocaleStatsMapper.shortLinkLocaleState(linkLocaleStatsDO);
-        }
+//        String actualProvince;
+//        String actualCity;
+//        String actualAdcode;
+//        // 准备高德地图API参数
+//        Map<String, Object> localeParamMap = new HashMap<>();
+//        localeParamMap.put(AMAP_KEY, statsLocaleAmapKey);
+//        localeParamMap.put(AMAP_IP, remoteAddr);
+//        // 发送Get请求 并解析为JSONObject
+//        String localeResultStr = HttpUtil.get(statsLocaleAmapRemoteUrl, localeParamMap);
+//        JSONObject localeResultObj = JSON.parseObject(localeResultStr);
+//        // 响应成功 返回码值为 AMAP_RESP_INFOCODE_SUCCESS
+//        String infoCode = localeResultObj.getString(AMAP_RESP_INFOCODE);
+//        if (StrUtil.isNotBlank(infoCode) && StrUtil.equals(infoCode, AMAP_RESP_INFOCODE_SUCCESS)) {
+//
+//            // 解析响应JSONObject
+//            String province = localeResultObj.getString(AMAP_RESP_PROVINCE);
+//            String city = localeResultObj.getString(AMAP_RESP_CITY);
+//            String adcode = localeResultObj.getString(AMAP_RESP_ADCODE);
+//            // 判断解析到的信息 是否为空
+//            boolean provinceFlag = StrUtil.equals(province, AMAP_RESP_PROVINCE_EMPTY);
+//            boolean cityFlag = StrUtil.equals(city, AMAP_RESP_CITY_EMPTY);
+//            boolean adcodeFlag = StrUtil.equals(adcode, AMAP_RESP_ADCODE_EMPTY);
+//            // 短链接地区统计访问数据准备
+//            LinkLocaleStatsDO linkLocaleStatsDO = LinkLocaleStatsDO.builder()
+//                    .id(IdUtil.getSnowflake(1, 1).nextId())
+//                    .gid(gid)
+//                    .fullShortUrl(fullShortUrl)
+//                    .date(currentTime)
+//                    .country("中国")
+//                    .province(actualProvince = provinceFlag ? "未知" : province)
+//                    .city(actualCity = cityFlag ? "未知" : city)
+//                    .adcode(actualAdcode=  adcodeFlag ? "未知" : adcode)
+//                    .cnt(1)
+//                    .createTime(currentTime)
+//                    .updateTime(currentTime)
+//                    .delFlag(0)
+//                    .build();
+//            // 短链接地区统计访问监控插入数据
+//            linkLocaleStatsMapper.shortLinkLocaleState(linkLocaleStatsDO);
+//        }
 
 
 
@@ -386,6 +387,25 @@ public class ShrotLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                 .build();
         // 短链接操作系统统计访问监控插入数据
         linkOsStatsMapper.shortLinkOsState(linkOsStatsDO);
+
+
+
+        // 获取设备数据
+        String device = LinkUtil.getDevice(((HttpServletRequest) request));
+        // 短链接设备统计访问数据准备
+        LinkDeviceStatsDO linkDeviceStatsDO = LinkDeviceStatsDO.builder()
+                .id(IdUtil.getSnowflake(1, 1).nextId())
+                .gid(gid)
+                .fullShortUrl(fullShortUrl)
+                .date(currentTime)
+                .device(device)
+                .cnt(1)
+                .createTime(currentTime)
+                .updateTime(currentTime)
+                .delFlag(0)
+                .build();
+        // 短链接设备统计访问监控插入数据
+        linkDeviceStatsMapper.shortLinkDeviceState(linkDeviceStatsDO);
 
     }
 
