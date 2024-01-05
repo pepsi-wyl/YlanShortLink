@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.ylan.mapper.LinkNetworkStatsMapper">
+
+    <insert id="shortLinkNetworkState" parameterType="LinkNetworkStatsDO">
+        INSERT INTO t_link_network_stats
+
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="linkNetworkStats.id != null">
+                id,
+            </if>
+            <if test="linkNetworkStats.gid != null">
+                gid,
+            </if>
+            <if test="linkNetworkStats.fullShortUrl != null">
+                full_short_url,
+            </if>
+            <if test="linkNetworkStats.date != null">
+                date,
+            </if>
+            <if test="linkNetworkStats.network != null">
+                network,
+            </if>
+            <if test="linkNetworkStats.cnt != null">
+                cnt,
+            </if>
+            <if test="linkNetworkStats.createTime != null">
+                create_time,
+            </if>
+            <if test="linkNetworkStats.updateTime != null">
+                update_time,
+            </if>
+            <if test="linkNetworkStats.delFlag != null">
+                del_flag,
+            </if>
+        </trim>
+
+        VALUES
+
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="linkNetworkStats.id != null">
+                #{linkNetworkStats.id},
+            </if>
+            <if test="linkNetworkStats.gid != null">
+                #{linkNetworkStats.gid},
+            </if>
+            <if test="linkNetworkStats.fullShortUrl != null">
+                #{linkNetworkStats.fullShortUrl},
+            </if>
+            <if test="linkNetworkStats.date != null">
+                #{linkNetworkStats.date},
+            </if>
+            <if test="linkNetworkStats.network != null">
+                #{linkNetworkStats.network},
+            </if>
+            <if test="linkNetworkStats.cnt != null">
+                #{linkNetworkStats.cnt},
+            </if>
+            <if test="linkNetworkStats.createTime != null">
+                #{linkNetworkStats.createTime},
+            </if>
+            <if test="linkNetworkStats.updateTime != null">
+                #{linkNetworkStats.updateTime},
+            </if>
+            <if test="linkNetworkStats.delFlag != null">
+                #{linkNetworkStats.delFlag},
+            </if>
+        </trim>
+
+        ON DUPLICATE KEY UPDATE
+
+        cnt = cnt + #{linkNetworkStats.cnt},
+        update_time = NOW();
+    </insert>
+
+</mapper>
