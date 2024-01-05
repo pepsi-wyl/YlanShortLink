@@ -36,19 +36,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.ylan.common.convention.enums.VailDateTypeEnum;
 import org.ylan.common.convention.exception.ServiceException;
-import org.ylan.mapper.LinkAccessStatsMapper;
-import org.ylan.mapper.LinkLocaleStatsMapper;
-import org.ylan.mapper.ShortLinkGotoMapper;
-import org.ylan.mapper.ShortLinkMapper;
+import org.ylan.mapper.*;
 import org.ylan.model.dto.req.ShortLinkCreateReqDTO;
 import org.ylan.model.dto.req.ShortLinkPageReqDTO;
 import org.ylan.model.dto.resp.ShortLinkCreateRespDTO;
 import org.ylan.model.dto.resp.ShortLinkGroupCountQueryRespDTO;
 import org.ylan.model.dto.resp.ShortLinkPageRespDTO;
-import org.ylan.model.entity.LinkAccessStatsDO;
-import org.ylan.model.entity.LinkLocaleStatsDO;
-import org.ylan.model.entity.ShortLinkDO;
-import org.ylan.model.entity.ShortLinkGotoDO;
+import org.ylan.model.entity.*;
 import org.ylan.service.ShortLinkService;
 import org.ylan.utils.HashUtils;
 import org.ylan.utils.LinkUtil;
@@ -111,6 +105,11 @@ public class ShrotLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
      * 短链接地区统计访问持久层
      */
     private final LinkLocaleStatsMapper linkLocaleStatsMapper;
+
+    /**
+     * 短链接浏览器访问监控持久层
+     */
+    private final LinkBrowserStatsMapper linkBrowserStatsMapper;
 
     /**
      * AMAP URL
@@ -345,6 +344,24 @@ public class ShrotLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
             linkLocaleStatsMapper.shortLinkLocaleState(linkLocaleStatsDO);
         }
 
+
+
+        // 获取浏览器数据
+        String browser = LinkUtil.getBrowser(((HttpServletRequest) request));
+        // 短链接浏览器统计访问数据准备
+        LinkBrowserStatsDO linkBrowserStatsDO = LinkBrowserStatsDO.builder()
+                .id(IdUtil.getSnowflake(1, 1).nextId())
+                .gid(gid)
+                .fullShortUrl(fullShortUrl)
+                .date(currentTime)
+                .browser(browser)
+                .cnt(1)
+                .build();
+        linkBrowserStatsDO.setCreateTime(currentTime);
+        linkBrowserStatsDO.setUpdateTime(currentTime);
+        linkBrowserStatsDO.setDelFlag(0);
+        // 短链接浏览器统计访问监控插入数据
+        linkBrowserStatsMapper.shortLinkBrowserState(linkBrowserStatsDO);
     }
 
     @Transactional(rollbackFor = Exception.class)
