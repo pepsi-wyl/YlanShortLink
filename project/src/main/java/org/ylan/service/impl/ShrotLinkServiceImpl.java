@@ -112,6 +112,11 @@ public class ShrotLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
     private final LinkBrowserStatsMapper linkBrowserStatsMapper;
 
     /**
+     * 操作系统统计访问监控持久层
+     */
+    private final LinkOsStatsMapper linkOsStatsMapper;
+
+    /**
      * AMAP URL
      */
     @Value("${short-link.stats.locale.amap-remote-url}")
@@ -362,6 +367,26 @@ public class ShrotLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
         linkBrowserStatsDO.setDelFlag(0);
         // 短链接浏览器统计访问监控插入数据
         linkBrowserStatsMapper.shortLinkBrowserState(linkBrowserStatsDO);
+
+
+
+        // 获取操作系统数据
+        String os = LinkUtil.getOs(((HttpServletRequest) request));
+        // 短链接操作系统统计访问数据准备
+        LinkOsStatsDO linkOsStatsDO = LinkOsStatsDO.builder()
+                .id(IdUtil.getSnowflake(1, 1).nextId())
+                .gid(gid)
+                .fullShortUrl(fullShortUrl)
+                .date(currentTime)
+                .os(os)
+                .cnt(1)
+                .createTime(currentTime)
+                .updateTime(currentTime)
+                .delFlag(0)
+                .build();
+        // 短链接操作系统统计访问监控插入数据
+        linkOsStatsMapper.shortLinkOsState(linkOsStatsDO);
+
     }
 
     @Transactional(rollbackFor = Exception.class)
