@@ -1241,3 +1241,22 @@ CREATE TABLE `t_link_network_stats`
     UNIQUE KEY `idx_unique_browser_stats` (`gid`, `full_short_url`, `date`, `network`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
+
+# 短链接访问日志监控表
+CREATE TABLE `t_link_access_logs`
+(
+    `id`             bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
+    `gid`            varchar(32)  DEFAULT 'default' COMMENT '分组标识',
+    `user`           varchar(64)  DEFAULT NULL COMMENT '用户信息',
+    `full_short_url` varchar(128) DEFAULT NULL COMMENT '完整短链接',
+    `ip`             varchar(64)  DEFAULT NULL COMMENT '访问IP',
+    `locale`         varchar(256) DEFAULT NULL COMMENT '访问地区',
+    `os`             varchar(64)  DEFAULT NULL COMMENT '访问操作系统',
+    `browser`        varchar(64)  DEFAULT NULL COMMENT '访问浏览器',
+    `network`        varchar(64)  DEFAULT NULL COMMENT '访问网络',
+    `device`         varchar(64)  DEFAULT NULL COMMENT '访问设备',
+    `create_time`    datetime     DEFAULT NULL COMMENT '创建时间',
+    `update_time`    datetime     DEFAULT NULL COMMENT '修改时间',
+    `del_flag`       tinyint(1) DEFAULT NULL COMMENT '删除标识 0：未删除 1：已删除',
+    PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
