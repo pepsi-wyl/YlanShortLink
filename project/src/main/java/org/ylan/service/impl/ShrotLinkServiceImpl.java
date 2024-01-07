@@ -32,6 +32,7 @@ import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.ylan.common.convention.enums.VailDateTypeEnum;
@@ -234,8 +235,8 @@ public class ShrotLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
 
     }
 
-    private void shortLinkStats(String gid, String fullShortUrl, ServletRequest request, ServletResponse response) {
-
+    @Async
+    public void shortLinkStats(String gid, String fullShortUrl, ServletRequest request, ServletResponse response) {
         try {
 
 
