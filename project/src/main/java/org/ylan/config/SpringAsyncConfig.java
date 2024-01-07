@@ -1,5 +1,6 @@
 package org.ylan.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,6 +17,7 @@ import java.util.concurrent.ThreadPoolExecutor;
  * @author ylan
  */
 
+@Slf4j
 @EnableAsync    // 开启异步任务支持
 @Configuration  // 配置类注解
 public class SpringAsyncConfig implements AsyncConfigurer {
@@ -69,9 +71,9 @@ public class SpringAsyncConfig implements AsyncConfigurer {
     public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
         return (Throwable ex, Method method, Object... params)->{
             // todo 异步方法异常处理
-            System.out.println("class#method: " + method.getDeclaringClass().getName() + "#" + method.getName());
-            System.out.println("type        : " + ex.getClass().getName());
-            System.out.println("exception   : " + ex.getMessage());
+            log.error("class#method: {}" , method.getDeclaringClass().getName() + "#" + method.getName());
+            log.error("type        : {}" , ex.getClass().getName());
+            log.error("exception   : {}" , ex.getMessage());
         };
     }
 
