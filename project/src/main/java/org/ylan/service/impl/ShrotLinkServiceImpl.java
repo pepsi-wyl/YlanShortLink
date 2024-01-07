@@ -6,6 +6,9 @@ import cn.hutool.core.text.StrBuilder;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.http.HttpUtil;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -52,6 +55,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static org.ylan.common.constant.ApiConstant.*;
 import static org.ylan.common.constant.NetConstant.HTTP;
 import static org.ylan.common.constant.NetConstant.URL_SPLIT;
 import static org.ylan.common.constant.RedisCacheConstant.*;
@@ -121,6 +125,11 @@ public class ShrotLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
      * 短链接网络访问统计访问持久层
      */
     private final LinkNetworkStatsMapper linkNetworkStatsMapper;
+
+    /**
+     * 短链接访问日志监控持久层
+     */
+    private final LinkAccessLogsMapper linkAccessLogsMapper;
 
     /**
      * AMAP URL
@@ -227,6 +236,10 @@ public class ShrotLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
 
     private void shortLinkStats(String gid, String fullShortUrl, ServletRequest request, ServletResponse response) {
 
+        try {
+
+
+
         // 获取到客户端 cookies
         Cookie[] cookies = ((HttpServletRequest) request).getCookies();
         // UV Flag Atomic
@@ -271,7 +284,6 @@ public class ShrotLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
         }
 
 
-
         // UIP Flag Atomic
         AtomicBoolean uipFlagAtomic = new AtomicBoolean();
         // 用户真实IP
@@ -280,7 +292,6 @@ public class ShrotLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
         Long uipAdded = stringRedisTemplate.opsForSet().add(SHORT_LINK_STATS_UIP_PREFIX + fullShortUrl, remoteAddr);
         // uipFlagAtomic 设置 根据添加的Set集合进行判断是否锁第一次访问
         uipFlagAtomic.set(uipAdded != null && uipAdded > 0L);
-
 
 
         // 当前时间
@@ -304,7 +315,7 @@ public class ShrotLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                 .weekday(DateUtil.dayOfWeekEnum(currentTime).getIso8601Value())
                 .pv(1)                                  // PV
                 .uv(uvFlagAtomic.get() ? 1 : 0)         // UV
-                .uip(uipFlagAtomic.get()? 1 : 0)        // UIP
+                .uip(uipFlagAtomic.get() ? 1 : 0)        // UIP
                 .createTime(currentTime)
                 .updateTime(currentTime)
                 .delFlag(0)
@@ -313,48 +324,46 @@ public class ShrotLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
         linkAccessStatsMapper.shortLinkStats(linkAccessStatsDO);
 
 
+        String actualProvince = null;
+        String actualCity = null;
+        String actualAdcode = null;
+        // 准备高德地图API参数
+        Map<String, Object> localeParamMap = new HashMap<>();
+        localeParamMap.put(AMAP_KEY, statsLocaleAmapKey);
+        localeParamMap.put(AMAP_IP, remoteAddr);
+        // 发送Get请求 并解析为JSONObject
+        String localeResultStr = HttpUtil.get(statsLocaleAmapRemoteUrl, localeParamMap);
+        JSONObject localeResultObj = JSON.parseObject(localeResultStr);
+        // 响应成功 返回码值为 AMAP_RESP_INFOCODE_SUCCESS
+        String infoCode = localeResultObj.getString(AMAP_RESP_INFOCODE);
+        if (StrUtil.isNotBlank(infoCode) && StrUtil.equals(infoCode, AMAP_RESP_INFOCODE_SUCCESS)) {
 
-//        String actualProvince;
-//        String actualCity;
-//        String actualAdcode;
-//        // 准备高德地图API参数
-//        Map<String, Object> localeParamMap = new HashMap<>();
-//        localeParamMap.put(AMAP_KEY, statsLocaleAmapKey);
-//        localeParamMap.put(AMAP_IP, remoteAddr);
-//        // 发送Get请求 并解析为JSONObject
-//        String localeResultStr = HttpUtil.get(statsLocaleAmapRemoteUrl, localeParamMap);
-//        JSONObject localeResultObj = JSON.parseObject(localeResultStr);
-//        // 响应成功 返回码值为 AMAP_RESP_INFOCODE_SUCCESS
-//        String infoCode = localeResultObj.getString(AMAP_RESP_INFOCODE);
-//        if (StrUtil.isNotBlank(infoCode) && StrUtil.equals(infoCode, AMAP_RESP_INFOCODE_SUCCESS)) {
-//
-//            // 解析响应JSONObject
-//            String province = localeResultObj.getString(AMAP_RESP_PROVINCE);
-//            String city = localeResultObj.getString(AMAP_RESP_CITY);
-//            String adcode = localeResultObj.getString(AMAP_RESP_ADCODE);
-//            // 判断解析到的信息 是否为空
-//            boolean provinceFlag = StrUtil.equals(province, AMAP_RESP_PROVINCE_EMPTY);
-//            boolean cityFlag = StrUtil.equals(city, AMAP_RESP_CITY_EMPTY);
-//            boolean adcodeFlag = StrUtil.equals(adcode, AMAP_RESP_ADCODE_EMPTY);
-//            // 短链接地区统计访问数据准备
-//            LinkLocaleStatsDO linkLocaleStatsDO = LinkLocaleStatsDO.builder()
-//                    .id(IdUtil.getSnowflake(1, 1).nextId())
-//                    .gid(gid)
-//                    .fullShortUrl(fullShortUrl)
-//                    .date(currentTime)
-//                    .country("中国")
-//                    .province(actualProvince = provinceFlag ? "未知" : province)
-//                    .city(actualCity = cityFlag ? "未知" : city)
-//                    .adcode(actualAdcode=  adcodeFlag ? "未知" : adcode)
-//                    .cnt(1)
-//                    .createTime(currentTime)
-//                    .updateTime(currentTime)
-//                    .delFlag(0)
-//                    .build();
-//            // 短链接地区统计访问监控插入数据
-//            linkLocaleStatsMapper.shortLinkLocaleState(linkLocaleStatsDO);
-//        }
-
+            // 解析响应JSONObject
+            String province = localeResultObj.getString(AMAP_RESP_PROVINCE);
+            String city = localeResultObj.getString(AMAP_RESP_CITY);
+            String adcode = localeResultObj.getString(AMAP_RESP_ADCODE);
+            // 判断解析到的信息 是否为空
+            boolean provinceFlag = StrUtil.equals(province, AMAP_RESP_PROVINCE_EMPTY);
+            boolean cityFlag = StrUtil.equals(city, AMAP_RESP_CITY_EMPTY);
+            boolean adcodeFlag = StrUtil.equals(adcode, AMAP_RESP_ADCODE_EMPTY);
+            // 短链接地区统计访问数据准备
+            LinkLocaleStatsDO linkLocaleStatsDO = LinkLocaleStatsDO.builder()
+                    .id(IdUtil.getSnowflake(1, 1).nextId())
+                    .gid(gid)
+                    .fullShortUrl(fullShortUrl)
+                    .date(currentTime)
+                    .country("中国")
+                    .province(actualProvince = provinceFlag ? "未知" : province)
+                    .city(actualCity = cityFlag ? "未知" : city)
+                    .adcode(actualAdcode = adcodeFlag ? "未知" : adcode)
+                    .cnt(1)
+                    .createTime(currentTime)
+                    .updateTime(currentTime)
+                    .delFlag(0)
+                    .build();
+            // 短链接地区统计访问监控插入数据
+            linkLocaleStatsMapper.shortLinkLocaleState(linkLocaleStatsDO);
+        }
 
 
         // 获取浏览器数据
@@ -375,7 +384,6 @@ public class ShrotLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
         linkBrowserStatsMapper.shortLinkBrowserState(linkBrowserStatsDO);
 
 
-
         // 获取操作系统数据
         String os = LinkUtil.getOs(((HttpServletRequest) request));
         // 短链接操作系统统计访问数据准备
@@ -392,7 +400,6 @@ public class ShrotLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                 .build();
         // 短链接操作系统统计访问监控插入数据
         linkOsStatsMapper.shortLinkOsState(linkOsStatsDO);
-
 
 
         // 获取设备数据
@@ -413,7 +420,6 @@ public class ShrotLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
         linkDeviceStatsMapper.shortLinkDeviceState(linkDeviceStatsDO);
 
 
-
         // 获取网络数据
         String network = LinkUtil.getNetwork(((HttpServletRequest) request));
         // 短链接网络统计访问数据准备
@@ -431,6 +437,26 @@ public class ShrotLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
         // 短链接网络统计访问监控插入数据
         linkNetworkStatsMapper.shortLinkNetworkState(linkNetworkStatsDO);
 
+
+        // 短链接访问日志监控数据准备
+        LinkAccessLogsDO linkAccessLogsDO = LinkAccessLogsDO.builder()
+                .gid(gid)
+                .user(uvValueAtomic.get())
+                .fullShortUrl(fullShortUrl)
+                .ip(remoteAddr)
+                .locale(StrUtil.join("-", "中国", actualProvince, actualCity))
+                .os(os)
+                .browser(browser)
+                .network(network)
+                .device(device)
+                .build();
+        // 短链接访问日志监控插入数据
+        linkAccessLogsMapper.insert(linkAccessLogsDO);
+
+        } catch (Exception e) {
+            // 监控统计异常
+            log.error("shortLinkStats error", e);
+        }
     }
 
     @Transactional(rollbackFor = Exception.class)
