@@ -1,9 +1,12 @@
 package org.ylan.common.convention.result;
 
+import org.slf4j.MDC;
 import org.ylan.common.convention.enums.BaseErrorCodeEnum;
 import org.ylan.common.convention.exception.AbstractException;
 
 import java.util.Optional;
+
+import static org.ylan.common.constant.LogsConstant.TRACE_ID;
 
 /**
  * 全局返回对象构造器
@@ -18,7 +21,8 @@ public final class Results {
      */
     public static Result<Void> success() {
         return new Result<Void>()
-                .setCode(Result.SUCCESS_CODE);
+                .setCode(Result.SUCCESS_CODE)
+                .setRequestId(MDC.get(TRACE_ID));
     }
 
     /**
@@ -27,7 +31,8 @@ public final class Results {
     public static <T> Result<T> success(T data) {
         return new Result<T>()
                 .setCode(Result.SUCCESS_CODE)
-                .setData(data);
+                .setData(data)
+                .setRequestId(MDC.get(TRACE_ID));
     }
 
     /**
@@ -36,7 +41,8 @@ public final class Results {
     public static Result<Void> failure() {
         return new Result<Void>()
                 .setCode(BaseErrorCodeEnum.SERVICE_ERROR.code())
-                .setMessage(BaseErrorCodeEnum.SERVICE_ERROR.message());
+                .setMessage(BaseErrorCodeEnum.SERVICE_ERROR.message())
+                .setRequestId(MDC.get(TRACE_ID));
     }
 
     /**
@@ -49,7 +55,8 @@ public final class Results {
                 Optional.ofNullable(abstractException.getErrorMessage()).orElse(BaseErrorCodeEnum.SERVICE_ERROR.message());
         return new Result<Void>()
                 .setCode(errorCode)
-                .setMessage(errorMessage);
+                .setMessage(errorMessage)
+                .setRequestId(MDC.get(TRACE_ID));
     }
 
     /**
@@ -58,6 +65,7 @@ public final class Results {
     public static Result<Void> failure(String errorCode, String errorMessage) {
         return new Result<Void>()
                 .setCode(errorCode)
-                .setMessage(errorMessage);
+                .setMessage(errorMessage)
+                .setRequestId(MDC.get(TRACE_ID));
     }
 }
