@@ -27,7 +27,7 @@ public class LinkController {
     /**
      * 获取网页的Favicon图标
      */
-    @GetMapping("/api/short-link/v1/admin/favicon")
+    @GetMapping("/api/short-link/admin/v1/favicon")
     public Result<String> getFaviconByUrl(@RequestParam("url") String url) {
         return shortLinkRemoteService.getFaviconByUrl(url);
     }
@@ -35,7 +35,7 @@ public class LinkController {
     /**
      * 获取网页的Title标题
      */
-    @GetMapping("/api/short-link/v1/admin/title")
+    @GetMapping("/api/short-link/admin/v1/title")
     public Result<String> getTitleByUrl(@RequestParam("url") String url) {
         return shortLinkRemoteService.getTitleByUrl(url);
     }
