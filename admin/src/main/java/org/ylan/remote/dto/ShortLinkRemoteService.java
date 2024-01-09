@@ -107,4 +107,11 @@ public interface ShortLinkRemoteService {
      */
     Result<ShortLinkStatsRespDTO> oneShortLinkStats(ShortLinkStatsReqDTO requestParam);
 
+    /**
+     * 访问单个短链接指定时间内监控访问记录数据
+     *
+     * @param requestParam 访问短链接监控访问记录请求参数
+     * @return 短链接监控访问记录信息
+     */
+    Result<IPage<ShortLinkStatsAccessRecordRespDTO>> shortLinkStatsAccessRecord(ShortLinkStatsAccessRecordReqDTO requestParam);
 }

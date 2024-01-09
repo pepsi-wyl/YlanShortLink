@@ -169,4 +169,15 @@ public class ShortLinkRemoteServiceImpl implements ShortLinkRemoteService{
         return JSON.parseObject(resultBodyStr, new TypeReference<>() {});
     }
 
+    @Override
+    public Result<IPage<ShortLinkStatsAccessRecordRespDTO>> shortLinkStatsAccessRecord(ShortLinkStatsAccessRecordReqDTO requestParam) {
+        Map<String, Object> requestMap = BeanUtil.beanToMap(requestParam, false, true);
+        requestMap.remove("orders");
+        requestMap.remove("records");
+        log.info("【 访问单个短链接指定时间内监控访问记录数据-GET-请求参数 】【 {} 】", requestMap);
+        String resultBodyStr = HttpUtil.get(HOST + "/api/short-link/v1/stats/access-record", requestMap);
+        log.info("【 访问单个短链接指定时间内监控访问记录数据 】 【 {} 】", resultBodyStr);
+        return JSON.parseObject(resultBodyStr, new TypeReference<>() {});
+    }
+
 }
