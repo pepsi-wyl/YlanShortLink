@@ -8,6 +8,7 @@ import org.ylan.model.entity.LinkAccessStatsDO;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 短链接访问日志监控持久层
@@ -41,4 +42,22 @@ public interface LinkAccessLogsMapper extends BaseMapper<LinkAccessLogsDO> {
      * @return 获取指定日期内新旧访客数据
      */
     HashMap<String, Object> findUvTypeCntByShortLink(@Param("param") ShortLinkStatsReqDTO requestParam);
+
+    /**
+     * 获取用户信息是否新老访客
+     *
+     * @param gid           分组Gid
+     * @param fullShortUrl  完整短链接
+     * @param startDate     开始时间
+     * @param endDate       结束时间
+     * @param userAccessLogsList 用户访问日志列表
+     * @return 访客信息
+     */
+    List<Map<String, Object>> selectUvTypeByUsers(
+            @Param("gid") String gid,
+            @Param("fullShortUrl") String fullShortUrl,
+            @Param("startDate") String startDate,
+            @Param("endDate") String endDate,
+            @Param("userAccessLogsList") List<String> userAccessLogsList
+    );
 }
