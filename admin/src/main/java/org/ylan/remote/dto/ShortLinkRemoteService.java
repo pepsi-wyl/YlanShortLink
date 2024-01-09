@@ -2,11 +2,9 @@ package org.ylan.remote.dto;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.ylan.common.convention.result.Result;
+import org.ylan.remote.dto.req.ShortLinkStatsReqDTO;
 import org.ylan.remote.dto.req.*;
-import org.ylan.remote.dto.resp.GroupCountQueryRespDTO;
-import org.ylan.remote.dto.resp.RecycleBinPageRespDTO;
-import org.ylan.remote.dto.resp.ShortLinkCreateRespDTO;
-import org.ylan.remote.dto.resp.ShortLinkPageRespDTO;
+import org.ylan.remote.dto.resp.*;
 
 import java.util.List;
 
@@ -100,5 +98,13 @@ public interface ShortLinkRemoteService {
      * @return 回收站短链接分页返回结果 失败抛异常
      */
     Result<IPage<RecycleBinPageRespDTO>> pageRecycleBin(RecycleBinPageReqDTO requestParam);
+
+    /**
+     * 访问单个短链接指定时间内监控数据
+     *
+     * @param requestParam 访问短链接监控请求参数
+     * @return 短链接监控信息
+     */
+    Result<ShortLinkStatsRespDTO> oneShortLinkStats(ShortLinkStatsReqDTO requestParam);
 
 }

@@ -1,5 +1,6 @@
 package org.ylan.remote.dto;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson2.JSON;
@@ -11,10 +12,8 @@ import org.slf4j.MDC;
 import org.springframework.stereotype.Service;
 import org.ylan.common.convention.result.Result;
 import org.ylan.remote.dto.req.*;
-import org.ylan.remote.dto.resp.GroupCountQueryRespDTO;
-import org.ylan.remote.dto.resp.RecycleBinPageRespDTO;
-import org.ylan.remote.dto.resp.ShortLinkCreateRespDTO;
-import org.ylan.remote.dto.resp.ShortLinkPageRespDTO;
+import org.ylan.remote.dto.req.ShortLinkStatsReqDTO;
+import org.ylan.remote.dto.resp.*;
 
 import java.util.HashMap;
 import java.util.List;
@@ -158,6 +157,15 @@ public class ShortLinkRemoteServiceImpl implements ShortLinkRemoteService{
         log.info("【 分页查询回收站短链接-GET-请求参数 】【 {} 】", requestMap);
         String resultBodyStr = HttpUtil.get(HOST + "/api/short-link/v1/recycle-bin/page" , requestMap);
         log.info("【 分页查询回收站短链接 】 【 {} 】", resultBodyStr);
+        return JSON.parseObject(resultBodyStr, new TypeReference<>() {});
+    }
+
+    @Override
+    public Result<ShortLinkStatsRespDTO> oneShortLinkStats(ShortLinkStatsReqDTO requestParam) {
+        Map<String, Object> requestMap = BeanUtil.beanToMap(requestParam);
+        log.info("【 访问单个短链接指定时间内监控数据-GET-请求参数 】【 {} 】", requestMap);
+        String resultBodyStr = HttpUtil.get(HOST + "/api/short-link/v1/stats", requestMap);
+        log.info("【 访问单个短链接指定时间内监控数据 】 【 {} 】", resultBodyStr);
         return JSON.parseObject(resultBodyStr, new TypeReference<>() {});
     }
 
