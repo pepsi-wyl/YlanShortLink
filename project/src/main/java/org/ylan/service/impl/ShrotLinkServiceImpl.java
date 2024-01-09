@@ -202,6 +202,10 @@ public class ShrotLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                 .describe(requestParam.getDescribe())
                 .favicon(getFaviconByUrl(requestParam.getOriginUrl()))
                 .title(getTitleByUrl(requestParam.getOriginUrl()))
+                .totalPv(0)
+                .totalUv(0)
+                .totalUip(0)
+                .clickNum(0)
                 .enableStatus(0)
                 .build();
         // 短链接跳转实体
