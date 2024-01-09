@@ -99,6 +99,16 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
     private final LinkAccessLogsMapper linkAccessLogsMapper;
 
     /**
+     * 短链接今日统计持久层
+     */
+    private final LinkStatsTodayMapper linkStatsTodayMapper;
+
+    /**
+     * 短链接持久层
+     */
+    private final ShortLinkMapper shortLinkMapper;
+
+    /**
      * AMAP URL
      */
     @Value("${short-link.stats.locale.amap-remote-url}")
@@ -326,6 +336,25 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
                     .build();
             // 短链接访问日志监控插入数据
             linkAccessLogsMapper.insert(linkAccessLogsDO);
+
+            // 短链接今日统计数据准备
+            LinkStatsTodayDO linkStatsTodayDO = LinkStatsTodayDO.builder()
+                    .id(IdUtil.getSnowflake(1, 1).nextId())
+                    .gid(gid)
+                    .fullShortUrl(fullShortUrl)
+                    .date(currentTime)
+                    .todayPv(1)                                  // PV
+                    .todayUv(uvFlagAtomic.get() ? 1 : 0)         // UV
+                    .todayUip(uipFlagAtomic.get() ? 1 : 0)       // UIP
+                    .createTime(currentTime)
+                    .updateTime(currentTime)
+                    .delFlag(0)
+                    .build();
+            // 短链接今日统计插入数据
+            linkStatsTodayMapper.shortLinkTodayState(linkStatsTodayDO);
+
+            // 短链接统计数据自增
+            shortLinkMapper.incrementStats(gid, fullShortUrl, 1,1, uvFlagAtomic.get() ? 1 : 0, uipFlagAtomic.get() ? 1 : 0);
 
         } catch (Exception e) {
             // 监控统计异常
