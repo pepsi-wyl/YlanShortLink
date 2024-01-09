@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.ylan.mapper.LinkStatsTodayMapper">
+
+    <insert id="shortLinkTodayState">
+        INSERT INTO t_link_stats_today
+
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test=" linkTodayStats.id != null">
+                id,
+            </if>
+            <if test=" linkTodayStats.gid != null">
+                gid,
+            </if>
+            <if test=" linkTodayStats.fullShortUrl != null">
+                full_short_url,
+            </if>
+            <if test=" linkTodayStats.date != null">
+                date,
+            </if>
+            <if test=" linkTodayStats.todayPv != null">
+                today_pv,
+            </if>
+            <if test=" linkTodayStats.todayUv != null">
+                today_uv,
+            </if>
+            <if test=" linkTodayStats.todayUip != null">
+                today_uip,
+            </if>
+            <if test=" linkTodayStats.createTime != null">
+                create_time,
+            </if>
+            <if test=" linkTodayStats.updateTime != null">
+                update_time,
+            </if>
+            <if test=" linkTodayStats.delFlag != null">
+                del_flag,
+            </if>
+        </trim>
+
+        VALUES
+
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test=" linkTodayStats.id != null">
+                #{ linkTodayStats.id},
+            </if>
+            <if test=" linkTodayStats.gid != null">
+                #{ linkTodayStats.gid},
+            </if>
+            <if test=" linkTodayStats.fullShortUrl != null">
+                #{ linkTodayStats.fullShortUrl},
+            </if>
+            <if test=" linkTodayStats.date != null">
+                #{ linkTodayStats.date},
+            </if>
+            <if test=" linkTodayStats.todayPv != null">
+                #{ linkTodayStats.todayPv},
+            </if>
+            <if test=" linkTodayStats.todayUv != null">
+                #{ linkTodayStats.todayUv},
+            </if>
+            <if test=" linkTodayStats.todayUip != null">
+                #{ linkTodayStats.todayUip},
+            </if>
+            <if test=" linkTodayStats.createTime != null">
+                #{ linkTodayStats.createTime},
+            </if>
+            <if test=" linkTodayStats.updateTime != null">
+                #{ linkTodayStats.updateTime},
+            </if>
+            <if test=" linkTodayStats.delFlag != null">
+                #{ linkTodayStats.delFlag},
+            </if>
+        </trim>
+
+        ON DUPLICATE KEY UPDATE
+
+        today_uv = today_uv + #{linkTodayStats.todayUv},
+        today_pv = today_pv + #{linkTodayStats.todayPv},
+        today_uip = today_uip + #{linkTodayStats.todayUip},
+        update_time = NOW();
+    </insert>
+
+</mapper>
