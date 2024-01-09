@@ -2,6 +2,7 @@ package org.ylan.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.ylan.model.entity.ShortLinkDO;
 
 /**
@@ -12,5 +13,17 @@ import org.ylan.model.entity.ShortLinkDO;
 
 @Mapper
 public interface ShortLinkMapper extends BaseMapper<ShortLinkDO> {
+
+    /**
+     * 短链接访问统计自增
+     */
+    void incrementStats(
+            @Param("gid") String gid,
+            @Param("fullShortUrl") String fullShortUrl,
+            @Param("clickNum") Integer clickNum,
+            @Param("totalPv") Integer totalPv,
+            @Param("totalUv") Integer totalUv,
+            @Param("totalUip") Integer totalUip
+    );
 
 }
