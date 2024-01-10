@@ -53,6 +53,7 @@ public class ShortLinkRemoteServiceImpl implements ShortLinkRemoteService{
         // 封装请求参数
         Map<String, Object> requestMap = new HashMap<>();
         requestMap.put("gid", requestParam.getGid());
+        requestMap.put("orderTag", requestParam.getOrderTag());
         requestMap.put("current", requestParam.getCurrent());
         requestMap.put("size", requestParam.getSize());
         log.info("【 分页查询短链接-GET-请求参数 】【 {} 】", requestMap);
