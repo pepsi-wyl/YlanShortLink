@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.ylan.mapper.*;
+import org.ylan.model.dto.req.ShortLinkGroupStatsAccessRecordReqDTO;
 import org.ylan.model.dto.req.ShortLinkGroupStatsReqDTO;
 import org.ylan.model.dto.req.ShortLinkStatsAccessRecordReqDTO;
 import org.ylan.model.dto.req.ShortLinkStatsReqDTO;
@@ -808,6 +809,43 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
         actualResult.getRecords().forEach(shortLinkStatsAccessRecordRespDTO -> {
             String uvType = uvTypeList.stream()
                     .filter(item -> Objects.equals(shortLinkStatsAccessRecordRespDTO.getUser(), item.get("user").toString()))
+                    .findFirst()
+                    .map(item -> item.get("uvType"))
+                    .map(Object::toString)
+                    .orElse("旧访客");
+            shortLinkStatsAccessRecordRespDTO.setUvType(uvType);
+        });
+
+        return actualResult;
+    }
+
+    @Override
+    public IPage<ShortLinkStatsAccessRecordRespDTO> groupShortLinkStatsAccessRecord(ShortLinkGroupStatsAccessRecordReqDTO requestParam) {
+
+        // 查询指定时间的访问记录
+        LambdaQueryWrapper<LinkAccessLogsDO> queryWrapper = Wrappers.lambdaQuery(LinkAccessLogsDO.class)
+                .eq(LinkAccessLogsDO::getGid, requestParam.getGid())
+                .between(LinkAccessLogsDO::getCreateTime, requestParam.getStartDate(), requestParam.getEndDate())
+                .orderByDesc(LinkAccessLogsDO::getCreateTime);
+        IPage<LinkAccessLogsDO> linkAccessLogsDOIPage = linkAccessLogsMapper.selectPage(requestParam, queryWrapper);
+
+        // 类型转化 转化为 actualResult IPage<ShortLinkStatsAccessRecordRespDTO>
+        IPage<ShortLinkStatsAccessRecordRespDTO> actualResult = linkAccessLogsDOIPage.convert(item -> BeanUtil.toBean(item, ShortLinkStatsAccessRecordRespDTO.class));
+
+        // 用户访问记录
+        List<String> userAccessLogsList = actualResult.getRecords().stream().map(ShortLinkStatsAccessRecordRespDTO::getUser).toList();
+        // 用户对应的访客信息-map
+        List<Map<String, Object>> uvTypeList = linkAccessLogsMapper.selectGroupUvTypeByUsers(
+                requestParam.getGid(),
+                requestParam.getStartDate(),
+                requestParam.getEndDate(),
+                userAccessLogsList
+        );
+
+        // 设置访客信息
+        actualResult.getRecords().forEach(shortLinkStatsAccessRecordRespDTO -> {
+            String uvType = uvTypeList.stream()
+                    .filter(item -> Objects.equals(shortLinkStatsAccessRecordRespDTO.getUser(), item.get("user")))
                     .findFirst()
                     .map(item -> item.get("uvType"))
                     .map(Object::toString)

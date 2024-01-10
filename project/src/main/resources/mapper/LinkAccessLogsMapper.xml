@@ -96,7 +96,7 @@
         FROM
             t_link_access_logs
         WHERE
-            AND gid = #{gid}
+             gid = #{gid}
             AND user IN
                 <foreach item='item' index='index' collection='userAccessLogsList' open='(' separator=',' close=')'>
                      #{item}

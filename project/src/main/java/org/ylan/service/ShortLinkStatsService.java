@@ -3,6 +3,7 @@ package org.ylan.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
+import org.ylan.model.dto.req.ShortLinkGroupStatsAccessRecordReqDTO;
 import org.ylan.model.dto.req.ShortLinkGroupStatsReqDTO;
 import org.ylan.model.dto.req.ShortLinkStatsAccessRecordReqDTO;
 import org.ylan.model.dto.req.ShortLinkStatsReqDTO;
@@ -51,4 +52,11 @@ public interface ShortLinkStatsService {
      */
     IPage<ShortLinkStatsAccessRecordRespDTO> shortLinkStatsAccessRecord(ShortLinkStatsAccessRecordReqDTO requestParam);
 
+    /**
+     * 访问分组短链接指定时间内访问记录监控数据
+     *
+     * @param requestParam 获取分组短链接监控访问记录数据入参
+     * @return 分组访问记录监控数据
+     */
+    IPage<ShortLinkStatsAccessRecordRespDTO> groupShortLinkStatsAccessRecord(ShortLinkGroupStatsAccessRecordReqDTO requestParam);
 }
