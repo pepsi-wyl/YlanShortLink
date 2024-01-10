@@ -1,8 +1,10 @@
 package org.ylan.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.ylan.model.dto.req.ShortLinkPageReqDTO;
 import org.ylan.model.entity.ShortLinkDO;
 
 /**
@@ -25,5 +27,10 @@ public interface ShortLinkMapper extends BaseMapper<ShortLinkDO> {
             @Param("totalUv") Integer totalUv,
             @Param("totalUip") Integer totalUip
     );
+
+    /**
+     * 分页统计短链接 带统计数据
+     */
+    IPage<ShortLinkDO> pageLink(ShortLinkPageReqDTO requestParam);
 
 }
