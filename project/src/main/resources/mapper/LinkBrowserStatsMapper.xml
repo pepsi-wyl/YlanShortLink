@@ -87,4 +87,17 @@
             full_short_url, gid, browser;
     </select>
 
+    <select id="listBrowserStatsByGroup" resultType="java.util.HashMap">
+        SELECT browser,
+               SUM(cnt) AS count
+        FROM
+            t_link_browser_stats
+        WHERE
+            gid = #{param.gid}
+          AND date BETWEEN #{param.startDate}
+          AND #{param.endDate}
+        GROUP BY
+            gid, browser;
+    </select>
+
 </mapper>

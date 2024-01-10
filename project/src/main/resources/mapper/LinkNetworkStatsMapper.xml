@@ -87,4 +87,17 @@
             full_short_url, gid, network;
     </select>
 
+    <select id="listNetworkStatsByGroup" resultType="LinkNetworkStatsDO">
+        SELECT network,
+               SUM(cnt) AS cnt
+        FROM
+            t_link_network_stats
+        WHERE
+            gid = #{param.gid}
+          AND date BETWEEN #{param.startDate}
+          AND #{param.endDate}
+        GROUP BY
+            gid, network;
+    </select>
+
 </mapper>

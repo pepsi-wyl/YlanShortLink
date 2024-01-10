@@ -2,6 +2,7 @@ package org.ylan.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Param;
+import org.ylan.model.dto.req.ShortLinkGroupStatsReqDTO;
 import org.ylan.model.dto.req.ShortLinkStatsReqDTO;
 import org.ylan.model.entity.LinkAccessLogsDO;
 import org.ylan.model.entity.LinkAccessStatsDO;
@@ -28,12 +29,28 @@ public interface LinkAccessLogsMapper extends BaseMapper<LinkAccessLogsDO> {
     LinkAccessStatsDO findPvUvUidStatsByShortLink(@Param("param") ShortLinkStatsReqDTO requestParam);
 
     /**
-     * 根据分组获取指定日期内高频访问IP数据
+     * 根据分组获取指定日期内PV、UV、UIP数据
+     *
+     * @param requestParam 获取分组短链接监控请求参数
+     * @return 获取指定日期内PV、UV、UIP数据
+     */
+    LinkAccessStatsDO findPvUvUidStatsByGroup(@Param("param") ShortLinkGroupStatsReqDTO requestParam);
+
+    /**
+     * 根据短链接获取指定日期内高频访问IP数据
      *
      * @param requestParam 获取单个短链接监控数据入参
      * @return 获取指定日期内高频访问IP数据
      */
     List<HashMap<String, Object>> listTopIpByShortLink(@Param("param") ShortLinkStatsReqDTO requestParam);
+
+    /**
+     * 根据分组获取指定日期内高频访问IP数据
+     *
+     * @param requestParam 获取分组短链接监控请求参数
+     * @return 获取指定日期内高频访问IP数据
+     */
+    List<HashMap<String, Object>> listTopIpByGroup(@Param("param") ShortLinkGroupStatsReqDTO requestParam);
 
     /**
      * 根据短链接获取指定日期内新旧访客数据
@@ -56,6 +73,22 @@ public interface LinkAccessLogsMapper extends BaseMapper<LinkAccessLogsDO> {
     List<Map<String, Object>> selectUvTypeByUsers(
             @Param("gid") String gid,
             @Param("fullShortUrl") String fullShortUrl,
+            @Param("startDate") String startDate,
+            @Param("endDate") String endDate,
+            @Param("userAccessLogsList") List<String> userAccessLogsList
+    );
+
+    /**
+     * 获取分组用户信息是否新老访客
+     *
+     * @param gid        分组Gid
+     * @param startDate  开始时间
+     * @param endDate    结束时间
+     * @param userAccessLogsList 用户访问日志列表
+     * @return
+     */
+    List<Map<String, Object>> selectGroupUvTypeByUsers(
+            @Param("gid") String gid,
             @Param("startDate") String startDate,
             @Param("endDate") String endDate,
             @Param("userAccessLogsList") List<String> userAccessLogsList

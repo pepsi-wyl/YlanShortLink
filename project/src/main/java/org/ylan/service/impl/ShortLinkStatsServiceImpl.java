@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.ylan.mapper.*;
+import org.ylan.model.dto.req.ShortLinkGroupStatsReqDTO;
 import org.ylan.model.dto.req.ShortLinkStatsAccessRecordReqDTO;
 import org.ylan.model.dto.req.ShortLinkStatsReqDTO;
 import org.ylan.model.dto.resp.*;
@@ -584,6 +585,197 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
                 .weekdayStats(weekdayStats)
                 .topIpStats(topIpStats)
                 .uvTypeStats(uvTypeStats)
+                .build();
+    }
+
+    @Override
+    public ShortLinkStatsRespDTO groupShortLinkStats(ShortLinkGroupStatsReqDTO requestParam) {
+
+        // 1.基础访问数据 为空则直接返回
+        LinkAccessStatsDO pvUvUidStatsByShortLink = linkAccessLogsMapper.findPvUvUidStatsByGroup(requestParam);
+        if (Objects.isNull(pvUvUidStatsByShortLink)) {
+            return null;
+        }
+
+        // 2.基础访问详情
+        List<LinkAccessStatsDO> listStatsByShortLink = linkAccessStatsMapper.listStatsByGroup(requestParam);
+        List<ShortLinkStatsAccessDailyRespDTO> daily = new ArrayList<>();
+        // 基础访问趋势天 取开始时间-结束时间
+        List<String> rangeDates = DateUtil.rangeToList(
+                        DateUtil.parse(requestParam.getStartDate()), DateUtil.parse(requestParam.getEndDate()), DateField.DAY_OF_MONTH
+                )
+                .stream()
+                .map(DateUtil::formatDate)
+                .toList();
+        // 遍历趋势天 如果存在数据则进行填充，不存在则填充0
+        rangeDates.forEach(
+                date ->
+                        listStatsByShortLink.stream()
+                                .filter(linkAccessStatsDO -> Objects.equals(date, DateUtil.formatDate(linkAccessStatsDO.getDate())))
+                                .findFirst()
+                                .ifPresentOrElse(linkAccessStatsDO -> {
+                                    daily.add(
+                                            ShortLinkStatsAccessDailyRespDTO.builder()
+                                                    .date(date)
+                                                    .pv(linkAccessStatsDO.getPv())
+                                                    .uv(linkAccessStatsDO.getUv())
+                                                    .uip(linkAccessStatsDO.getUip())
+                                                    .build()
+                                    );
+                                }, () -> {
+                                    daily.add(
+                                            ShortLinkStatsAccessDailyRespDTO.builder()
+                                                    .date(date)
+                                                    .pv(0)
+                                                    .uv(0)
+                                                    .uip(0)
+                                                    .build()
+                                    );
+                                })
+        );
+
+        // 3.地区访问详情（仅国内）
+        List<ShortLinkStatsLocaleCNRespDTO> localeCnStats = new ArrayList<>();
+        List<LinkLocaleStatsDO> listedLocaleByShortLink = linkLocaleStatsMapper.listLocaleByGroup(requestParam);
+        // 总访问数量
+        int localeCnSum = listedLocaleByShortLink.stream().mapToInt(LinkLocaleStatsDO::getCnt).sum();
+        listedLocaleByShortLink.forEach(linkLocaleStatsDO -> {
+            // 计算占比
+            double ratio = (double) linkLocaleStatsDO.getCnt() / localeCnSum;
+            double actualRatio = Math.round(ratio * 100.0) / 100.0;
+            localeCnStats.add(
+                    ShortLinkStatsLocaleCNRespDTO.builder()
+                            .locale(linkLocaleStatsDO.getProvince())
+                            .cnt(linkLocaleStatsDO.getCnt())
+                            .ratio(actualRatio)
+                            .build()
+            );
+        });
+
+        // 4.访问设备类型详情
+        List<ShortLinkStatsDeviceRespDTO> deviceStats = new ArrayList<>();
+        List<LinkDeviceStatsDO> listDeviceStatsByShortLink = linkDeviceStatsMapper.listDeviceStatsByGroup(requestParam);
+        // 总访问数量
+        int deviceSum = listDeviceStatsByShortLink.stream().mapToInt(LinkDeviceStatsDO::getCnt).sum();
+        listDeviceStatsByShortLink.forEach(linkDeviceStatsDO -> {
+            // 计算占比
+            double ratio = (double) linkDeviceStatsDO.getCnt() / deviceSum;
+            double actualRatio = Math.round(ratio * 100.0) / 100.0;
+            deviceStats.add(
+                    ShortLinkStatsDeviceRespDTO.builder()
+                            .device(linkDeviceStatsDO.getDevice())
+                            .cnt(linkDeviceStatsDO.getCnt())
+                            .ratio(actualRatio)
+                            .build()
+            );
+        });
+
+        // 5.浏览器访问详情
+        List<ShortLinkStatsBrowserRespDTO> browserStats = new ArrayList<>();
+        List<HashMap<String, Object>> listBrowserStatsByShortLink = linkBrowserStatsMapper.listBrowserStatsByGroup(requestParam);
+        // 总访问数量
+        int browserSum = listBrowserStatsByShortLink.stream().mapToInt(data -> Integer.parseInt(data.get("count").toString())).sum();
+        listBrowserStatsByShortLink.forEach(data -> {
+            // 计算占比
+            double ratio = (double) Integer.parseInt(data.get("count").toString()) / browserSum;
+            double actualRatio = Math.round(ratio * 100.0) / 100.0;
+            browserStats.add(
+                    ShortLinkStatsBrowserRespDTO.builder()
+                            .browser(data.get("browser").toString())
+                            .cnt(Integer.parseInt(data.get("count").toString()))
+                            .ratio(actualRatio)
+                            .build()
+            );
+        });
+
+        // 6.操作系统访问详情
+        List<ShortLinkStatsOsRespDTO> osStats = new ArrayList<>();
+        List<HashMap<String, Object>> listOsStatsByShortLink = linkOsStatsMapper.listOsStatsByGroup(requestParam);
+        int osSum = listOsStatsByShortLink.stream().mapToInt(data -> Integer.parseInt(data.get("count").toString())).sum();
+        listOsStatsByShortLink.forEach(data -> {
+            // 计算占比
+            double ratio = (double) Integer.parseInt(data.get("count").toString()) / osSum;
+            double actualRatio = Math.round(ratio * 100.0) / 100.0;
+            osStats.add(
+                    ShortLinkStatsOsRespDTO.builder()
+                            .os(data.get("os").toString())
+                            .cnt(Integer.parseInt(data.get("count").toString()))
+                            .ratio(actualRatio)
+                            .build()
+            );
+        });
+
+        // 6.访问网络类型详情
+        List<ShortLinkStatsNetworkRespDTO> networkStats = new ArrayList<>();
+        List<LinkNetworkStatsDO> listNetworkStatsByShortLink = linkNetworkStatsMapper.listNetworkStatsByGroup(requestParam);
+        int networkSum = listNetworkStatsByShortLink.stream().mapToInt(LinkNetworkStatsDO::getCnt).sum();
+        listNetworkStatsByShortLink.forEach(linkNetworkStatsDO -> {
+            // 计算占比
+            double ratio = (double) linkNetworkStatsDO.getCnt() / networkSum;
+            double actualRatio = Math.round(ratio * 100.0) / 100.0;
+            networkStats.add(
+                    ShortLinkStatsNetworkRespDTO.builder()
+                            .network(linkNetworkStatsDO.getNetwork())
+                            .cnt(linkNetworkStatsDO.getCnt())
+                            .ratio(actualRatio)
+                            .build()
+            );
+        });
+
+        // 7.小时访问详情
+        List<Integer> hourStats = new ArrayList<>();
+        List<LinkAccessStatsDO> listHourStatsByShortLink = linkAccessStatsMapper.listHourStatsByGroup(requestParam);
+        for (int i = 0; i < 24; i++) {
+            AtomicInteger hour = new AtomicInteger(i);
+            hourStats.add(
+                    listHourStatsByShortLink.stream()
+                            .filter(linkAccessStatsDO -> Objects.equals(linkAccessStatsDO.getHour(), hour.get()))
+                            .findFirst()
+                            .map(LinkAccessStatsDO::getPv)
+                            .orElse(0)
+            );
+        }
+
+        // 8.一周访问详情
+        List<Integer> weekdayStats = new ArrayList<>();
+        List<LinkAccessStatsDO> listWeekdayStatsByShortLink = linkAccessStatsMapper.listWeekdayStatsByGroup(requestParam);
+        for (int i = 1; i < 8; i++) {
+            AtomicInteger weekday = new AtomicInteger(i);
+            weekdayStats.add(
+                    listWeekdayStatsByShortLink.stream()
+                            .filter(linkAccessStatsDO -> Objects.equals(linkAccessStatsDO.getWeekday(), weekday.get()))
+                            .findFirst()
+                            .map(LinkAccessStatsDO::getPv)
+                            .orElse(0)
+            );
+        }
+
+        // 9.高频访问IP详情
+        List<ShortLinkStatsTopIpRespDTO> topIpStats = new ArrayList<>();
+        List<HashMap<String, Object>> listTopIpByShortLink = linkAccessLogsMapper.listTopIpByGroup(requestParam);
+        listTopIpByShortLink.forEach(data -> {
+            topIpStats.add(
+                    ShortLinkStatsTopIpRespDTO.builder()
+                            .ip(data.get("ip").toString())
+                            .cnt(Integer.parseInt(data.get("count").toString()))
+                            .build()
+            );
+        });
+
+        // 返回数据
+        return ShortLinkStatsRespDTO.builder()
+                .pv(pvUvUidStatsByShortLink.getPv())
+                .uv(pvUvUidStatsByShortLink.getUv())
+                .uip(pvUvUidStatsByShortLink.getUip())
+                .daily(daily)
+                .localeCnStats(localeCnStats)
+                .deviceStats(deviceStats)
+                .browserStats(browserStats)
+                .osStats(osStats)
+                .networkStats(networkStats)
+                .hourStats(hourStats)
+                .weekdayStats(weekdayStats)
+                .topIpStats(topIpStats)
                 .build();
     }
 

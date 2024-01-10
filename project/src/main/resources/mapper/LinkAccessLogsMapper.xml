@@ -13,6 +13,16 @@
         GROUP BY full_short_url, gid;
     </select>
 
+    <select id="findPvUvUidStatsByGroup" resultType="LinkAccessStatsDO">
+        SELECT COUNT(user)          AS pv,
+               COUNT(DISTINCT user) AS uv,
+               COUNT(DISTINCT ip)   AS uip
+        FROM t_link_access_logs
+        WHERE gid = #{param.gid}
+          AND create_time BETWEEN #{param.startDate} AND #{param.endDate}
+        GROUP BY gid;
+    </select>
+
     <select id="listTopIpByShortLink" resultType="java.util.HashMap">
         SELECT ip,
                COUNT(ip) AS count
@@ -24,6 +34,21 @@
           AND create_time BETWEEN #{param.startDate} AND #{param.endDate}
         GROUP BY
             full_short_url, gid, ip
+        ORDER BY
+            count DESC
+            LIMIT 5;
+    </select>
+
+    <select id="listTopIpByGroup" resultType="java.util.HashMap">
+        SELECT ip,
+               COUNT(ip) AS count
+        FROM
+            t_link_access_logs
+        WHERE
+            gid = #{param.gid}
+          AND create_time BETWEEN #{param.startDate} AND #{param.endDate}
+        GROUP BY
+            gid, ip
         ORDER BY
             count DESC
             LIMIT 5;
@@ -62,6 +87,22 @@
                 </foreach>
         GROUP BY
             user;
+    </select>
+
+    <select id="selectGroupUvTypeByUsers" resultType="java.util.Map">
+        SELECT
+            user,
+            CASE WHEN MIN(create_time) BETWEEN #{startDate} AND #{endDate} THEN '新访客' ELSE '老访客' END AS uvType
+        FROM
+            t_link_access_logs
+        WHERE
+            AND gid = #{gid}
+            AND user IN
+                <foreach item='item' index='index' collection='userAccessLogsList' open='(' separator=',' close=')'>
+                     #{item}
+                </foreach>
+        GROUP BY
+        user;
     </select>
 
 </mapper>

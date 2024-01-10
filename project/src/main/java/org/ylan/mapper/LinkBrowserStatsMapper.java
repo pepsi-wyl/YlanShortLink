@@ -2,6 +2,7 @@ package org.ylan.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Param;
+import org.ylan.model.dto.req.ShortLinkGroupStatsReqDTO;
 import org.ylan.model.dto.req.ShortLinkStatsReqDTO;
 import org.ylan.model.entity.LinkBrowserStatsDO;
 
@@ -30,4 +31,12 @@ public interface LinkBrowserStatsMapper extends BaseMapper<LinkBrowserStatsDO> {
      * @return 获取指定日期内浏览器监控数据
      */
     List<HashMap<String, Object>> listBrowserStatsByShortLink(@Param("param") ShortLinkStatsReqDTO requestParam);
+
+    /**
+     * 根据分组获取指定日期内浏览器监控数据
+     *
+     * @param requestParam 获取分组短链接监控请求参数
+     * @return 获取指定日期内浏览器监控数据
+     */
+    List<HashMap<String, Object>> listBrowserStatsByGroup(@Param("param") ShortLinkGroupStatsReqDTO requestParam);
 }

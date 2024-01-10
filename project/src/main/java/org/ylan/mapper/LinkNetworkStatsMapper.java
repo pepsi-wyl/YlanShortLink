@@ -1,6 +1,7 @@
 package org.ylan.mapper;
 
 import org.apache.ibatis.annotations.Param;
+import org.ylan.model.dto.req.ShortLinkGroupStatsReqDTO;
 import org.ylan.model.dto.req.ShortLinkStatsReqDTO;
 import org.ylan.model.entity.LinkNetworkStatsDO;
 
@@ -28,4 +29,12 @@ public interface LinkNetworkStatsMapper {
      * @return 获取指定日期内访问网络监控数据
      */
     List<LinkNetworkStatsDO> listNetworkStatsByShortLink(@Param("param") ShortLinkStatsReqDTO requestParam);
+
+    /**
+     * 根据分组获取指定日期内访问网络监控数据
+     *
+     * @param requestParam 获取分组短链接监控请求参数
+     * @return 获取指定日期内访问网络监控数据
+     */
+    List<LinkNetworkStatsDO> listNetworkStatsByGroup(@Param("param") ShortLinkGroupStatsReqDTO requestParam);;
 }
