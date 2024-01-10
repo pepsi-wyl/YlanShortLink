@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.ylan.common.convention.result.Result;
 import org.ylan.remote.dto.ShortLinkRemoteService;
+import org.ylan.remote.dto.req.ShortLinkGroupStatsReqDTO;
 import org.ylan.remote.dto.req.ShortLinkStatsAccessRecordReqDTO;
 import org.ylan.remote.dto.req.ShortLinkStatsReqDTO;
 import org.ylan.remote.dto.resp.ShortLinkStatsAccessRecordRespDTO;
@@ -34,6 +35,14 @@ public class ShortLinkStatsController {
     @GetMapping("/api/short-link/admin/v1/stats")
     public Result<ShortLinkStatsRespDTO> shortLinkStats(ShortLinkStatsReqDTO requestParam) {
         return shortLinkRemoteService.oneShortLinkStats(requestParam);
+    }
+
+    /**
+     * 访问分组短链接指定时间内监控数据
+     */
+    @GetMapping("/api/short-link/admin/v1/stats/group")
+    public Result<ShortLinkStatsRespDTO> groupShortLinkStats(ShortLinkGroupStatsReqDTO requestParam) {
+        return shortLinkRemoteService.groupShortLinkStats(requestParam);
     }
 
     /**

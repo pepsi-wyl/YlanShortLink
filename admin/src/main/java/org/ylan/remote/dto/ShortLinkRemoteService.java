@@ -108,6 +108,14 @@ public interface ShortLinkRemoteService {
     Result<ShortLinkStatsRespDTO> oneShortLinkStats(ShortLinkStatsReqDTO requestParam);
 
     /**
+     * 访问分组短链接指定时间内监控数据
+     *
+     * @param requestParam 访分组问短链接监控请求参数
+     * @return 分组短链接监控信息
+     */
+    Result<ShortLinkStatsRespDTO> groupShortLinkStats(ShortLinkGroupStatsReqDTO requestParam);
+
+    /**
      * 访问单个短链接指定时间内监控访问记录数据
      *
      * @param requestParam 访问短链接监控访问记录请求参数
