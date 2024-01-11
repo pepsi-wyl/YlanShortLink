@@ -24,6 +24,21 @@ public class NetConstant {
     public final static String URL_SPLIT = "/";
 
     /**
+     * 80端口
+     */
+    public final static String PORT_80 = "80";
+
+    /**
+     * 端口分隔符
+     */
+    public final static String PORT_SPLIT = ":";
+
+    /**
+     * 空端口
+     */
+    public final static String PORT_EMPTY = "";
+
+    /**
      * X-Forwarded-For
      */
     public final static String X_FORWARDED_FOR = "X-Forwarded-For";

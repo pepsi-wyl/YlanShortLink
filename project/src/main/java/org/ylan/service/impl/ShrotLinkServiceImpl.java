@@ -48,8 +48,7 @@ import java.net.URL;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-import static org.ylan.common.constant.NetConstant.HTTP;
-import static org.ylan.common.constant.NetConstant.URL_SPLIT;
+import static org.ylan.common.constant.NetConstant.*;
 import static org.ylan.common.constant.RedisCacheConstant.*;
 import static org.ylan.common.convention.enums.GroupErrorCodeEnum.GROUP_HAS_RECYCLE_BIN_SHORT_LINK_ERROR;
 import static org.ylan.common.convention.enums.GroupErrorCodeEnum.GROUP_HAS_SHORT_LINK;
@@ -103,10 +102,10 @@ public class ShrotLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
 
         String domain = request.getServerName();
         String serverPort = Optional.of(request.getServerPort())
-                .filter(port -> !Objects.equals(port, 80))
+                .filter(port -> !Objects.equals(port, PORT_80)) // 80 端口过滤
                 .map(String::valueOf)
-                .map(each -> ":" + each)
-                .orElse("");
+                .map(port -> PORT_SPLIT + port)
+                .orElse(PORT_EMPTY);
         String fullShortUrl = domain + serverPort + URL_SPLIT + shortUri;
 
         // 利用 布隆过滤器 进行过滤 ，不存在的FullShortUrl 直接过滤 并跳转不存在
