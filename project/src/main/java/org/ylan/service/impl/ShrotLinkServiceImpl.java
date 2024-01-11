@@ -20,6 +20,7 @@ import org.jsoup.nodes.Element;
 import org.redisson.api.RBloomFilter;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,7 @@ import org.ylan.mapper.ShortLinkGotoMapper;
 import org.ylan.mapper.ShortLinkMapper;
 import org.ylan.model.dto.req.ShortLinkCreateReqDTO;
 import org.ylan.model.dto.req.ShortLinkPageReqDTO;
+import org.ylan.model.dto.req.ShortLinkUpdateReqDTO;
 import org.ylan.model.dto.resp.ShortLinkCreateRespDTO;
 import org.ylan.model.dto.resp.ShortLinkGroupCountQueryRespDTO;
 import org.ylan.model.dto.resp.ShortLinkPageRespDTO;
@@ -89,12 +91,23 @@ public class ShrotLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
      */
     private final ShortLinkStatsService shortLinkStatsService;
 
+    /**
+     * 默认生成短链接域名
+     */
+    @Value("${short-link.domain.default}")
+    private String defaultShortLinkDomain;
+
     @SneakyThrows
     @Override
     public void restoreUrl(String shortUri, ServletRequest request, ServletResponse response) {
 
         String domain = request.getServerName();
-        String fullShortUrl = domain + URL_SPLIT + shortUri;
+        String serverPort = Optional.of(request.getServerPort())
+                .filter(port -> !Objects.equals(port, 80))
+                .map(String::valueOf)
+                .map(each -> ":" + each)
+                .orElse("");
+        String fullShortUrl = domain + serverPort + URL_SPLIT + shortUri;
 
         // 利用 布隆过滤器 进行过滤 ，不存在的FullShortUrl 直接过滤 并跳转不存在
         boolean bLoomFilterContain = shortUriCreateCachePenetrationBloomFilter.contains(fullShortUrl);
@@ -184,16 +197,18 @@ public class ShrotLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
     @Override
     public ShortLinkCreateRespDTO createShortLink(ShortLinkCreateReqDTO requestParam) {
 
+        // 获取域名
+        String domain = Objects.isNull(requestParam.getDomain()) ? NetUtils.removalProtocol(defaultShortLinkDomain) : NetUtils.removalProtocol(requestParam.getDomain());
         // 生成的短链接url后缀
         String shortUri = generateSuffix(requestParam);
         // 生成的短链接url
-        String fullShortUrl = StrBuilder.create(NetUtils.removalProtocol(requestParam.getDomain())).append(URL_SPLIT).append(shortUri).toString();
+        String fullShortUrl = StrBuilder.create(domain).append(URL_SPLIT).append(shortUri).toString();
 
         // 短链接实体数据
         ShortLinkDO shortLinkDO = ShortLinkDO.builder()
                 .gid(requestParam.getGid())
                 .originUrl(requestParam.getOriginUrl())
-                .domain(NetUtils.removalProtocol(requestParam.getDomain()))
+                .domain(domain)
                 .shortUri(shortUri)
                 .fullShortUrl(fullShortUrl)
                 .createdType(requestParam.getCreatedType())
@@ -248,6 +263,11 @@ public class ShrotLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                 .build();
     }
 
+    @Override
+    public Boolean updateShortLink(ShortLinkUpdateReqDTO requestParam) {
+        return null;
+    }
+
     /**
      * 生成短链接后缀
      */
@@ -265,7 +285,7 @@ public class ShrotLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
             // 生成短链接后缀 原始链接 加入 UUID(随机盐) 之后去调用 短链接生产算法 防止重复
             shortUri = HashUtils.hashToBase62(StrBuilder.create(requestParam.getOriginUrl()).append(UUID.randomUUID()).toString());
             // 完整短链接
-            String fullShortUrl = StrBuilder.create(NetUtils.removalProtocol(requestParam.getDomain())).append(URL_SPLIT).append(shortUri).toString();
+            String fullShortUrl = StrBuilder.create(Objects.isNull(requestParam.getDomain()) ? NetUtils.removalProtocol(defaultShortLinkDomain) : NetUtils.removalProtocol(requestParam.getDomain())).append(URL_SPLIT).append(shortUri).toString();
 
             // 完整短链接 布隆过滤器中没有则直接返回
             if (!shortUriCreateCachePenetrationBloomFilter.contains(fullShortUrl)) {
