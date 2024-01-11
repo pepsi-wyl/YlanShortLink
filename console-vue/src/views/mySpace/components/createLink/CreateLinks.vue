@@ -1,33 +1,25 @@
 <template>
   <div>
     <el-form ref="ruleFormRef" :model="formData" :rules="formRule" label-width="80px">
-      <el-form-item label="跳转链接" prop="originUrl">
+      <el-form-item label="跳转链接" prop="originUrls">
         <el-input
-          v-if="isSingle"
-          v-model="formData.originUrl"
-          placeholder="请输入http://或https://开头的链接或应用跳转链接"
-        ></el-input>
-        <el-input
-          v-else
           :rows="4"
-          v-model="formData.originUrl"
+          v-model="formData.originUrls"
           type="textarea"
           placeholder="请输入http://或https://开头的链接或应用跳转链接，一行一个，最多100行"
         />
+        <span style="font-size: 12px">{{ originUrlRows + '/' + maxDescribeRows }}</span>
       </el-form-item>
-      <el-form-item label="描述信息" prop="describe">
+      <el-form-item label="描述信息" prop="describes">
         <el-input
-          maxlength="100"
-          show-word-limit
           v-loading="isLoading"
           :rows="4"
-          v-model="formData.describe"
+          v-model="formData.describes"
           type="textarea"
-          placeholder="请输入描述信息"
+          placeholder="请输入描述信息，一行一个，描述信息行数请与链接行数相等"
         />
-        <span style="font-size: 12px">{{ '将创建' + describeRows + '条短链' }}</span>
+        <span style="font-size: 12px">{{ describeRows + '/' + maxDescribeRows }}</span>
       </el-form-item>
-
       <el-form-item label="短链分组" prop="gid">
         <el-select v-model="formData.gid" placeholder="请选择">
           <el-option
@@ -80,7 +72,6 @@ const store = useStore()
 const defaultDomain = store.state.domain ?? ' '
 const props = defineProps({
   groupInfo: Array,
-  isSingle: Boolean, // 单个创建传true， 批量创建传false,
   defaultGid: String
 })
 const { proxy } = getCurrentInstance()
@@ -119,73 +110,64 @@ const shortcuts = [
 const groupInfo = ref()
 const formData = reactive({
   domain: defaultDomain,
-  originUrl: null,
+  originUrls: null,
   gid: null,
   createdType: 1,
   validDate: null,
-  describe: null,
+  describes: null,
   validDateType: 0
 })
-watch(
-  () => formData,
-  nV => {
-    console.log('formData的新值', nV)
-  },
-  {
-    deep: true
-  }
-)
 const initFormData = () => {
   formData.domain = defaultDomain
-  formData.originUrl = null
+  formData.originUrls = null
   formData.createdType = 1
   formData.validDate = null
-  formData.describe = null
+  formData.describes = null
   formData.validDateType = 0
 }
 const maxOriginUrlRows = ref(100) // 最多多少行
 // 链接有多少行
 const originUrlRows = ref(0)
 // 防抖
-const fd = (fn, delay) => {
-  let timer = null
-  return function (url) {
-    if (timer) {
-      clearTimeout(timer)
-      timer = null
-    }
-    timer = setTimeout(() => {
-      fn(url)
-    }, delay)
-  }
-}
+// const fd = (fn, delay) => {
+//   let timer = null
+//   return function (url) {
+//     if (timer) {
+//       clearTimeout(timer)
+//       timer = null
+//     }
+//     timer = setTimeout(() => {
+//       fn(url)
+//     }, delay)
+//   }
+// }
 const isLoading = ref(false)
-const queryTitle = (url) => {
-  if (reg.test(url)) {
-    isLoading.value = true
-    API.smallLinkPage.queryTitle({ url: url }).then((res) => {
-      formData.describe = res?.data?.data
-      isLoading.value = false
-    })
-  }
-}
-const getTitle = fd(queryTitle, 1000)
+// const queryTitle = (url) => {
+//   if (reg.test(url)) {
+//     isLoading.value = true
+//     API.smallLinkPage.queryTitle({ url: url }).then((res) => {
+//       formData.describe = res?.data?.data
+//       isLoading.value = false
+//     })
+//   }
+// }
+// const getTitle = fd(queryTitle, 1000)
 watch(
-  () => formData.originUrl,
+  () => formData.originUrls,
   (nV) => {
     originUrlRows.value = (nV || '').split(/\r|\r\n|\n/)?.length ?? 0
-    // 只有在描述内容为空时才会去查询链接对应的标题
-    if (!formData.describe) {
-      // 外边包一层防抖
-      getTitle(nV)
-    }
+    // // 只有在描述内容为空时才会去查询链接对应的标题
+    // if (!formData.describe) {
+    //   // 外边包一层防抖
+    //   getTitle(nV)
+    // }
   }
 )
 const maxDescribeRows = ref(100) // 最多多少行
 // 描述信息有多少行
 const describeRows = ref(0)
 watch(
-  () => formData.describe,
+  () => formData.describes,
   (nV) => {
     describeRows.value = (nV || '').split(/\r|\r\n|\n/)?.length ?? 0
   }
@@ -197,11 +179,7 @@ watch(
   (nV) => {
     groupInfo.value = nV
     // console.log('默认的gid', props.defaultGid)
-    if (props.defaultGid) {
-      formData.gid = props.defaultGid
-    } else {
-      formData.gid = nV[0].gid
-    }
+    formData.gid = nV[0].gid
   },
   {
     immediate: true
@@ -224,7 +202,7 @@ watch(
 
 // 校验规则
 const formRule = reactive({
-  originUrl: [
+  originUrls: [
     { required: true, message: '请输入链接', trigger: 'blur' },
     {
       validator: function (rule, value, callback) {
@@ -247,12 +225,19 @@ const formRule = reactive({
     }
   ],
   gid: [{ required: true, message: '请选择分组', trigger: 'blur' }],
-  describe: [
+  describes: [
     { required: true, message: '请输入描述信息', trigger: 'blur' },
     {
       validator: function (rule, value, callback) {
+        if (value) {
+          value.split(/\r|\r\n|\n/).forEach((item) => {
+            if (item === '' || !item) {
+              callback(new Error('请不要输入空行'))
+            }
+          })
+        }
         // console.log('============', value, value.split('/n'))
-        if (props.isSingle === false && describeRows.value !== originUrlRows.value) {
+        if (describeRows.value !== originUrlRows.value) {
           callback(new Error('标题数量与链接数量不等'))
         }
         if (describeRows.value > maxDescribeRows.value) {
@@ -283,9 +268,31 @@ const disabledDate = (time) => {
   return new Date(time).getTime() < new Date().getTime() //选当前时间之后的时间
 }
 
-console.log(new Date().getTime())
+// 将输入框中的含有\n的字符串变为数组
+const transferStrToArray = (str) => {
+  return str.split(/[\n]+/)
+}
 // 将组件里面的确认和取消点击事件传出去
 const emits = defineEmits(['onSubmit', 'cancel'])
+
+function downLoadXls(res) {
+  let url = window.URL.createObjectURL(
+    new Blob([res.data], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    })
+  )
+  // 创建A标签
+  let link = document.createElement('a')
+  link.style.display = 'none'
+  link.href = url
+  // 设置的下载文件文件名
+  const fileName = decodeURI(res.headers['content-disposition'].split(';')[1].split('filename*=')[1])
+  // 触发点击方法
+  link.setAttribute('download', fileName)
+  document.body.appendChild(link)
+  link.click()
+}
+
 // 点击确定按钮后的校验
 const ruleFormRef = ref()
 const submitDisable = ref(false)
@@ -297,18 +304,27 @@ const onSubmit = async (formEl) => {
   }
   await formEl.validate(async (valid, fields) => {
     if (valid) {
-      const res = await API.smallLinkPage.addSmallLink(formData)
-      if (!res?.data?.success) {
-        ElMessage.error(res.data.message)
-      } else {
-        ElMessage.success('创建成功！')
+      console.log('这是formdata', formData)
+      let { describes, originUrls } = formData
+      describes = transferStrToArray(describes)
+      originUrls = transferStrToArray(originUrls)
+      const res = await API.smallLinkPage.addLinks({ ...formData, describes, originUrls })
+      if (!res.data.data && res.data) {
+        ElMessage.success('创建成功！短链列表已开始下载')
         emits('onSubmit', false)
-        console.log('submit!', res)
+        submitDisable.value = false
+        downLoadXls(res)
+        console.log(res.data)
+      } else if (!res?.data?.success) {
+        ElMessage.error(res?.data?.message)
+      } else {
+        ElMessage.success('创建成功！短链列表已开始下载')
+        emits('onSubmit', false)
         submitDisable.value = false
       }
     } else {
       console.log('error submit!', fields)
-      ElMessage.error('创建失败！')
+      // ElMessage.error('创建失败！')
     }
   })
 }

@@ -1,21 +1,45 @@
 <template>
   <div class="common-layout">
     <el-container>
-      <el-header height="50px" style="padding: 0">
+      <el-header height="54px" style="padding: 0">
         <div class="header">
-          <div @click="toMySpace" class="logo">SaaS短链接平台</div>
+          <div @click="toMySpace" class="logo">拿个offer-SaaS短链接</div>
           <div style="display: flex; align-items: center">
-<!--            <a class="link-span" style="text-decoration:none;" target="_blank" href="https://nageoffer.com/shortlink/">文档</a>-->
-<!--            <a class="link-span" style="text-decoration:none;" target="_blank" href="https://nageoffer.com/shortlink/">博客</a>-->
-<!--            <a class="link-span" style="text-decoration:none;" target="_blank" href="https://nageoffer.com/shortlink/">社区</a>-->
+            <a
+              class="link-span"
+              style="text-decoration: none"
+              target="_blank"
+              href="https://nageoffer.com/shortlink/"
+              >文档</a
+            >
+            <a
+              class="link-span"
+              style="text-decoration: none"
+              target="_blank"
+              href="https://nageoffer.com/group/"
+              >社群</a
+            >
+            <a
+                class="link-span"
+                style="text-decoration: none"
+                target="_blank"
+                href="https://nageoffer.com/shortlink/video/"
+            >🔥视频教程</a
+            >
+            <a
+                class="link-span"
+                style="text-decoration: none"
+                target="_blank"
+                href="https://nageoffer.com"
+            >控制台样例</a
+            >
             <el-dropdown>
               <div class="block">
-                <el-avatar
-                  :size="30"
-                  class="avatar"
-                  :style="`background:${extractColorByName(firstName)}`"
-                  >{{ firstName }}
-                </el-avatar>
+                <span
+                    class="name-span"
+                    style="text-decoration: none"
+                >{{username}}</span
+                >
               </div>
               <template #dropdown>
                 <el-dropdown-menu>
@@ -67,7 +91,7 @@ const API = proxy.$API
 const router = useRouter()
 const squareUrl = ref('https://cube.elemecdn.com/9/c2/f0ee8a3c7c9638a54940382568c9dpng.png')
 const toMine = () => {
-  router.push('/home' + '/mine')
+  router.push('/home' + '/account')
 }
 // 登出
 const logout = async () => {
@@ -80,18 +104,19 @@ const logout = async () => {
   removeKey()
   localStorage.removeItem('token')
   localStorage.removeItem('username')
-  router.push('/')
+  router.push('/login')
   ElMessage.success('成功退出！')
 }
 // 点击左上方的图片跳转到我的空间
 const toMySpace = () => {
-  router.push('/home' + '/mySpace')
+  router.push('/home' + '/space')
 }
-const firstName = ref('')
+const username = ref('')
 onMounted(async () => {
-  const username = getUsername()
-  const res = await API.user.queryUserInfo(username)
-  firstName.value = res?.data?.data?.realName?.split('')[0]
+  const actualUsername = getUsername()
+  const res = await API.user.queryUserInfo(actualUsername)
+  // firstName.value = res?.data?.data?.realName?.split('')[0]
+  username.value = truncateText(actualUsername, 8)
 })
 const extractColorByName = (name) => {
   var temp = []
@@ -100,6 +125,11 @@ const extractColorByName = (name) => {
     temp.push(parseInt(name[index].charCodeAt(0), 10).toString(16))
   }
   return temp.slice(0, 5).join('').slice(0, 4)
+}
+
+// 辅助函数，用于截断文本
+const truncateText = (text, maxLength) => {
+  return text.length > maxLength ? text.slice(0, maxLength) + '...' : text
 }
 </script>
 
@@ -122,15 +152,14 @@ const extractColorByName = (name) => {
 }
 
 .header {
-  background-color: #2550cd;
-  padding: 0 30px 0 20px;
+  background-color: #333333;
+  padding: 0 0 0 20px;
   height: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
 
   .block {
-    margin-top: 5px;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -158,19 +187,36 @@ const extractColorByName = (name) => {
 }
 
 .logo:hover {
-  color: #82b1cc;
+  color: #fff;
 }
 
 .link-span {
-  color: #e8e8e8;
+  color: #fff;
+  opacity: .6;
   margin-right: 30px;
   font-size: 16px;
   font-family: 'Helvetica Neue', Helvetica, STHeiTi, Arial, sans-serif;
   cursor: pointer;
+  text-decoration: none;
 }
 
 .link-span:hover {
-  color: #80b0cb;
+  text-decoration: underline !important;
+  opacity: 1;
+  color: #fff;
+}
+
+.name-span {
+  color: #fff;
+  opacity: .6;
+  margin-right: 30px;
+  font-size: 12px;
+  font-family: 'Helvetica Neue', Helvetica, STHeiTi, Arial, sans-serif;
+  cursor: pointer;
+  text-decoration: none;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .avatar {
