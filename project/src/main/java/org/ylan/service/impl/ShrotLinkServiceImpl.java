@@ -29,12 +29,11 @@ import org.ylan.common.convention.enums.VailDateTypeEnum;
 import org.ylan.common.convention.exception.ServiceException;
 import org.ylan.mapper.ShortLinkGotoMapper;
 import org.ylan.mapper.ShortLinkMapper;
+import org.ylan.model.dto.req.ShortLinkBatchCreateReqDTO;
 import org.ylan.model.dto.req.ShortLinkCreateReqDTO;
 import org.ylan.model.dto.req.ShortLinkPageReqDTO;
 import org.ylan.model.dto.req.ShortLinkUpdateReqDTO;
-import org.ylan.model.dto.resp.ShortLinkCreateRespDTO;
-import org.ylan.model.dto.resp.ShortLinkGroupCountQueryRespDTO;
-import org.ylan.model.dto.resp.ShortLinkPageRespDTO;
+import org.ylan.model.dto.resp.*;
 import org.ylan.model.entity.ShortLinkDO;
 import org.ylan.model.entity.ShortLinkGotoDO;
 import org.ylan.service.ShortLinkService;
@@ -259,6 +258,48 @@ public class ShrotLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                 .gid(requestParam.getGid())
                 .originUrl(requestParam.getOriginUrl())
                 .fullShortUrl(HTTP + fullShortUrl)
+                .build();
+    }
+
+    @Override
+    public ShortLinkBatchCreateRespDTO batchCreateShortLink(ShortLinkBatchCreateReqDTO requestParam) {
+
+        // 原始链接集合
+        List<String> originUrls = requestParam.getOriginUrls();
+        // 原始链接描述集合
+        List<String> describes = requestParam.getDescribes();
+
+        // 批量创建短链接 参数校验
+        if (originUrls.isEmpty() || describes.isEmpty() || originUrls.size() != describes.size()){
+            throw new ServiceException(SHORT_LINK_PARAM_ERROR);
+        }
+
+        // 遍历原始链接和原始链接描述
+        List<ShortLinkBaseInfoRespDTO> result = new ArrayList<>();
+        for (int i = 0; i < originUrls.size(); i++) {
+            // 创建短链接请求实体
+            ShortLinkCreateReqDTO shortLinkCreateReqDTO = BeanUtil.toBean(requestParam, ShortLinkCreateReqDTO.class);
+            shortLinkCreateReqDTO.setOriginUrl(originUrls.get(i));
+            shortLinkCreateReqDTO.setDescribe(describes.get(i));
+
+            // for 循环中捕获异常不影响其他短链接创建
+            try {
+                ShortLinkCreateRespDTO shortLink = createShortLink(shortLinkCreateReqDTO);
+                result.add(ShortLinkBaseInfoRespDTO.builder()
+                        .fullShortUrl(shortLink.getFullShortUrl())
+                        .originUrl(shortLink.getOriginUrl())
+                        .describe(describes.get(i))
+                        .build()
+                );
+            } catch (Throwable ex) {
+                log.error("[批量创建短链接失败]，原始参数：{}", originUrls.get(i));
+            }
+        }
+
+        // 返回结果
+        return ShortLinkBatchCreateRespDTO.builder()
+                .total(result.size())
+                .baseLinkInfos(result)
                 .build();
     }
 

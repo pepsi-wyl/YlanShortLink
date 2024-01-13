@@ -49,6 +49,18 @@ public class ShortLinkRemoteServiceImpl implements ShortLinkRemoteService{
     }
 
     @Override
+    public Result<ShortLinkBatchCreateRespDTO> batchCreateShortLink(ShortLinkBatchCreateReqDTO requestParam) {
+        // 封装请求参数
+        String jsonString = JSON.toJSONString(requestParam);
+        log.info("【 批量创建短链接-POST-请求参数 】【 {} 】", jsonString);
+        // 发送请求
+        String resultBodyStr = HttpUtil.post(HOST + "/api/short-link/v1/create/batch", jsonString);
+        log.info("【 批量创建短链接响应结果 】 【 {} 】", resultBodyStr);
+        // 转化响应
+        return JSON.parseObject(resultBodyStr, new TypeReference<>() {});
+    }
+
+    @Override
     public Result<IPage<ShortLinkPageRespDTO>> pageShortLink(ShortLinkPageReqDTO requestParam) {
         // 封装请求参数
         Map<String, Object> requestMap = new HashMap<>();

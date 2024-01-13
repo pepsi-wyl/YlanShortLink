@@ -14,7 +14,6 @@ import java.util.List;
  * @author ylan
  */
 
-
 public interface ShortLinkRemoteService {
 
     /**
@@ -24,6 +23,14 @@ public interface ShortLinkRemoteService {
      * @return 短链接创建响应
      */
     Result<ShortLinkCreateRespDTO> createShortLink(ShortLinkCreateReqDTO requestParam);
+
+    /**
+     * 批量创建短链接
+     *
+     * @param requestParam 批量创建短链接请求参数
+     * @return 短链接批量创建响应
+     */
+    Result<ShortLinkBatchCreateRespDTO> batchCreateShortLink(ShortLinkBatchCreateReqDTO requestParam);
 
     /**
      * 分页查询短链接

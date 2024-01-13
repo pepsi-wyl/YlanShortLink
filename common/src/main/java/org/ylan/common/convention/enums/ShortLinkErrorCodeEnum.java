@@ -20,7 +20,11 @@ public enum ShortLinkErrorCodeEnum implements IErrorCode {
 
     SHORT_LINK_GOTO_SAVE_ERROR("B000404", "短链跳转接保存失败"),
 
-    SHORT_LINK_JUMP_ERROR("B00405", "   短链接跳转失败");
+    SHORT_LINK_JUMP_ERROR("B00405", "   短链接跳转失败"),
+
+    SHORT_LINK_PARAM_ERROR("B00406","批量创建短链接参数错误"),
+
+    SHORT_LINK_TO_EXCEL_ERROR("B00406","短链接导出Excel失败");
 
     private final String code;
 
