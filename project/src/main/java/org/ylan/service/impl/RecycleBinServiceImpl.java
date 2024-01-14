@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.ylan.common.convention.exception.ServiceException;
+import org.ylan.mapper.RecycleBinMapper;
 import org.ylan.mapper.ShortLinkMapper;
 import org.ylan.model.dto.req.*;
 import org.ylan.model.dto.resp.*;
@@ -42,13 +43,19 @@ public class RecycleBinServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLin
      */
     private final StringRedisTemplate stringRedisTemplate;
 
+    /**
+     * 回收站持久层
+     */
+    private final RecycleBinMapper recycleBinMapper;
+
     @Override
     public Boolean saveRecycleBin(RecycleBinSaveReqDTO requestParam) {
         // 更新条件
         LambdaUpdateWrapper<ShortLinkDO> updateWrapper = Wrappers.lambdaUpdate(ShortLinkDO.class)
                 .eq(ShortLinkDO::getGid, requestParam.getGid())
                 .eq(ShortLinkDO::getFullShortUrl, NetUtils.removalProtocol(requestParam.getFullShortUrl()))
-                .eq(ShortLinkDO::getEnableStatus, 0);
+                .eq(ShortLinkDO::getEnableStatus, 0)
+                .eq(ShortLinkDO::getDelTime, 0L);
         // 更新实体数据
         ShortLinkDO shortLinkDO = ShortLinkDO.builder().enableStatus(1).build();
 
@@ -72,7 +79,8 @@ public class RecycleBinServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLin
         LambdaUpdateWrapper<ShortLinkDO> updateWrapper = Wrappers.lambdaUpdate(ShortLinkDO.class)
                 .eq(ShortLinkDO::getGid, requestParam.getGid())
                 .eq(ShortLinkDO::getFullShortUrl, NetUtils.removalProtocol(requestParam.getFullShortUrl()))
-                .eq(ShortLinkDO::getEnableStatus, 1);
+                .eq(ShortLinkDO::getEnableStatus, 1)
+                .eq(ShortLinkDO::getDelTime, 0L);
         // 更新实体数据
         ShortLinkDO shortLinkDO = ShortLinkDO.builder().enableStatus(0).build();
 
@@ -91,17 +99,13 @@ public class RecycleBinServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLin
 
     @Override
     public Boolean removeRecycleBin(RecycleBinRemoveReqDTO requestParam) {
-        // 更新条件
-        LambdaUpdateWrapper<ShortLinkDO> updateWrapper = Wrappers.lambdaUpdate(ShortLinkDO.class)
-                .eq(ShortLinkDO::getGid, requestParam.getGid())
-                .eq(ShortLinkDO::getFullShortUrl, NetUtils.removalProtocol(requestParam.getFullShortUrl()))
-                .eq(ShortLinkDO::getEnableStatus, 1);
 
         // 执行删除操作
-        int delete = baseMapper.delete(updateWrapper);
+        int delete = recycleBinMapper.removeRecycleBin(requestParam.getGid(),NetUtils.removalProtocol(requestParam.getFullShortUrl()), System.currentTimeMillis());
         if (delete < 1){
             throw new ServiceException(RECYCLE_BIN_REMOVE_ERROR);
         }
+
         // TODO 删除GOTO表，需要再做
         // TODO 删除统计缓存，需要再做
         return true;
