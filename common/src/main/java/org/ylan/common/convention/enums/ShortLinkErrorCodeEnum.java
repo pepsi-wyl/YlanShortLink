@@ -24,7 +24,11 @@ public enum ShortLinkErrorCodeEnum implements IErrorCode {
 
     SHORT_LINK_PARAM_ERROR("B00406","批量创建短链接参数错误"),
 
-    SHORT_LINK_TO_EXCEL_ERROR("B00406","短链接导出Excel失败");
+    SHORT_LINK_TO_EXCEL_ERROR("B00406","短链接导出Excel失败"),
+
+    SHORT_LINK_NOT_FOUND_ERROR("B00407","短链接不存在"),
+
+    SHORT_LINK_IS_VISITED_ERROR("B00408","短链接正在被访问，请稍后再试...");
 
     private final String code;
 
