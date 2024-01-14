@@ -31,6 +31,7 @@ import org.ylan.model.dto.resp.*;
 import org.ylan.model.entity.*;
 import org.ylan.service.ShortLinkStatsService;
 import org.ylan.utils.LinkUtil;
+import org.ylan.utils.NetUtils;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -366,6 +367,8 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
 
     @Override
     public ShortLinkStatsRespDTO oneShortLinkStats(ShortLinkStatsReqDTO requestParam) {
+        // 去除Http / Https 协议头
+        requestParam.setFullShortUrl(NetUtils.removalProtocol(requestParam.getFullShortUrl()));
 
         // 1.基础访问数据 为空则直接返回
         LinkAccessStatsDO pvUvUidStatsByShortLink = linkAccessLogsMapper.findPvUvUidStatsByShortLink(requestParam);
@@ -782,6 +785,8 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
 
     @Override
     public IPage<ShortLinkStatsAccessRecordRespDTO> shortLinkStatsAccessRecord(ShortLinkStatsAccessRecordReqDTO requestParam) {
+        // 去除Http / Https 协议头
+        requestParam.setFullShortUrl(NetUtils.removalProtocol(requestParam.getFullShortUrl()));
 
         // 查询指定时间的访问记录
         LambdaQueryWrapper<LinkAccessLogsDO> queryWrapper = Wrappers.lambdaQuery(LinkAccessLogsDO.class)
