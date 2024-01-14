@@ -33,4 +33,13 @@ public interface ShortLinkMapper extends BaseMapper<ShortLinkDO> {
      */
     IPage<ShortLinkDO> pageLink(ShortLinkPageReqDTO requestParam);
 
+    /**
+     * 删除短链接并设置del_time
+     */
+    int delByGidAndFullShortUrl(
+            @Param("gid") String gid,
+            @Param("fullShortUrl") String fullShortUrl,
+            @Param("delTime") Long delTime
+    );
+
 }

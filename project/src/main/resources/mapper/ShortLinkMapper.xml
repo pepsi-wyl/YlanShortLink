@@ -12,6 +12,20 @@
           and full_short_url = #{fullShortUrl}
     </update>
 
+    <update id="delByGidAndFullShortUrl">
+        UPDATE t_link
+        SET enable_status = '1',
+            del_flag = '1',
+            del_time = #{delTime},
+            update_time = NOW()
+        WHERE
+            gid = #{gid}
+          AND full_short_url = #{fullShortUrl}
+          AND enable_status = '0'
+          AND del_flag = '0'
+          AND del_time = '0';
+    </update>
+
     <select id="pageLink" parameterType="org.ylan.model.dto.req.ShortLinkPageReqDTO"
             resultType="org.ylan.model.entity.ShortLinkDO">
         SELECT t.*,
