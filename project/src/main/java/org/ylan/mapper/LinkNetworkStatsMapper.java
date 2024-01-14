@@ -1,5 +1,6 @@
 package org.ylan.mapper;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Param;
 import org.ylan.model.dto.req.ShortLinkGroupStatsReqDTO;
 import org.ylan.model.dto.req.ShortLinkStatsReqDTO;
@@ -13,7 +14,7 @@ import java.util.List;
  * @author ylan
  */
 
-public interface LinkNetworkStatsMapper {
+public interface LinkNetworkStatsMapper extends BaseMapper<LinkNetworkStatsDO> {
 
     /**
      * 短链接网络访问统计访问
