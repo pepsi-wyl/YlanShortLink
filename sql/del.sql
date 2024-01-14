@@ -1,0 +1,1 @@
+drop table if exists `t_link_0` ,`t_link_1`,`t_link_2`,`t_link_3`,`t_link_4`,`t_link_5`,`t_link_6`,`t_link_7`,`t_link_8`,`t_link_9`,`t_link_10`,`t_link_11`,`t_link_12`,`t_link_13`, `t_link_14` ,`t_link_15`;
