@@ -102,7 +102,8 @@ public class RecycleBinServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLin
         if (delete < 1){
             throw new ServiceException(RECYCLE_BIN_REMOVE_ERROR);
         }
-
+        // TODO 删除GOTO表，需要再做
+        // TODO 删除统计缓存，需要再做
         return true;
     }
 
