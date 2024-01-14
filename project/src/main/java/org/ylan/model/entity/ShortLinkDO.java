@@ -19,9 +19,35 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+
 @TableName("t_link")
 public class ShortLinkDO extends BaseDO {
+
+    @Builder
+    public ShortLinkDO(Date createTime, Date updateTime, Integer delFlag, Long id, String gid, String originUrl, String domain, String shortUri, String fullShortUrl, Integer createdType, Integer validDateType, Date validDate, String describe, String favicon, String title, Integer enableStatus, Integer clickNum, Integer totalPv, Integer totalUv, Integer totalUip, Integer todayPv, Integer todayUv, Integer todayUip, Long delTime) {
+        super(createTime, updateTime, delFlag);
+        this.id = id;
+        this.gid = gid;
+        this.originUrl = originUrl;
+        this.domain = domain;
+        this.shortUri = shortUri;
+        this.fullShortUrl = fullShortUrl;
+        this.createdType = createdType;
+        this.validDateType = validDateType;
+        this.validDate = validDate;
+        this.describe = describe;
+        this.favicon = favicon;
+        this.title = title;
+        this.enableStatus = enableStatus;
+        this.clickNum = clickNum;
+        this.totalPv = totalPv;
+        this.totalUv = totalUv;
+        this.totalUip = totalUip;
+        this.todayPv = todayPv;
+        this.todayUv = todayUv;
+        this.todayUip = todayUip;
+        this.delTime = delTime;
+    }
 
     /**
      * id
@@ -126,4 +152,9 @@ public class ShortLinkDO extends BaseDO {
      */
     @TableField(exist = false)
     private Integer todayUip;
+
+    /**
+     * 删除时间
+     */
+    private Long delTime;
 }
