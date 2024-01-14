@@ -562,8 +562,9 @@ CREATE TABLE `t_link`
     `create_time`     datetime                                       DEFAULT NULL COMMENT '创建时间',
     `update_time`     datetime                                       DEFAULT NULL COMMENT '修改时间',
     `del_flag`        tinyint(1)                                     DEFAULT NULL COMMENT '删除标识 0：未删除 1：已删除',
+    `del_time`        bigint(20)                                     DEFAULT '0'  COMMENT '删除时间戳',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `idx_unique_full-short-url` (`full_short_url`) USING BTREE
+    UNIQUE KEY `idx_unique_full-short-url` (`full_short_url`,`del_time`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
@@ -589,8 +590,9 @@ CREATE TABLE `t_link_0`
     `create_time`     datetime                                       DEFAULT NULL COMMENT '创建时间',
     `update_time`     datetime                                       DEFAULT NULL COMMENT '修改时间',
     `del_flag`        tinyint(1)                                     DEFAULT NULL COMMENT '删除标识 0：未删除 1：已删除',
+    `del_time`        bigint(20)                                     DEFAULT '0'  COMMENT '删除时间戳',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `idx_unique_full-short-url` (`full_short_url`) USING BTREE
+    UNIQUE KEY `idx_unique_full-short-url` (`full_short_url`,`del_time`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 CREATE TABLE `t_link_1`
@@ -614,8 +616,9 @@ CREATE TABLE `t_link_1`
     `create_time`     datetime                                       DEFAULT NULL COMMENT '创建时间',
     `update_time`     datetime                                       DEFAULT NULL COMMENT '修改时间',
     `del_flag`        tinyint(1)                                     DEFAULT NULL COMMENT '删除标识 0：未删除 1：已删除',
+    `del_time`        bigint(20)                                     DEFAULT '0'  COMMENT '删除时间戳',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `idx_unique_full-short-url` (`full_short_url`) USING BTREE
+    UNIQUE KEY `idx_unique_full-short-url` (`full_short_url`,`del_time`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 CREATE TABLE `t_link_2`
@@ -639,8 +642,9 @@ CREATE TABLE `t_link_2`
     `create_time`     datetime                                       DEFAULT NULL COMMENT '创建时间',
     `update_time`     datetime                                       DEFAULT NULL COMMENT '修改时间',
     `del_flag`        tinyint(1)                                     DEFAULT NULL COMMENT '删除标识 0：未删除 1：已删除',
+    `del_time`        bigint(20)                                     DEFAULT '0'  COMMENT '删除时间戳',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `idx_unique_full-short-url` (`full_short_url`) USING BTREE
+    UNIQUE KEY `idx_unique_full-short-url` (`full_short_url`,`del_time`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 CREATE TABLE `t_link_3`
@@ -664,8 +668,9 @@ CREATE TABLE `t_link_3`
     `create_time`     datetime                                       DEFAULT NULL COMMENT '创建时间',
     `update_time`     datetime                                       DEFAULT NULL COMMENT '修改时间',
     `del_flag`        tinyint(1)                                     DEFAULT NULL COMMENT '删除标识 0：未删除 1：已删除',
+    `del_time`        bigint(20)                                     DEFAULT '0'  COMMENT '删除时间戳',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `idx_unique_full-short-url` (`full_short_url`) USING BTREE
+    UNIQUE KEY `idx_unique_full-short-url` (`full_short_url`,`del_time`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 CREATE TABLE `t_link_4`
@@ -689,8 +694,9 @@ CREATE TABLE `t_link_4`
     `create_time`     datetime                                       DEFAULT NULL COMMENT '创建时间',
     `update_time`     datetime                                       DEFAULT NULL COMMENT '修改时间',
     `del_flag`        tinyint(1)                                     DEFAULT NULL COMMENT '删除标识 0：未删除 1：已删除',
+    `del_time`        bigint(20)                                     DEFAULT '0'  COMMENT '删除时间戳',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `idx_unique_full-short-url` (`full_short_url`) USING BTREE
+    UNIQUE KEY `idx_unique_full-short-url` (`full_short_url`,`del_time`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 CREATE TABLE `t_link_5`
@@ -714,8 +720,9 @@ CREATE TABLE `t_link_5`
     `create_time`     datetime                                       DEFAULT NULL COMMENT '创建时间',
     `update_time`     datetime                                       DEFAULT NULL COMMENT '修改时间',
     `del_flag`        tinyint(1)                                     DEFAULT NULL COMMENT '删除标识 0：未删除 1：已删除',
+    `del_time`        bigint(20)                                     DEFAULT '0'  COMMENT '删除时间戳',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `idx_unique_full-short-url` (`full_short_url`) USING BTREE
+    UNIQUE KEY `idx_unique_full-short-url` (`full_short_url`,`del_time`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 CREATE TABLE `t_link_6`
@@ -739,8 +746,9 @@ CREATE TABLE `t_link_6`
     `create_time`     datetime                                       DEFAULT NULL COMMENT '创建时间',
     `update_time`     datetime                                       DEFAULT NULL COMMENT '修改时间',
     `del_flag`        tinyint(1)                                     DEFAULT NULL COMMENT '删除标识 0：未删除 1：已删除',
+    `del_time`        bigint(20)                                     DEFAULT '0'  COMMENT '删除时间戳',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `idx_unique_full-short-url` (`full_short_url`) USING BTREE
+    UNIQUE KEY `idx_unique_full-short-url` (`full_short_url`,`del_time`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 CREATE TABLE `t_link_7`
@@ -764,8 +772,9 @@ CREATE TABLE `t_link_7`
     `create_time`     datetime                                       DEFAULT NULL COMMENT '创建时间',
     `update_time`     datetime                                       DEFAULT NULL COMMENT '修改时间',
     `del_flag`        tinyint(1)                                     DEFAULT NULL COMMENT '删除标识 0：未删除 1：已删除',
+    `del_time`        bigint(20)                                     DEFAULT '0'  COMMENT '删除时间戳',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `idx_unique_full-short-url` (`full_short_url`) USING BTREE
+    UNIQUE KEY `idx_unique_full-short-url` (`full_short_url`,`del_time`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 CREATE TABLE `t_link_8`
@@ -789,8 +798,9 @@ CREATE TABLE `t_link_8`
     `create_time`     datetime                                       DEFAULT NULL COMMENT '创建时间',
     `update_time`     datetime                                       DEFAULT NULL COMMENT '修改时间',
     `del_flag`        tinyint(1)                                     DEFAULT NULL COMMENT '删除标识 0：未删除 1：已删除',
+    `del_time`        bigint(20)                                     DEFAULT '0'  COMMENT '删除时间戳',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `idx_unique_full-short-url` (`full_short_url`) USING BTREE
+    UNIQUE KEY `idx_unique_full-short-url` (`full_short_url`,`del_time`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 CREATE TABLE `t_link_9`
@@ -814,8 +824,9 @@ CREATE TABLE `t_link_9`
     `create_time`     datetime                                       DEFAULT NULL COMMENT '创建时间',
     `update_time`     datetime                                       DEFAULT NULL COMMENT '修改时间',
     `del_flag`        tinyint(1)                                     DEFAULT NULL COMMENT '删除标识 0：未删除 1：已删除',
+    `del_time`        bigint(20)                                     DEFAULT '0'  COMMENT '删除时间戳',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `idx_unique_full-short-url` (`full_short_url`) USING BTREE
+    UNIQUE KEY `idx_unique_full-short-url` (`full_short_url`,`del_time`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 CREATE TABLE `t_link_10`
@@ -839,8 +850,9 @@ CREATE TABLE `t_link_10`
     `create_time`     datetime                                       DEFAULT NULL COMMENT '创建时间',
     `update_time`     datetime                                       DEFAULT NULL COMMENT '修改时间',
     `del_flag`        tinyint(1)                                     DEFAULT NULL COMMENT '删除标识 0：未删除 1：已删除',
+    `del_time`        bigint(20)                                     DEFAULT '0'  COMMENT '删除时间戳',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `idx_unique_full-short-url` (`full_short_url`) USING BTREE
+    UNIQUE KEY `idx_unique_full-short-url` (`full_short_url`,`del_time`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 CREATE TABLE `t_link_11`
@@ -864,8 +876,9 @@ CREATE TABLE `t_link_11`
     `create_time`     datetime                                       DEFAULT NULL COMMENT '创建时间',
     `update_time`     datetime                                       DEFAULT NULL COMMENT '修改时间',
     `del_flag`        tinyint(1)                                     DEFAULT NULL COMMENT '删除标识 0：未删除 1：已删除',
+    `del_time`        bigint(20)                                     DEFAULT '0'  COMMENT '删除时间戳',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `idx_unique_full-short-url` (`full_short_url`) USING BTREE
+    UNIQUE KEY `idx_unique_full-short-url` (`full_short_url`,`del_time`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 CREATE TABLE `t_link_12`
@@ -889,8 +902,9 @@ CREATE TABLE `t_link_12`
     `create_time`     datetime                                       DEFAULT NULL COMMENT '创建时间',
     `update_time`     datetime                                       DEFAULT NULL COMMENT '修改时间',
     `del_flag`        tinyint(1)                                     DEFAULT NULL COMMENT '删除标识 0：未删除 1：已删除',
+    `del_time`        bigint(20)                                     DEFAULT '0'  COMMENT '删除时间戳',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `idx_unique_full-short-url` (`full_short_url`) USING BTREE
+    UNIQUE KEY `idx_unique_full-short-url` (`full_short_url`,`del_time`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 CREATE TABLE `t_link_13`
@@ -914,8 +928,9 @@ CREATE TABLE `t_link_13`
     `create_time`     datetime                                       DEFAULT NULL COMMENT '创建时间',
     `update_time`     datetime                                       DEFAULT NULL COMMENT '修改时间',
     `del_flag`        tinyint(1)                                     DEFAULT NULL COMMENT '删除标识 0：未删除 1：已删除',
+    `del_time`        bigint(20)                                     DEFAULT '0'  COMMENT '删除时间戳',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `idx_unique_full-short-url` (`full_short_url`) USING BTREE
+    UNIQUE KEY `idx_unique_full-short-url` (`full_short_url`,`del_time`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 CREATE TABLE `t_link_14`
@@ -939,8 +954,9 @@ CREATE TABLE `t_link_14`
     `create_time`     datetime                                       DEFAULT NULL COMMENT '创建时间',
     `update_time`     datetime                                       DEFAULT NULL COMMENT '修改时间',
     `del_flag`        tinyint(1)                                     DEFAULT NULL COMMENT '删除标识 0：未删除 1：已删除',
+    `del_time`        bigint(20)                                     DEFAULT '0'  COMMENT '删除时间戳',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `idx_unique_full-short-url` (`full_short_url`) USING BTREE
+    UNIQUE KEY `idx_unique_full-short-url` (`full_short_url`,`del_time`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 CREATE TABLE `t_link_15`
@@ -964,8 +980,9 @@ CREATE TABLE `t_link_15`
     `create_time`     datetime                                       DEFAULT NULL COMMENT '创建时间',
     `update_time`     datetime                                       DEFAULT NULL COMMENT '修改时间',
     `del_flag`        tinyint(1)                                     DEFAULT NULL COMMENT '删除标识 0：未删除 1：已删除',
+    `del_time`        bigint(20)                                     DEFAULT '0'  COMMENT '删除时间戳',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `idx_unique_full-short-url` (`full_short_url`) USING BTREE
+    UNIQUE KEY `idx_unique_full-short-url` (`full_short_url`,`del_time`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
