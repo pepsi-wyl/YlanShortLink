@@ -27,6 +27,48 @@ rules:
           standard:
             shardingColumn: gid
             shardingAlgorithmName: link_stats_today_hash_mod
+      t_link_access_stats:
+        actualDataNodes: ds_0.t_link_access_stats_${0..15}
+        tableStrategy:
+          standard:
+            shardingColumn: gid
+            shardingAlgorithmName: link_access_stats_hash_mod
+      t_link_locale_stats:
+        actualDataNodes: ds_0.t_link_locale_stats_${0..15}
+        tableStrategy:
+          standard:
+            shardingColumn: gid
+            shardingAlgorithmName: link_locale_stats_hash_mod
+      t_link_browser_stats:
+        actualDataNodes: ds_0.t_link_browser_stats_${0..15}
+        tableStrategy:
+          standard:
+            shardingColumn: gid
+            shardingAlgorithmName: link_browser_stats_hash_mod
+      t_link_os_stats:
+        actualDataNodes: ds_0.t_link_os_stats_${0..15}
+        tableStrategy:
+          standard:
+            shardingColumn: gid
+            shardingAlgorithmName: link_os_stats_hash_mod
+      t_link_device_stats:
+        actualDataNodes: ds_0.t_link_device_stats_${0..15}
+        tableStrategy:
+          standard:
+            shardingColumn: gid
+            shardingAlgorithmName: link_device_stats_hash_mod
+      t_link_network_stats:
+        actualDataNodes: ds_0.t_link_network_stats_${0..15}
+        tableStrategy:
+          standard:
+            shardingColumn: gid
+            shardingAlgorithmName: link_network_stats_hash_mod
+      t_link_access_logs:
+        actualDataNodes: ds_0.t_link_access_logs_${0..15}
+        tableStrategy:
+          standard:
+            shardingColumn: gid
+            shardingAlgorithmName: link_access_logs_hash_mod
     bindingTables:
       - t_link, t_link_stats_today
     shardingAlgorithms:
@@ -39,6 +81,34 @@ rules:
         props:
           sharding-count: 16
       link_stats_today_hash_mod:
+        type: HASH_MOD
+        props:
+          sharding-count: 16
+      link_locale_stats_hash_mod:
+        type: HASH_MOD
+        props:
+          sharding-count: 16
+      link_access_stats_hash_mod:
+        type: HASH_MOD
+        props:
+          sharding-count: 16
+      link_browser_stats_hash_mod:
+        type: HASH_MOD
+        props:
+          sharding-count: 16
+      link_os_stats_hash_mod:
+        type: HASH_MOD
+        props:
+          sharding-count: 16
+      link_device_stats_hash_mod:
+        type: HASH_MOD
+        props:
+          sharding-count: 16
+      link_network_stats_hash_mod:
+        type: HASH_MOD
+        props:
+          sharding-count: 16
+      link_access_logs_hash_mod:
         type: HASH_MOD
         props:
           sharding-count: 16
