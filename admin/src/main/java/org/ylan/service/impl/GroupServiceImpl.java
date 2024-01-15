@@ -1,12 +1,16 @@
 package org.ylan.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.ylan.common.bit.user.UserContext;
 import org.ylan.common.convention.exception.ClientException;
@@ -27,6 +31,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import static org.ylan.common.constant.RedisCacheConstant.LOCK_GROUP_CREATE_KEY;
 import static org.ylan.common.convention.enums.GroupErrorCodeEnum.*;
 
 /**
@@ -45,6 +50,17 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
      */
     private final ShortLinkRemoteService shortLinkRemoteService;
 
+    /**
+     * redisson客户端
+     */
+    private final RedissonClient redissonClient;
+
+    /**
+     * 短链接分组最大数量
+     */
+    @Value("${short-link.group.max-num}")
+    private Integer groupMaxNum;
+
     @Override
     public Boolean saveGroup(GroupSaveReqDTO requestParam) {
          return saveGroup(UserContext.getUsername(),requestParam);
@@ -52,31 +68,47 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
 
     @Override
     public Boolean saveGroup(String username, GroupSaveReqDTO requestParam) {
-        // 判断分组名称是否重复
-        if (hasName(username, requestParam.getName())){
-            throw new ClientException(GROUP_NAME_EXISTS_ERROR);
+        // 分组创建分布式锁
+        RLock lock = redissonClient.getLock(String.format(LOCK_GROUP_CREATE_KEY, username));
+        lock.lock();
+        try {
+            // 查询分组数量
+            LambdaQueryWrapper<GroupDO> queryWrapper = Wrappers.lambdaQuery(GroupDO.class)
+                    .eq(GroupDO::getUsername, username)
+                    .eq(GroupDO::getDelFlag, 0);
+            List<GroupDO> groupDOList = baseMapper.selectList(queryWrapper);
+            if (CollUtil.isNotEmpty(groupDOList) && groupDOList.size() >= groupMaxNum) {
+                throw new ClientException(String.format("已超出最大分组数：%d", groupMaxNum));
+            }
+
+            // 判断分组名称是否重复
+            if (hasName(username, requestParam.getName())){
+                throw new ClientException(GROUP_NAME_EXISTS_ERROR);
+            }
+
+            // 生成不可重复的gid
+            String gid = null;
+            do {
+                gid = RandomGeneratorUtils.generateRandom();
+            }while (hasGid(username, gid));
+
+            GroupDO groupDO = GroupDO.builder()
+                    .gid(gid)
+                    .sortOrder(0)
+                    .username(username)
+                    .name(requestParam.getName())
+                    .build();
+
+            // 新增短链接分组
+            int insert = baseMapper.insert(groupDO);
+            if (insert < 0) {
+                throw new ClientException(GROUP_SAVE_ERROR);
+            }
+
+            return true;
+        } finally {
+            lock.unlock();
         }
-
-        // 生成不可重复的gid
-        String gid = null;
-        do {
-            gid = RandomGeneratorUtils.generateRandom();
-        }while (hasGid(username, gid));
-
-        GroupDO groupDO = GroupDO.builder()
-                .gid(gid)
-                .sortOrder(0)
-                .username(username)
-                .name(requestParam.getName())
-                .build();
-
-        // 新增短链接分组
-        int insert = baseMapper.insert(groupDO);
-        if (insert < 0) {
-            throw new ClientException(GROUP_SAVE_ERROR);
-        }
-
-        return true;
     }
 
     @Override
