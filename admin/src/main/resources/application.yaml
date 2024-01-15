@@ -21,3 +21,8 @@ short-link:
   # 短链接分组最大数量
   group:
     max-num: 15
+  # 短链接流量风控
+  flow-limit:
+    enable: true
+    time-window: 1
+    max-access-count: 20

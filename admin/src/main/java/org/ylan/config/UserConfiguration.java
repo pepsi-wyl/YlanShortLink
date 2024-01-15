@@ -4,6 +4,7 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.ylan.common.bit.user.UserFlowRiskControlFilter;
 import org.ylan.common.bit.user.UserTransmitFilter;
 
 /**
@@ -24,6 +25,18 @@ public class UserConfiguration {
         registration.setFilter(new UserTransmitFilter(stringRedisTemplate));
         registration.addUrlPatterns("/*");
         registration.setOrder(0);
+        return registration;
+    }
+
+    /**
+     * 短链接流量风控过滤器
+     */
+    @Bean
+    public FilterRegistrationBean<UserFlowRiskControlFilter> globalUserFlowRiskControlFilter(StringRedisTemplate stringRedisTemplate, UserFlowRiskControlConfiguration userFlowRiskControlConfiguration) {
+        FilterRegistrationBean<UserFlowRiskControlFilter> registration = new FilterRegistrationBean<>();
+        registration.setFilter(new UserFlowRiskControlFilter(stringRedisTemplate, userFlowRiskControlConfiguration));
+        registration.addUrlPatterns("/*");
+        registration.setOrder(10);
         return registration;
     }
 }
