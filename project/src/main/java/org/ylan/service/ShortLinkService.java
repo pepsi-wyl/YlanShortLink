@@ -54,7 +54,7 @@ public interface ShortLinkService extends IService<ShortLinkDO> {
      * 修改短链接
      *
      * @param requestParam 修改短链接请求参数
-     * @return 修改成功返回True 不能删除抛异常
+     * @return 修改成功返回True 修改失败则抛异常
      */
     Boolean updateShortLink(ShortLinkUpdateReqDTO requestParam);
 
