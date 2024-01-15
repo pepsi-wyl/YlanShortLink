@@ -19,16 +19,21 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RLock;
+import org.redisson.api.RReadWriteLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.ylan.mapper.*;
+import org.ylan.model.dto.biz.ShortLinkStatsRecordDTO;
 import org.ylan.model.dto.req.ShortLinkGroupStatsAccessRecordReqDTO;
 import org.ylan.model.dto.req.ShortLinkGroupStatsReqDTO;
 import org.ylan.model.dto.req.ShortLinkStatsAccessRecordReqDTO;
 import org.ylan.model.dto.req.ShortLinkStatsReqDTO;
 import org.ylan.model.dto.resp.*;
 import org.ylan.model.entity.*;
+import org.ylan.mq.producer.DelayShortLinkStatsProducer;
 import org.ylan.service.ShortLinkStatsService;
 import org.ylan.utils.LinkUtil;
 import org.ylan.utils.NetUtils;
@@ -40,8 +45,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static org.ylan.common.constant.ApiConstant.*;
 import static org.ylan.common.constant.NetConstant.URL_SPLIT;
-import static org.ylan.common.constant.RedisCacheConstant.SHORT_LINK_STATS_UIP_PREFIX;
-import static org.ylan.common.constant.RedisCacheConstant.SHORT_LINK_STATS_UV_PREFIX;
+import static org.ylan.common.constant.RedisCacheConstant.*;
 import static org.ylan.common.constant.ShortLinkStatsConstant.UV_STATS_COOKIE_NAME;
 import static org.ylan.common.constant.ShortLinkStatsConstant.UV_STATS_COOKIE_TIME;
 
@@ -60,6 +64,16 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
      * Redis缓存
      */
     private final StringRedisTemplate stringRedisTemplate;
+
+    /**
+     * Redis分布式锁
+     */
+    private final RedissonClient redissonClient;
+
+    /**
+     * 延迟消费短链接统计发送者
+     */
+    private final DelayShortLinkStatsProducer delayShortLinkStatsProducer;
 
     /**
      * 短链接跳转持久层
@@ -123,66 +137,102 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
     @Value("${short-link.stats.locale.amap-key}")
     private String statsLocaleAmapKey;
 
+    public ShortLinkStatsRecordDTO buildLinkStatsRecordAndSetUser(String gid, String fullShortUrl, ServletRequest request, ServletResponse response) {
+        // 当前时间
+        Date currentTime = new Date();
+
+        // 获取到客户端 cookies
+        Cookie[] cookies = ((HttpServletRequest) request).getCookies();
+        // UV Flag Atomic
+        AtomicBoolean uvFlagAtomic = new AtomicBoolean();
+        // UV Value Atomic
+        AtomicReference<String> uvValueAtomic = new AtomicReference<>();
+        Runnable addResponseCookieTask = () -> {
+            // uvValue设置
+            uvValueAtomic.set(cn.hutool.core.lang.UUID.fastUUID().toString());
+
+            // 设置Cookie 1. uv-uvValue 2.过期时间30天 3.域 /shortUrl
+            Cookie uvCookie = new Cookie(UV_STATS_COOKIE_NAME, uvValueAtomic.get());
+            uvCookie.setMaxAge(UV_STATS_COOKIE_TIME);
+            uvCookie.setPath(StrUtil.sub(fullShortUrl, fullShortUrl.indexOf(URL_SPLIT), fullShortUrl.length()));
+            ((HttpServletResponse) response).addCookie(uvCookie);
+
+            // Redis中添加set集合
+            Long uvAdded = stringRedisTemplate.opsForSet().add(SHORT_LINK_STATS_UV_PREFIX + fullShortUrl, uvValueAtomic.get());
+            // uvFlagAtomic 设置 根据添加的Set集合进行判断是否是第一次访问
+            uvFlagAtomic.set(uvAdded != null && uvAdded > 0L);
+        };
+        if (ArrayUtil.isNotEmpty(cookies)) {
+            Arrays.stream(cookies)
+                    // 取第一个 Cookie 名为 UV_STATS_COOKIE_NAME 的 Cookie
+                    .filter(cookie -> Objects.equals(cookie.getName(), UV_STATS_COOKIE_NAME))
+                    .findFirst()
+                    // 取 Cookie Value
+                    .map(Cookie::getValue)
+                    .ifPresentOrElse(uvValue -> {
+                        // uvValue设置
+                        uvValueAtomic.set(uvValue);
+                        // Redis中添加Set集合
+                        Long uvAdded = stringRedisTemplate.opsForSet().add(SHORT_LINK_STATS_UV_PREFIX + fullShortUrl, uvValue);
+                        // uvFlagAtomic 设置 根据添加的Set集合进行判断是否锁第一次访问
+                        uvFlagAtomic.set(uvAdded != null && uvAdded > 0L);
+                    }, addResponseCookieTask);
+        } else {
+            // 该用户首次访问该链接并且cookies为空
+            addResponseCookieTask.run();
+        }
+
+        // UIP Flag Atomic
+        AtomicBoolean uipFlagAtomic = new AtomicBoolean();
+        // 用户真实IP
+        String remoteAddr = LinkUtil.getActualIp(((HttpServletRequest) request));
+        // Redis中添加Set集合
+        Long uipAdded = stringRedisTemplate.opsForSet().add(SHORT_LINK_STATS_UIP_PREFIX + fullShortUrl, remoteAddr);
+        // uipFlagAtomic 设置 根据添加的Set集合进行判断是否锁第一次访问
+        uipFlagAtomic.set(uipAdded != null && uipAdded > 0L);
+
+        // 获取浏览器数据
+        String browser = LinkUtil.getBrowser(((HttpServletRequest) request));
+
+        // 获取操作系统数据
+        String os = LinkUtil.getOs(((HttpServletRequest) request));
+
+        // 获取网络数据
+        String network = LinkUtil.getNetwork(((HttpServletRequest) request));
+
+        // 获取设备数据
+        String device = LinkUtil.getDevice(((HttpServletRequest) request));
+
+        // 构建并返回实体数据
+        return ShortLinkStatsRecordDTO.builder()
+                .gid(gid)
+                .fullShortUrl(fullShortUrl)
+                .currentTime(currentTime)
+                .remoteAddr(remoteAddr)
+                .browser(browser)
+                .os(os)
+                .device(device)
+                .network(network)
+                .uvValue(uvValueAtomic.get())
+                .uvFlag(uvFlagAtomic.get())
+                .uipFlag(uipFlagAtomic.get())
+                .build();
+    }
+
     //    @Async
-    public void shortLinkStats(String gid, String fullShortUrl, ServletRequest request, ServletResponse response) {
+    public void shortLinkStats(ShortLinkStatsRecordDTO statsRecord) {
+        // gid AND fullShortUrl
+        String gid = statsRecord.getGid();
+        String fullShortUrl = statsRecord.getFullShortUrl();
+
+        // redisson分布式读锁
+        RReadWriteLock readWriteLock = redissonClient.getReadWriteLock(String.format(LOCK_GID_UPDATE_KEY, fullShortUrl));
+        RLock readLock = readWriteLock.readLock();
+        if (!readLock.tryLock()) {
+            delayShortLinkStatsProducer.send(statsRecord);
+            return;
+        }
         try {
-
-            // 获取到客户端 cookies
-            Cookie[] cookies = ((HttpServletRequest) request).getCookies();
-            // UV Flag Atomic
-            AtomicBoolean uvFlagAtomic = new AtomicBoolean();
-            // UV Value Atomic
-            AtomicReference<String> uvValueAtomic = new AtomicReference<>();
-
-            Runnable addResponseCookieTask = () -> {
-                // uvValue设置
-                uvValueAtomic.set(cn.hutool.core.lang.UUID.fastUUID().toString());
-
-                // 设置Cookie 1. uv-uvValue 2.过期时间30天 3.域 /shortUrl
-                Cookie uvCookie = new Cookie(UV_STATS_COOKIE_NAME, uvValueAtomic.get());
-                uvCookie.setMaxAge(UV_STATS_COOKIE_TIME);
-                uvCookie.setPath(StrUtil.sub(fullShortUrl, fullShortUrl.indexOf(URL_SPLIT), fullShortUrl.length()));
-                ((HttpServletResponse) response).addCookie(uvCookie);
-
-                // Redis中添加set集合
-                Long uvAdded = stringRedisTemplate.opsForSet().add(SHORT_LINK_STATS_UV_PREFIX + fullShortUrl, uvValueAtomic.get());
-                // uvFlagAtomic 设置 根据添加的Set集合进行判断是否是第一次访问
-                uvFlagAtomic.set(uvAdded != null && uvAdded > 0L);
-            };
-
-            if (ArrayUtil.isNotEmpty(cookies)) {
-                Arrays.stream(cookies)
-                        // 取第一个 Cookie 名为 UV_STATS_COOKIE_NAME 的 Cookie
-                        .filter(cookie -> Objects.equals(cookie.getName(), UV_STATS_COOKIE_NAME))
-                        .findFirst()
-                        // 取 Cookie Value
-                        .map(Cookie::getValue)
-                        .ifPresentOrElse(uvValue -> {
-                            // uvValue设置
-                            uvValueAtomic.set(uvValue);
-                            // Redis中添加Set集合
-                            Long uvAdded = stringRedisTemplate.opsForSet().add(SHORT_LINK_STATS_UV_PREFIX + fullShortUrl, uvValue);
-                            // uvFlagAtomic 设置 根据添加的Set集合进行判断是否锁第一次访问
-                            uvFlagAtomic.set(uvAdded != null && uvAdded > 0L);
-                        }, addResponseCookieTask);
-            } else {
-                // 该用户首次访问该链接并且cookies为空
-                addResponseCookieTask.run();
-            }
-
-
-            // UIP Flag Atomic
-            AtomicBoolean uipFlagAtomic = new AtomicBoolean();
-            // 用户真实IP
-            String remoteAddr = LinkUtil.getActualIp(((HttpServletRequest) request));
-            // Redis中添加Set集合
-            Long uipAdded = stringRedisTemplate.opsForSet().add(SHORT_LINK_STATS_UIP_PREFIX + fullShortUrl, remoteAddr);
-            // uipFlagAtomic 设置 根据添加的Set集合进行判断是否锁第一次访问
-            uipFlagAtomic.set(uipAdded != null && uipAdded > 0L);
-
-
-            // 当前时间
-            Date currentTime = new Date();
 
             // Gid不存在时候先查询GoTo表获取Gid
             if (StrUtil.isBlank(gid)) {
@@ -192,19 +242,20 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
                 gid = shortLinkGotoDO.getGid();
             }
 
+
             // 短链接基础访问监控数据准备
             LinkAccessStatsDO linkAccessStatsDO = LinkAccessStatsDO.builder()
                     .id(IdUtil.getSnowflake(1, 1).nextId())
                     .gid(gid)
                     .fullShortUrl(fullShortUrl)
-                    .date(currentTime)
-                    .hour(DateUtil.hour(currentTime, true))
-                    .weekday(DateUtil.dayOfWeekEnum(currentTime).getIso8601Value())
-                    .pv(1)                                  // PV
-                    .uv(uvFlagAtomic.get() ? 1 : 0)         // UV
-                    .uip(uipFlagAtomic.get() ? 1 : 0)       // UIP
-                    .createTime(currentTime)
-                    .updateTime(currentTime)
+                    .date(statsRecord.getCurrentTime())
+                    .hour(DateUtil.hour(statsRecord.getCurrentTime(), true))
+                    .weekday(DateUtil.dayOfWeekEnum(statsRecord.getCurrentTime()).getIso8601Value())
+                    .pv(1)                                       // PV
+                    .uv(statsRecord.getUvFlag() ? 1 : 0)         // UV
+                    .uip(statsRecord.getUipFlag() ? 1 : 0)       // UIP
+                    .createTime(statsRecord.getCurrentTime())
+                    .updateTime(statsRecord.getCurrentTime())
                     .delFlag(0)
                     .build();
             // 短链接基础访问监控插入数据
@@ -217,7 +268,7 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
             // 准备高德地图API参数
             Map<String, Object> localeParamMap = new HashMap<>();
             localeParamMap.put(AMAP_KEY, statsLocaleAmapKey);
-            localeParamMap.put(AMAP_IP, remoteAddr);
+            localeParamMap.put(AMAP_IP, statsRecord.getRemoteAddr());
             // 发送Get请求 并解析为JSONObject 超时时间3000毫秒
             String localeResultStr = HttpUtil.get(statsLocaleAmapRemoteUrl, localeParamMap, 3000);
             JSONObject localeResultObj = JSON.parseObject(localeResultStr);
@@ -238,14 +289,14 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
                         .id(IdUtil.getSnowflake(1, 1).nextId())
                         .gid(gid)
                         .fullShortUrl(fullShortUrl)
-                        .date(currentTime)
+                        .date(statsRecord.getCurrentTime())
                         .country("中国")
                         .province(actualProvince = provinceFlag ? "未知" : province)
                         .city(actualCity = cityFlag ? "未知" : city)
                         .adcode(actualAdcode = adcodeFlag ? "未知" : adcode)
                         .cnt(1)
-                        .createTime(currentTime)
-                        .updateTime(currentTime)
+                        .createTime(statsRecord.getCurrentTime())
+                        .updateTime(statsRecord.getCurrentTime())
                         .delFlag(0)
                         .build();
                 // 短链接地区统计访问监控插入数据
@@ -253,72 +304,64 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
             }
 
 
-            // 获取浏览器数据
-            String browser = LinkUtil.getBrowser(((HttpServletRequest) request));
             // 短链接浏览器统计访问数据准备
             LinkBrowserStatsDO linkBrowserStatsDO = LinkBrowserStatsDO.builder()
                     .id(IdUtil.getSnowflake(1, 1).nextId())
                     .gid(gid)
                     .fullShortUrl(fullShortUrl)
-                    .date(currentTime)
-                    .browser(browser)
+                    .date(statsRecord.getCurrentTime())
+                    .browser(statsRecord.getBrowser())
                     .cnt(1)
-                    .createTime(currentTime)
-                    .updateTime(currentTime)
+                    .createTime(statsRecord.getCurrentTime())
+                    .updateTime(statsRecord.getCurrentTime())
                     .delFlag(0)
                     .build();
             // 短链接浏览器统计访问监控插入数据
             linkBrowserStatsMapper.shortLinkBrowserState(linkBrowserStatsDO);
 
 
-            // 获取操作系统数据
-            String os = LinkUtil.getOs(((HttpServletRequest) request));
             // 短链接操作系统统计访问数据准备
             LinkOsStatsDO linkOsStatsDO = LinkOsStatsDO.builder()
                     .id(IdUtil.getSnowflake(1, 1).nextId())
                     .gid(gid)
                     .fullShortUrl(fullShortUrl)
-                    .date(currentTime)
-                    .os(os)
+                    .date(statsRecord.getCurrentTime())
+                    .os(statsRecord.getOs())
                     .cnt(1)
-                    .createTime(currentTime)
-                    .updateTime(currentTime)
+                    .createTime(statsRecord.getCurrentTime())
+                    .updateTime(statsRecord.getCurrentTime())
                     .delFlag(0)
                     .build();
             // 短链接操作系统统计访问监控插入数据
             linkOsStatsMapper.shortLinkOsState(linkOsStatsDO);
 
 
-            // 获取设备数据
-            String device = LinkUtil.getDevice(((HttpServletRequest) request));
             // 短链接设备统计访问数据准备
             LinkDeviceStatsDO linkDeviceStatsDO = LinkDeviceStatsDO.builder()
                     .id(IdUtil.getSnowflake(1, 1).nextId())
                     .gid(gid)
                     .fullShortUrl(fullShortUrl)
-                    .date(currentTime)
-                    .device(device)
+                    .date(statsRecord.getCurrentTime())
+                    .device(statsRecord.getDevice())
                     .cnt(1)
-                    .createTime(currentTime)
-                    .updateTime(currentTime)
+                    .createTime(statsRecord.getCurrentTime())
+                    .updateTime(statsRecord.getCurrentTime())
                     .delFlag(0)
                     .build();
             // 短链接设备统计访问监控插入数据
             linkDeviceStatsMapper.shortLinkDeviceState(linkDeviceStatsDO);
 
 
-            // 获取网络数据
-            String network = LinkUtil.getNetwork(((HttpServletRequest) request));
             // 短链接网络统计访问数据准备
             LinkNetworkStatsDO linkNetworkStatsDO = LinkNetworkStatsDO.builder()
                     .id(IdUtil.getSnowflake(1, 1).nextId())
                     .gid(gid)
                     .fullShortUrl(fullShortUrl)
-                    .date(currentTime)
-                    .network(network)
+                    .date(statsRecord.getCurrentTime())
+                    .network(statsRecord.getNetwork())
                     .cnt(1)
-                    .createTime(currentTime)
-                    .updateTime(currentTime)
+                    .createTime(statsRecord.getCurrentTime())
+                    .updateTime(statsRecord.getCurrentTime())
                     .delFlag(0)
                     .build();
             // 短链接网络统计访问监控插入数据
@@ -328,40 +371,44 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
             // 短链接访问日志监控数据准备
             LinkAccessLogsDO linkAccessLogsDO = LinkAccessLogsDO.builder()
                     .gid(gid)
-                    .user(uvValueAtomic.get())
+                    .user(statsRecord.getUvValue())
                     .fullShortUrl(fullShortUrl)
-                    .ip(remoteAddr)
+                    .ip(statsRecord.getRemoteAddr())
                     .locale(StrUtil.join("-", "中国", actualProvince, actualCity))
-                    .os(os)
-                    .browser(browser)
-                    .network(network)
-                    .device(device)
+                    .os(statsRecord.getOs())
+                    .browser(statsRecord.getBrowser())
+                    .network(statsRecord.getNetwork())
+                    .device(statsRecord.getDevice())
                     .build();
             // 短链接访问日志监控插入数据
             linkAccessLogsMapper.insert(linkAccessLogsDO);
+
 
             // 短链接今日统计数据准备
             LinkStatsTodayDO linkStatsTodayDO = LinkStatsTodayDO.builder()
                     .id(IdUtil.getSnowflake(1, 1).nextId())
                     .gid(gid)
                     .fullShortUrl(fullShortUrl)
-                    .date(currentTime)
-                    .todayPv(1)                                  // PV
-                    .todayUv(uvFlagAtomic.get() ? 1 : 0)         // UV
-                    .todayUip(uipFlagAtomic.get() ? 1 : 0)       // UIP
-                    .createTime(currentTime)
-                    .updateTime(currentTime)
+                    .date(statsRecord.getCurrentTime())
+                    .todayPv(1)                                                   // PV
+                    .todayUv(statsRecord.getUvFlag()  ? 1 : 0)         // UV
+                    .todayUip(statsRecord.getUipFlag() ? 1 : 0)       // UIP
+                    .createTime(statsRecord.getCurrentTime())
+                    .updateTime(statsRecord.getCurrentTime())
                     .delFlag(0)
                     .build();
             // 短链接今日统计插入数据
             linkStatsTodayMapper.shortLinkTodayState(linkStatsTodayDO);
 
+
             // 短链接统计数据自增
-            shortLinkMapper.incrementStats(gid, fullShortUrl, 1,1, uvFlagAtomic.get() ? 1 : 0, uipFlagAtomic.get() ? 1 : 0);
+            shortLinkMapper.incrementStats(gid, fullShortUrl, 1,1, statsRecord.getUvFlag()  ? 1 : 0, statsRecord.getUipFlag() ? 1 : 0);
 
         } catch (Exception e) {
             // 监控统计异常
             log.error("短链接监控统计异常", e);
+        } finally {
+            readLock.unlock();
         }
     }
 

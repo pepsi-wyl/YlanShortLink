@@ -3,6 +3,7 @@ package org.ylan.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
+import org.ylan.model.dto.biz.ShortLinkStatsRecordDTO;
 import org.ylan.model.dto.req.ShortLinkGroupStatsAccessRecordReqDTO;
 import org.ylan.model.dto.req.ShortLinkGroupStatsReqDTO;
 import org.ylan.model.dto.req.ShortLinkStatsAccessRecordReqDTO;
@@ -19,14 +20,21 @@ import org.ylan.model.dto.resp.ShortLinkStatsRespDTO;
 public interface ShortLinkStatsService {
 
     /**
-     * 短链接统计方法
+     * 构建短链接统计实体
      *
-     * @param gid           分组ID
      * @param fullShortUrl  完整短链接
      * @param request       请求
-     * @param response      响应
+     * @param response      请求
+     * @return
      */
-    void shortLinkStats(String gid, String fullShortUrl, ServletRequest request, ServletResponse response);
+    ShortLinkStatsRecordDTO buildLinkStatsRecordAndSetUser(String gid, String fullShortUrl, ServletRequest request, ServletResponse response);
+
+    /**
+     * 短链接统计方法
+     *
+     * @param statsRecord   统计记录
+     */
+    void shortLinkStats(ShortLinkStatsRecordDTO statsRecord);
 
     /**
      * 获取单个短链接监控数据
