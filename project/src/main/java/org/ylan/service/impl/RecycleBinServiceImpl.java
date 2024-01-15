@@ -156,34 +156,13 @@ public class RecycleBinServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLin
         shortLinkGotoMapper.delete(wrapperShortLinkGotoDO);
 
         // 统计信息
-        LambdaQueryWrapper<LinkAccessStatsDO> wrapperLinkAccessStatsDO = Wrappers.lambdaQuery(LinkAccessStatsDO.class)
-                .eq(LinkAccessStatsDO::getGid, requestParam.getGid())
-                .eq(LinkAccessStatsDO::getFullShortUrl, NetUtils.removalProtocol(requestParam.getFullShortUrl()));
-        linkAccessStatsMapper.delete(wrapperLinkAccessStatsDO);
-        LambdaQueryWrapper<LinkStatsTodayDO> wrapperLinkStatsTodayDO = Wrappers.lambdaQuery(LinkStatsTodayDO.class)
-                .eq(LinkStatsTodayDO::getGid, requestParam.getGid())
-                .eq(LinkStatsTodayDO::getFullShortUrl, NetUtils.removalProtocol(requestParam.getFullShortUrl()));
-        linkStatsTodayMapper.delete(wrapperLinkStatsTodayDO);
-        LambdaQueryWrapper<LinkLocaleStatsDO> wrapperLinkLocaleStatsDO = Wrappers.lambdaQuery(LinkLocaleStatsDO.class)
-                .eq(LinkLocaleStatsDO::getGid, requestParam.getGid())
-                .eq(LinkLocaleStatsDO::getFullShortUrl, NetUtils.removalProtocol(requestParam.getFullShortUrl()));
-        linkLocaleStatsMapper.delete(wrapperLinkLocaleStatsDO);
-        LambdaQueryWrapper<LinkBrowserStatsDO> wrapperLinkBrowserStatsDO = Wrappers.lambdaQuery(LinkBrowserStatsDO.class)
-                .eq(LinkBrowserStatsDO::getGid, requestParam.getGid())
-                .eq(LinkBrowserStatsDO::getFullShortUrl, NetUtils.removalProtocol(requestParam.getFullShortUrl()));
-        linkBrowserStatsMapper.delete(wrapperLinkBrowserStatsDO);
-        LambdaQueryWrapper<LinkOsStatsDO> wrapperLinkOsStatsDO = Wrappers.lambdaQuery(LinkOsStatsDO.class)
-                .eq(LinkOsStatsDO::getGid, requestParam.getGid())
-                .eq(LinkOsStatsDO::getFullShortUrl, NetUtils.removalProtocol(requestParam.getFullShortUrl()));
-        linkOsStatsMapper.delete(wrapperLinkOsStatsDO);
-        LambdaQueryWrapper<LinkDeviceStatsDO> wrapperLinkDeviceStatsDO = Wrappers.lambdaQuery(LinkDeviceStatsDO.class)
-                .eq(LinkDeviceStatsDO::getGid, requestParam.getGid())
-                .eq(LinkDeviceStatsDO::getFullShortUrl, NetUtils.removalProtocol(requestParam.getFullShortUrl()));
-        linkDeviceStatsMapper.delete(wrapperLinkDeviceStatsDO);
-        LambdaQueryWrapper<LinkNetworkStatsDO> wrapperLinkNetworkStatsDO = Wrappers.lambdaQuery(LinkNetworkStatsDO.class)
-                .eq(LinkNetworkStatsDO::getGid, requestParam.getGid())
-                .eq(LinkNetworkStatsDO::getFullShortUrl, NetUtils.removalProtocol(requestParam.getFullShortUrl()));
-        linkNetworkStatsMapper.delete(wrapperLinkNetworkStatsDO);
+        linkAccessStatsMapper.deleteByGidAndFullShortUrl(requestParam.getGid(), NetUtils.removalProtocol(requestParam.getFullShortUrl()));
+        linkStatsTodayMapper.deleteByGidAndFullShortUrl(requestParam.getGid(), NetUtils.removalProtocol(requestParam.getFullShortUrl()));
+        linkLocaleStatsMapper.deleteByGidAndFullShortUrl(requestParam.getGid(), NetUtils.removalProtocol(requestParam.getFullShortUrl()));
+        linkBrowserStatsMapper.deleteByGidAndFullShortUrl(requestParam.getGid(), NetUtils.removalProtocol(requestParam.getFullShortUrl()));
+        linkOsStatsMapper.deleteByGidAndFullShortUrl(requestParam.getGid(), NetUtils.removalProtocol(requestParam.getFullShortUrl()));
+        linkDeviceStatsMapper.deleteByGidAndFullShortUrl(requestParam.getGid(), NetUtils.removalProtocol(requestParam.getFullShortUrl()));
+        linkNetworkStatsMapper.deleteByGidAndFullShortUrl(requestParam.getGid(), NetUtils.removalProtocol(requestParam.getFullShortUrl()));
         LambdaQueryWrapper<LinkAccessLogsDO> wrapperLinkAccessLogsDO = Wrappers.lambdaQuery(LinkAccessLogsDO.class)
                 .eq(LinkAccessLogsDO::getGid, requestParam.getGid())
                 .eq(LinkAccessLogsDO::getFullShortUrl, NetUtils.removalProtocol(requestParam.getFullShortUrl()));
