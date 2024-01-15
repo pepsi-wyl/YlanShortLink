@@ -200,7 +200,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
 
         // 存入redis
         stringRedisTemplate.opsForHash().put(LOGIN_PREFIX + requestParam.getUsername(), token, JSON.toJSONString(userDO));
-        stringRedisTemplate.expire(LOGIN_PREFIX + requestParam.getUsername(), 30L, TimeUnit.DAYS);
+        stringRedisTemplate.expire(LOGIN_PREFIX + requestParam.getUsername(), 30L, TimeUnit.MINUTES);
 
         return UserLoginRespDTO.builder().token(token).build();
     }
