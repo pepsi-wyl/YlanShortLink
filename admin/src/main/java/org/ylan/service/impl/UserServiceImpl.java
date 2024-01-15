@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.ylan.common.bit.user.UserContext;
 import org.ylan.common.convention.enums.UserErrorCodeEnum;
 import org.ylan.common.convention.exception.ClientException;
+import org.ylan.common.convention.exception.ServiceException;
 import org.ylan.mapper.UserMapper;
 import org.ylan.model.dto.req.GroupSaveReqDTO;
 import org.ylan.model.dto.req.UserLoginReqDTO;
@@ -83,7 +84,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
 
         //  判断用户是否存在抛出业务异常
         if (Objects.isNull(userDO)) {
-            throw new ClientException(UserErrorCodeEnum.USER_NULL);
+            throw new ServiceException(UserErrorCodeEnum.USER_NULL);
         }
 
         return BeanUtil.toBean(userDO, UserRespDTO.class);
