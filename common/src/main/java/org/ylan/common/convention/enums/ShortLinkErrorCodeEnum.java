@@ -28,7 +28,9 @@ public enum ShortLinkErrorCodeEnum implements IErrorCode {
 
     SHORT_LINK_NOT_FOUND_ERROR("B00407","短链接不存在"),
 
-    SHORT_LINK_IS_VISITED_ERROR("B00408","短链接正在被访问，请稍后再试...");
+    SHORT_LINK_IS_VISITED_ERROR("B00408","短链接正在被访问，请稍后再试..."),
+
+    SHORT_LINK_INPUT_ERROR("B00409","跳转链接填写错误");
 
     private final String code;
 

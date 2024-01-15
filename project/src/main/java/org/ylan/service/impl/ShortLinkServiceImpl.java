@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.text.StrBuilder;
 import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -31,6 +32,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.ylan.common.convention.enums.VailDateTypeEnum;
 import org.ylan.common.convention.exception.ServiceException;
+import org.ylan.config.GotoDomainWhiteListConfiguration;
 import org.ylan.mapper.*;
 import org.ylan.model.dto.biz.ShortLinkStatsRecordDTO;
 import org.ylan.model.dto.req.ShortLinkBatchCreateReqDTO;
@@ -183,6 +185,11 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
     private final LinkStatsTodayService linkStatsTodayService;
 
     /**
+     * 白名单配置类
+     */
+    private final GotoDomainWhiteListConfiguration gotoDomainWhiteListConfiguration;
+
+    /**
      * 默认生成短链接域名
      */
     @Value("${short-link.domain.default}")
@@ -191,7 +198,6 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
     @SneakyThrows
     @Override
     public void restoreUrl(String shortUri, ServletRequest request, ServletResponse response) {
-
         String domain = request.getServerName();
         String serverPort = Optional.of(request.getServerPort())
                 .filter(port -> !Objects.equals(port, PORT_80)) // 80 端口过滤
@@ -290,6 +296,9 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
     @Transactional(rollbackFor = Exception.class)
     @Override
     public ShortLinkCreateRespDTO createShortLink(ShortLinkCreateReqDTO requestParam) {
+
+        // 验证白名单
+        verificationWhitelist(requestParam.getOriginUrl());
 
         // 获取域名
         String domain = Objects.isNull(requestParam.getDomain()) ? NetUtils.removalProtocol(defaultShortLinkDomain) : NetUtils.removalProtocol(requestParam.getDomain());
@@ -410,6 +419,9 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
     @Override
     @Transactional
     public Boolean updateShortLink(ShortLinkUpdateReqDTO requestParam) {
+
+        // 验证白名单
+        verificationWhitelist(requestParam.getOriginUrl());
 
         // TODO fullShortUrl 暂不修改
         String fullShortUrl = NetUtils.removalProtocol(requestParam.getFullShortUrl());
@@ -702,6 +714,32 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
             log.info(fullShortUrl + " <===> " + "跳转链接失败，短链接系统中不存在");
         } else {
             log.info(fullShortUrl + " ===> " + originalLink + "跳转链接失败，短链接系统中不存在");
+        }
+    }
+
+    /**
+     * 验证白名单
+     *
+     * @param originUrl 原始链接
+     */
+    private void verificationWhitelist(String originUrl) {
+
+        // 是否开启 没有配置或者为False表示没开启
+        Boolean enable = gotoDomainWhiteListConfiguration.getEnable();
+        if (enable == null || !enable) {
+            return;
+        }
+
+        // 获取域名并检查是否为空
+        String domain = LinkUtil.extractDomain(originUrl);
+        if (StrUtil.isBlank(domain)) {
+            throw new ServiceException(SHORT_LINK_INPUT_ERROR);
+        }
+
+        // 检查白名单
+        List<String> details = gotoDomainWhiteListConfiguration.getDetails();
+        if (!details.contains(domain)) {
+            throw new ServiceException("演示环境为避免恶意攻击，请生成以下网站跳转链接：" + gotoDomainWhiteListConfiguration.getNames());
         }
     }
 

@@ -36,3 +36,11 @@ short-link:
   domain:
     default: yl.com:8001
 #    default: yl.com
+  goto-domain:
+    white-list:
+      enable: false
+      names: '知乎,掘金,博客园'
+      details:
+        - zhihu.com
+        - juejin.cn
+        - cnblogs.com
