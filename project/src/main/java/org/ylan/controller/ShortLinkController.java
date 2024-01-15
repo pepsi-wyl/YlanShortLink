@@ -1,5 +1,6 @@
 package org.ylan.controller;
 
+import com.alibaba.csp.sentinel.annotation.SentinelResource;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
@@ -8,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.ylan.common.convention.result.Result;
 import org.ylan.common.convention.result.Results;
+import org.ylan.handler.CustomBlockHandler;
 import org.ylan.model.dto.req.ShortLinkBatchCreateReqDTO;
 import org.ylan.model.dto.req.ShortLinkCreateReqDTO;
 import org.ylan.model.dto.req.ShortLinkPageReqDTO;
@@ -19,6 +21,9 @@ import org.ylan.model.dto.resp.ShortLinkPageRespDTO;
 import org.ylan.service.ShortLinkService;
 
 import java.util.List;
+
+import static org.ylan.common.constant.SentinelConstant.BLOCK_HANDLER__METHOD_CREATE_SHORT_LINK;
+import static org.ylan.common.constant.SentinelConstant.RUTE_CREATE_SHORT_lINK;
 
 /**
  * 短链接控制器
@@ -48,6 +53,11 @@ public class ShortLinkController {
     /**
      * 创建短链接
      */
+    @SentinelResource(
+            value = RUTE_CREATE_SHORT_lINK,
+            blockHandlerClass = CustomBlockHandler.class,
+            blockHandler = BLOCK_HANDLER__METHOD_CREATE_SHORT_LINK
+    )
     @PostMapping("/api/short-link/v1/create")
     public Result<ShortLinkCreateRespDTO> createShortLink(@RequestBody ShortLinkCreateReqDTO requestParam){
        return Results.success(shortLinkService.createShortLink(requestParam));
