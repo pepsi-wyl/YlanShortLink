@@ -3,6 +3,7 @@ package org.ylan.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.text.StrBuilder;
+import cn.hutool.core.util.IdUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -407,6 +408,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
     }
 
     @Override
+    @Transactional
     public Boolean updateShortLink(ShortLinkUpdateReqDTO requestParam) {
 
         // TODO fullShortUrl 暂不修改
@@ -516,8 +518,11 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                     .eq(LinkAccessStatsDO::getDelFlag, 0);
             List<LinkAccessStatsDO> linkAccessStatsDOList = linkAccessStatsMapper.selectList(linkAccessStatsQueryWrapper);
             if (CollUtil.isNotEmpty(linkAccessStatsDOList)) {
-                linkAccessStatsMapper.delete(linkAccessStatsQueryWrapper);
-                linkAccessStatsDOList.forEach(item -> item.setGid(requestParam.getGid()));
+                linkAccessStatsMapper.deleteByGidAndFullShortUrl(hasShortLinkDO.getGid(), hasShortLinkDO.getFullShortUrl());
+                linkAccessStatsDOList.forEach(item -> {
+                    item.setId(IdUtil.getSnowflake(1, 1).nextId());
+                    item.setGid(requestParam.getGid());
+                });
                 linkAccessStatsService.saveBatch(linkAccessStatsDOList);
             }
 
@@ -528,8 +533,11 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                     .eq(LinkStatsTodayDO::getDelFlag, 0);
             List<LinkStatsTodayDO> linkStatsTodayDOList = linkStatsTodayMapper.selectList(linkStatsTodayQueryWrapper);
             if (CollUtil.isNotEmpty(linkStatsTodayDOList)) {
-                linkStatsTodayMapper.delete(linkStatsTodayQueryWrapper);
-                linkStatsTodayDOList.forEach(item -> item.setGid(requestParam.getGid()));
+                linkStatsTodayMapper.deleteByGidAndFullShortUrl(hasShortLinkDO.getGid(), hasShortLinkDO.getFullShortUrl());
+                linkStatsTodayDOList.forEach(item -> {
+                    item.setId(IdUtil.getSnowflake(1, 1).nextId());
+                    item.setGid(requestParam.getGid());
+                });
                 linkStatsTodayService.saveBatch(linkStatsTodayDOList);
             }
 
@@ -540,8 +548,11 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                     .eq(LinkLocaleStatsDO::getDelFlag, 0);
             List<LinkLocaleStatsDO> linkLocaleStatsDOList = linkLocaleStatsMapper.selectList(linkLocaleStatsQueryWrapper);
             if (CollUtil.isNotEmpty(linkLocaleStatsDOList)) {
-                linkLocaleStatsMapper.delete(linkLocaleStatsQueryWrapper);
-                linkLocaleStatsDOList.forEach(item -> item.setGid(requestParam.getGid()));
+                linkLocaleStatsMapper.deleteByGidAndFullShortUrl(hasShortLinkDO.getGid(), hasShortLinkDO.getFullShortUrl());
+                linkLocaleStatsDOList.forEach(item -> {
+                    item.setId(IdUtil.getSnowflake(1, 1).nextId());
+                    item.setGid(requestParam.getGid());
+                });
                 linkLocaleStatsService.saveBatch(linkLocaleStatsDOList);
             }
 
@@ -552,8 +563,11 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                     .eq(LinkBrowserStatsDO::getDelFlag, 0);
             List<LinkBrowserStatsDO> linkBrowserStatsDOList = linkBrowserStatsMapper.selectList(linkBrowserStatsQueryWrapper);
             if (CollUtil.isNotEmpty(linkBrowserStatsDOList)) {
-                linkBrowserStatsMapper.delete(linkBrowserStatsQueryWrapper);
-                linkBrowserStatsDOList.forEach(item -> item.setGid(requestParam.getGid()));
+                linkBrowserStatsMapper.deleteByGidAndFullShortUrl(hasShortLinkDO.getGid(), hasShortLinkDO.getFullShortUrl());
+                linkBrowserStatsDOList.forEach(item -> {
+                    item.setId(IdUtil.getSnowflake(1, 1).nextId());
+                    item.setGid(requestParam.getGid());
+                });
                 linkBrowserStatsService.saveBatch(linkBrowserStatsDOList);
             }
 
@@ -564,8 +578,11 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                     .eq(LinkOsStatsDO::getDelFlag, 0);
             List<LinkOsStatsDO> linkOsStatsDOList = linkOsStatsMapper.selectList(linkOsStatsQueryWrapper);
             if (CollUtil.isNotEmpty(linkOsStatsDOList)) {
-                linkOsStatsMapper.delete(linkOsStatsQueryWrapper);
-                linkOsStatsDOList.forEach(item -> item.setGid(requestParam.getGid()));
+                linkOsStatsMapper.deleteByGidAndFullShortUrl(hasShortLinkDO.getGid(), hasShortLinkDO.getFullShortUrl());
+                linkOsStatsDOList.forEach(item -> {
+                    item.setId(IdUtil.getSnowflake(1, 1).nextId());
+                    item.setGid(requestParam.getGid());
+                });
                 linkOsStatsService.saveBatch(linkOsStatsDOList);
             }
 
@@ -576,8 +593,11 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                     .eq(LinkDeviceStatsDO::getDelFlag, 0);
             List<LinkDeviceStatsDO> linkDeviceStatsDOList = linkDeviceStatsMapper.selectList(linkDeviceStatsQueryWrapper);
             if (CollUtil.isNotEmpty(linkDeviceStatsDOList)) {
-                linkDeviceStatsMapper.delete(linkDeviceStatsQueryWrapper);
-                linkDeviceStatsDOList.forEach(item -> item.setGid(requestParam.getGid()));
+                linkDeviceStatsMapper.deleteByGidAndFullShortUrl(hasShortLinkDO.getGid(), hasShortLinkDO.getFullShortUrl());
+                linkDeviceStatsDOList.forEach(item -> {
+                    item.setId(IdUtil.getSnowflake(1, 1).nextId());
+                    item.setGid(requestParam.getGid());
+                });
                 linkDeviceStatsService.saveBatch(linkDeviceStatsDOList);
             }
 
@@ -588,8 +608,11 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                     .eq(LinkNetworkStatsDO::getDelFlag, 0);
             List<LinkNetworkStatsDO> linkNetworkStatsDOList = linkNetworkStatsMapper.selectList(linkNetworkStatsQueryWrapper);
             if (CollUtil.isNotEmpty(linkNetworkStatsDOList)) {
-                linkNetworkStatsMapper.delete(linkNetworkStatsQueryWrapper);
-                linkNetworkStatsDOList.forEach(item -> item.setGid(requestParam.getGid()));
+                linkNetworkStatsMapper.deleteByGidAndFullShortUrl(hasShortLinkDO.getGid(), hasShortLinkDO.getFullShortUrl());
+                linkNetworkStatsDOList.forEach(item -> {
+                    item.setId(IdUtil.getSnowflake(1, 1).nextId());
+                    item.setGid(requestParam.getGid());
+                });
                 linkNetworkStatsService.saveBatch(linkNetworkStatsDOList);
             }
 
@@ -601,7 +624,10 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
             List<LinkAccessLogsDO> linkAccessLogsDOList = linkAccessLogsMapper.selectList(linkAccessLogsQueryWrapper);
             if (CollUtil.isNotEmpty(linkAccessLogsDOList)) {
                 linkAccessLogsMapper.delete(linkAccessLogsQueryWrapper);
-                linkAccessLogsDOList.forEach(item -> item.setGid(requestParam.getGid()));
+                linkAccessLogsDOList.forEach(item -> {
+                    item.setId(IdUtil.getSnowflake(1, 1).nextId());
+                    item.setGid(requestParam.getGid());
+                });
                 linkAccessLogsService.saveBatch(linkAccessLogsDOList);
             }
         } finally {

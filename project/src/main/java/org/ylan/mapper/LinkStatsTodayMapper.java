@@ -18,4 +18,12 @@ public interface LinkStatsTodayMapper extends BaseMapper<LinkStatsTodayDO> {
      * @param linkTodayStats 短链接今日统计实体
      */
     void shortLinkTodayState(@Param("linkTodayStats") LinkStatsTodayDO linkTodayStats);
+
+    /**
+     * 删除短链接今日统计监控
+     *
+     * @param gid           分组ID
+     * @param fullShortUrl  完整短链接
+     */
+    int deleteByGidAndFullShortUrl(@Param("gid") String gid, @Param("fullShortUrl") String fullShortUrl);
 }

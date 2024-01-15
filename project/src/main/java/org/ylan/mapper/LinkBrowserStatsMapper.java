@@ -39,4 +39,13 @@ public interface LinkBrowserStatsMapper extends BaseMapper<LinkBrowserStatsDO> {
      * @return 获取指定日期内浏览器监控数据
      */
     List<HashMap<String, Object>> listBrowserStatsByGroup(@Param("param") ShortLinkGroupStatsReqDTO requestParam);
+
+    /**
+     * 删除短链接浏览器访问
+     *
+     * @param gid           分组ID
+     * @param fullShortUrl  完整短链接
+     */
+    int deleteByGidAndFullShortUrl(@Param("gid") String gid, @Param("fullShortUrl") String fullShortUrl);
+
 }

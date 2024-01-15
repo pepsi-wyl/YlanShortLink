@@ -69,4 +69,12 @@ public interface LinkAccessStatsMapper extends BaseMapper<LinkAccessStatsDO> {
      * @return 获取指定日期内星期基础监控数据
      */
     List<LinkAccessStatsDO> listWeekdayStatsByGroup(@Param("param") ShortLinkGroupStatsReqDTO requestParam);
+
+    /**
+     * 短链接基础访问监控
+     *
+     * @param gid           分组ID
+     * @param fullShortUrl  完整短链接
+     */
+    int deleteByGidAndFullShortUrl(@Param("gid") String gid, @Param("fullShortUrl") String fullShortUrl);
 }

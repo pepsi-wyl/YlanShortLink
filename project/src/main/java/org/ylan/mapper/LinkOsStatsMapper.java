@@ -39,4 +39,12 @@ public interface LinkOsStatsMapper extends BaseMapper<LinkOsStatsDO> {
      * @return 获取指定日期内操作系统监控数据
      */
     List<HashMap<String, Object>> listOsStatsByGroup(@Param("param") ShortLinkGroupStatsReqDTO requestParam);
+
+    /**
+     * 删除操作系统统计访问
+     *
+     * @param gid           分组ID
+     * @param fullShortUrl  完整短链接
+     */
+    int deleteByGidAndFullShortUrl(@Param("gid") String gid, @Param("fullShortUrl") String fullShortUrl);
 }

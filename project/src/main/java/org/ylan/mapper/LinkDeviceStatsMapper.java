@@ -39,4 +39,11 @@ public interface LinkDeviceStatsMapper extends BaseMapper<LinkDeviceStatsDO> {
      */
     List<LinkDeviceStatsDO> listDeviceStatsByGroup(@Param("param") ShortLinkGroupStatsReqDTO requestParam);
 
+    /**
+     * 删除短链接设备访问
+     *
+     * @param gid           分组ID
+     * @param fullShortUrl  完整短链接
+     */
+    int deleteByGidAndFullShortUrl(@Param("gid") String gid, @Param("fullShortUrl") String fullShortUrl);
 }

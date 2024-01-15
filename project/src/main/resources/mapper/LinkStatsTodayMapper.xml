@@ -81,4 +81,8 @@
         update_time = NOW();
     </insert>
 
+    <delete id="deleteByGidAndFullShortUrl">
+        delete from t_link_stats_today where gid = #{gid} AND full_short_url = #{fullShortUrl};
+    </delete>
+
 </mapper>

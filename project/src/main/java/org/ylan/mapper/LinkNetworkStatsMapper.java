@@ -38,4 +38,12 @@ public interface LinkNetworkStatsMapper extends BaseMapper<LinkNetworkStatsDO> {
      * @return 获取指定日期内访问网络监控数据
      */
     List<LinkNetworkStatsDO> listNetworkStatsByGroup(@Param("param") ShortLinkGroupStatsReqDTO requestParam);;
+
+    /**
+     * 删除短链接网络访问统计
+     *
+     * @param gid           分组ID
+     * @param fullShortUrl  完整短链接
+     */
+    int deleteByGidAndFullShortUrl(@Param("gid") String gid, @Param("fullShortUrl") String fullShortUrl);
 }

@@ -38,4 +38,12 @@ public interface LinkLocaleStatsMapper extends BaseMapper<LinkLocaleStatsDO> {
      * @return 获取指定日期内地区监控数据
      */
     List<LinkLocaleStatsDO> listLocaleByGroup(@Param("param") ShortLinkGroupStatsReqDTO requestParam);
+
+    /**
+     * 删除短链接地区统计访问
+     *
+     * @param gid           分组ID
+     * @param fullShortUrl  完整短链接
+     */
+    int deleteByGidAndFullShortUrl(@Param("gid") String gid, @Param("fullShortUrl") String fullShortUrl);
 }
