@@ -7,6 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.ylan.common.convention.exception.ServiceException;
 import org.ylan.common.convention.result.Result;
+import org.ylan.common.convention.result.Results;
+import org.ylan.model.dto.req.ShortLinkUpdateReqDTO;
 import org.ylan.remote.dto.ShortLinkRemoteService;
 import org.ylan.remote.dto.req.ShortLinkBatchCreateReqDTO;
 import org.ylan.remote.dto.req.ShortLinkCreateReqDTO;
@@ -65,6 +67,14 @@ public class ShortLinkController {
             log.error("批量创建短链接失败",e);
             throw new ServiceException(SHORT_LINK_TO_EXCEL_ERROR);
         }
+    }
+
+    /**
+     * 修改短链接
+     */
+    @PostMapping("/update")
+    public Result<Boolean> updateShortLink(@RequestBody ShortLinkUpdateReqDTO requestParam) {
+        return shortLinkRemoteService.updateShortLink(requestParam);
     }
 
     /**

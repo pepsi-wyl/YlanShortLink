@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.stereotype.Service;
 import org.ylan.common.convention.result.Result;
+import org.ylan.model.dto.req.ShortLinkUpdateReqDTO;
 import org.ylan.remote.dto.req.*;
 import org.ylan.remote.dto.req.ShortLinkStatsReqDTO;
 import org.ylan.remote.dto.resp.*;
@@ -56,6 +57,18 @@ public class ShortLinkRemoteServiceImpl implements ShortLinkRemoteService{
         // 发送请求
         String resultBodyStr = HttpUtil.post(HOST + "/api/short-link/v1/create/batch", jsonString);
         log.info("【 批量创建短链接响应结果 】 【 {} 】", resultBodyStr);
+        // 转化响应
+        return JSON.parseObject(resultBodyStr, new TypeReference<>() {});
+    }
+
+    @Override
+    public Result<Boolean> updateShortLink(ShortLinkUpdateReqDTO requestParam) {
+        // 封装请求参数
+        String jsonString = JSON.toJSONString(requestParam);
+        log.info("【 修改短链接-POST-请求参数 】【 {} 】", jsonString);
+        // 发送请求
+        String resultBodyStr = HttpUtil.post(HOST + "/api/short-link/v1/update", jsonString);
+        log.info("【 修改短链接响应结果 】 【 {} 】", resultBodyStr);
         // 转化响应
         return JSON.parseObject(resultBodyStr, new TypeReference<>() {});
     }

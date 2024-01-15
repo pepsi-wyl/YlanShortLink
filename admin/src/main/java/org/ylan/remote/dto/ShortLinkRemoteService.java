@@ -2,6 +2,7 @@ package org.ylan.remote.dto;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.ylan.common.convention.result.Result;
+import org.ylan.model.dto.req.ShortLinkUpdateReqDTO;
 import org.ylan.remote.dto.req.ShortLinkStatsReqDTO;
 import org.ylan.remote.dto.req.*;
 import org.ylan.remote.dto.resp.*;
@@ -31,6 +32,14 @@ public interface ShortLinkRemoteService {
      * @return 短链接批量创建响应
      */
     Result<ShortLinkBatchCreateRespDTO> batchCreateShortLink(ShortLinkBatchCreateReqDTO requestParam);
+
+    /**
+     * 修改短链接
+     *
+     * @param requestParam 修改短链接请求参数
+     * @return 成功返回True 失败抛出异常
+     */
+    Result<Boolean> updateShortLink(ShortLinkUpdateReqDTO requestParam);
 
     /**
      * 分页查询短链接
