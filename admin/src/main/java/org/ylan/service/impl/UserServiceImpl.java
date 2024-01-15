@@ -1,6 +1,7 @@
 package org.ylan.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -28,6 +29,7 @@ import org.ylan.model.entity.UserDO;
 import org.ylan.service.GroupService;
 import org.ylan.service.UserService;
 
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -166,11 +168,21 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
             throw new ClientException(USER_LOGIN_ERROR);
         }
 
-        // 根据Redis中数据判断是否重复登陆，防止重复刷接口
-        Boolean hasLogin = stringRedisTemplate.hasKey(LOGIN_PREFIX + requestParam.getUsername());
-        if (hasLogin != null && hasLogin){
-            // 重复登陆错误
-            throw new ClientException(USER_REPEAT_LOGIN_ERROR);
+//        // 根据Redis中数据判断是否重复登陆，防止重复刷接口
+//        Boolean hasLogin = stringRedisTemplate.hasKey(LOGIN_PREFIX + requestParam.getUsername());
+//        if (hasLogin != null && hasLogin){
+//            // 重复登陆错误
+//            throw new ClientException(USER_REPEAT_LOGIN_ERROR);
+//        }
+
+        // 查询Redis中存储的用户信息，如果用户重复登陆则直接返回用户Token
+        Map<Object ,Object> hasLoginMap = stringRedisTemplate.opsForHash().entries(LOGIN_PREFIX + requestParam.getUsername());
+        if (CollUtil.isNotEmpty(hasLoginMap)) {
+            String token = hasLoginMap.keySet().stream()
+                    .findFirst()
+                    .map(Object::toString)
+                    .orElseThrow(() -> new ClientException("用户登录错误"));
+            return new UserLoginRespDTO(token);
         }
 
         // 查询数据库判断用户是否可以登陆
