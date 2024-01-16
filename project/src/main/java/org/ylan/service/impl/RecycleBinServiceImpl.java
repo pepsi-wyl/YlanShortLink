@@ -13,15 +13,19 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.ylan.common.convention.exception.ServiceException;
 import org.ylan.mapper.*;
-import org.ylan.model.dto.req.*;
-import org.ylan.model.dto.resp.*;
-import org.ylan.model.entity.*;
-import org.ylan.service.*;
+import org.ylan.model.dto.req.RecycleBinPageReqDTO;
+import org.ylan.model.dto.req.RecycleBinRecoverReqDTO;
+import org.ylan.model.dto.req.RecycleBinRemoveReqDTO;
+import org.ylan.model.dto.req.RecycleBinSaveReqDTO;
+import org.ylan.model.dto.resp.RecycleBinPageRespDTO;
+import org.ylan.model.entity.LinkAccessLogsDO;
+import org.ylan.model.entity.ShortLinkDO;
+import org.ylan.model.entity.ShortLinkGotoDO;
+import org.ylan.service.RecycleBinService;
 import org.ylan.utils.NetUtils;
 
 import java.util.concurrent.TimeUnit;
 
-import static org.ylan.common.constant.NetConstant.HTTP;
 import static org.ylan.common.constant.RedisCacheConstant.*;
 import static org.ylan.common.convention.enums.RecycleBinCodeEnum.*;
 
@@ -193,7 +197,7 @@ public class RecycleBinServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLin
         // page记录类型转化
         return resultPage.convert((shortLinkDO)->{
             RecycleBinPageRespDTO bean = BeanUtil.toBean(shortLinkDO, RecycleBinPageRespDTO.class);
-            bean.setFullShortUrl(HTTP + bean.getFullShortUrl());
+//            bean.setFullShortUrl(HTTP + bean.getFullShortUrl());
             return bean;
         });
     }

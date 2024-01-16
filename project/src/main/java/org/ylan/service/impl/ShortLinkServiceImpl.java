@@ -364,7 +364,8 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
         return ShortLinkCreateRespDTO.builder()
                 .gid(requestParam.getGid())
                 .originUrl(requestParam.getOriginUrl())
-                .fullShortUrl(HTTP + fullShortUrl)
+//                .fullShortUrl(HTTP + fullShortUrl)
+                .fullShortUrl(fullShortUrl)
                 .build();
     }
 
@@ -781,7 +782,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
         // page记录类型转化
         return resultPage.convert((shortLinkDO) -> {
             ShortLinkPageRespDTO bean = BeanUtil.toBean(shortLinkDO, ShortLinkPageRespDTO.class);
-            bean.setFullShortUrl(HTTP + bean.getFullShortUrl());
+//            bean.setFullShortUrl(bean.getFullShortUrl());
             return bean;
         });
     }
