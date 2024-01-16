@@ -37,6 +37,13 @@ public interface ShortLinkStatsService {
     void shortLinkStats(ShortLinkStatsRecordDTO statsRecord);
 
     /**
+     * 短链接统计入库方法
+     *
+     * @param statsRecord   统计记录
+     */
+    void actualSaveShortLinkStats(ShortLinkStatsRecordDTO statsRecord);
+
+    /**
      * 获取单个短链接监控数据
      *
      * @param requestParam 获取单个短链接监控数据入参

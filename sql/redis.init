@@ -1,0 +1,2 @@
+XADD short_link:stats-stream * New key New value
+xgroup create short_link:stats-stream short_link:stats-stream:only-group 0

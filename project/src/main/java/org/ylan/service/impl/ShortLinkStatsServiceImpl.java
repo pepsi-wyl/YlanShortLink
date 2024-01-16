@@ -34,6 +34,7 @@ import org.ylan.model.dto.req.ShortLinkStatsReqDTO;
 import org.ylan.model.dto.resp.*;
 import org.ylan.model.entity.*;
 import org.ylan.mq.producer.DelayShortLinkStatsProducer;
+import org.ylan.mq.producer.ShortLinkStatsSaveProducer;
 import org.ylan.service.ShortLinkStatsService;
 import org.ylan.utils.LinkUtil;
 import org.ylan.utils.NetUtils;
@@ -74,6 +75,11 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
      * 延迟消费短链接统计发送者
      */
     private final DelayShortLinkStatsProducer delayShortLinkStatsProducer;
+
+    /**
+     * 短链接监控状态保存-消息队列生产者
+     */
+    private final ShortLinkStatsSaveProducer shortLinkStatsSaveProducer;
 
     /**
      * 短链接跳转持久层
@@ -219,8 +225,15 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
                 .build();
     }
 
-    //    @Async
     public void shortLinkStats(ShortLinkStatsRecordDTO statsRecord) {
+        // 准备统计信息
+        Map<String, String> producerMap = new HashMap<>();
+        producerMap.put("statsRecord", JSON.toJSONString(statsRecord));
+        // 发送到消息队列
+        shortLinkStatsSaveProducer.send(producerMap);
+    }
+
+    public void actualSaveShortLinkStats(ShortLinkStatsRecordDTO statsRecord) {
         // gid AND fullShortUrl
         String gid = statsRecord.getGid();
         String fullShortUrl = statsRecord.getFullShortUrl();
@@ -229,6 +242,7 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
         RReadWriteLock readWriteLock = redissonClient.getReadWriteLock(String.format(LOCK_GID_UPDATE_KEY, fullShortUrl));
         RLock readLock = readWriteLock.readLock();
         if (!readLock.tryLock()) {
+            log.info("获取分布式读锁{}失败，发送到延迟队列中", String.format(LOCK_GID_UPDATE_KEY, fullShortUrl));
             delayShortLinkStatsProducer.send(statsRecord);
             return;
         }
@@ -254,8 +268,8 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
                     .pv(1)                                       // PV
                     .uv(statsRecord.getUvFlag() ? 1 : 0)         // UV
                     .uip(statsRecord.getUipFlag() ? 1 : 0)       // UIP
-                    .createTime(statsRecord.getCurrentTime())
-                    .updateTime(statsRecord.getCurrentTime())
+                    .createTime(new Date())
+                    .updateTime(new Date())
                     .delFlag(0)
                     .build();
             // 短链接基础访问监控插入数据
@@ -295,8 +309,8 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
                         .city(actualCity = cityFlag ? "未知" : city)
                         .adcode(actualAdcode = adcodeFlag ? "未知" : adcode)
                         .cnt(1)
-                        .createTime(statsRecord.getCurrentTime())
-                        .updateTime(statsRecord.getCurrentTime())
+                        .createTime(new Date())
+                        .updateTime(new Date())
                         .delFlag(0)
                         .build();
                 // 短链接地区统计访问监控插入数据
@@ -312,8 +326,8 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
                     .date(statsRecord.getCurrentTime())
                     .browser(statsRecord.getBrowser())
                     .cnt(1)
-                    .createTime(statsRecord.getCurrentTime())
-                    .updateTime(statsRecord.getCurrentTime())
+                    .createTime(new Date())
+                    .updateTime(new Date())
                     .delFlag(0)
                     .build();
             // 短链接浏览器统计访问监控插入数据
@@ -328,8 +342,8 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
                     .date(statsRecord.getCurrentTime())
                     .os(statsRecord.getOs())
                     .cnt(1)
-                    .createTime(statsRecord.getCurrentTime())
-                    .updateTime(statsRecord.getCurrentTime())
+                    .createTime(new Date())
+                    .updateTime(new Date())
                     .delFlag(0)
                     .build();
             // 短链接操作系统统计访问监控插入数据
@@ -344,8 +358,8 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
                     .date(statsRecord.getCurrentTime())
                     .device(statsRecord.getDevice())
                     .cnt(1)
-                    .createTime(statsRecord.getCurrentTime())
-                    .updateTime(statsRecord.getCurrentTime())
+                    .createTime(new Date())
+                    .updateTime(new Date())
                     .delFlag(0)
                     .build();
             // 短链接设备统计访问监控插入数据
@@ -360,8 +374,8 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
                     .date(statsRecord.getCurrentTime())
                     .network(statsRecord.getNetwork())
                     .cnt(1)
-                    .createTime(statsRecord.getCurrentTime())
-                    .updateTime(statsRecord.getCurrentTime())
+                    .createTime(new Date())
+                    .updateTime(new Date())
                     .delFlag(0)
                     .build();
             // 短链接网络统计访问监控插入数据
@@ -393,8 +407,8 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
                     .todayPv(1)                                                   // PV
                     .todayUv(statsRecord.getUvFlag()  ? 1 : 0)         // UV
                     .todayUip(statsRecord.getUipFlag() ? 1 : 0)       // UIP
-                    .createTime(statsRecord.getCurrentTime())
-                    .updateTime(statsRecord.getCurrentTime())
+                    .createTime(new Date())
+                    .updateTime(new Date())
                     .delFlag(0)
                     .build();
             // 短链接今日统计插入数据

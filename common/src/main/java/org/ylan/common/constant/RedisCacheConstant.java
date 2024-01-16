@@ -66,4 +66,9 @@ public class RedisCacheConstant {
      * 短链接延迟队列消费统计 Key
      */
     public static final String DELAY_QUEUE_STATS_KEY = "short-link_delay-queue:stats";
+
+    /**
+     * 幂等性key前缀
+     */
+    public static final String IDEMPOTENT_KEY_PREFIX = "short-link:idempotent:";
 }

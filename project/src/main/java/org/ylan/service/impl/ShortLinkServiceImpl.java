@@ -41,7 +41,6 @@ import org.ylan.model.dto.req.ShortLinkPageReqDTO;
 import org.ylan.model.dto.req.ShortLinkUpdateReqDTO;
 import org.ylan.model.dto.resp.*;
 import org.ylan.model.entity.*;
-import org.ylan.mq.producer.DelayShortLinkStatsProducer;
 import org.ylan.service.*;
 import org.ylan.utils.HashUtils;
 import org.ylan.utils.LinkUtil;
@@ -83,11 +82,6 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
      * Redis分布式锁
      */
     private final RedissonClient redissonClient;
-
-    /**
-     * 延迟消费短链接统计发送者
-     */
-    private final DelayShortLinkStatsProducer delayShortLinkStatsProducer;
 
     /**
      * 短链接跳转持久层
@@ -218,7 +212,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
         if (StringUtils.isNotBlank(originalLink)) {
             // 监控统计
             ShortLinkStatsRecordDTO statsRecord = shortLinkStatsService.buildLinkStatsRecordAndSetUser(null, fullShortUrl, request, response);
-            delayShortLinkStatsProducer.send(statsRecord);
+            shortLinkStatsService.shortLinkStats(statsRecord);
             // 浏览器302重定向URL
             jumpLink(request, response, fullShortUrl, originalLink);
             return;
@@ -240,7 +234,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
             if (StringUtils.isNotBlank(originalLink)) {
                 // 监控统计
                 ShortLinkStatsRecordDTO statsRecord = shortLinkStatsService.buildLinkStatsRecordAndSetUser(null, fullShortUrl, request, response);
-                delayShortLinkStatsProducer.send(statsRecord);
+                shortLinkStatsService.shortLinkStats(statsRecord);
                 // 浏览器302重定向URL
                 jumpLink(request, response, fullShortUrl, originalLink);
                 return;
@@ -283,7 +277,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
             );
             // 监控统计
             ShortLinkStatsRecordDTO statsRecord = shortLinkStatsService.buildLinkStatsRecordAndSetUser(shortLinkDO.getGid(), fullShortUrl, request, response);
-            delayShortLinkStatsProducer.send(statsRecord);
+            shortLinkStatsService.shortLinkStats(statsRecord);
             // 浏览器302重定向URL
             jumpLink(request, response, fullShortUrl, shortLinkDO.getOriginUrl());
 

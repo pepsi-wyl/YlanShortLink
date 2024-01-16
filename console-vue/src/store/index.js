@@ -5,7 +5,7 @@ const store = createStore({
   state() {
     return {
       // domain: 'nurl.ink'
-      domain: 's.nageoffer.com'
+      domain: 'yl.com:8001'
     }
   }
 })
