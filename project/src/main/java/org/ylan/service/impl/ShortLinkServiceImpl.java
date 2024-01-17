@@ -338,11 +338,8 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                 throw new ServiceException(SHORT_LINK_GOTO_SAVE_ERROR);
             }
         } catch (DuplicateKeyException ex) {
-            // 完整短链接重复错误
-            if (!Objects.isNull(baseMapper.selectOne(Wrappers.lambdaQuery(ShortLinkDO.class).eq(ShortLinkDO::getFullShortUrl, fullShortUrl)))) {
-                log.error("短链接：{} 重复入库，ex：{}", fullShortUrl, ex.getMessage());
-                throw new ServiceException(SHORT_LINK_GENERATE_REPEAT_ERROR);
-            }
+            log.error("短链接：{} 重复入库，ex：{}", fullShortUrl, ex.getMessage());
+            throw new ServiceException(SHORT_LINK_GENERATE_REPEAT_ERROR);
         }
 
         // 完整短链接 加入布隆过滤器中
