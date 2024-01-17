@@ -25,6 +25,7 @@ import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.ylan.mapper.*;
 import org.ylan.model.dto.biz.ShortLinkStatsRecordDTO;
 import org.ylan.model.dto.req.ShortLinkGroupStatsAccessRecordReqDTO;
@@ -233,6 +234,7 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
         shortLinkStatsSaveProducer.send(producerMap);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public void actualSaveShortLinkStats(ShortLinkStatsRecordDTO statsRecord) {
         // gid AND fullShortUrl
         String gid = statsRecord.getGid();

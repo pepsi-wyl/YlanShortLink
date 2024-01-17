@@ -412,7 +412,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public Boolean updateShortLink(ShortLinkUpdateReqDTO requestParam) {
 
         // 验证白名单

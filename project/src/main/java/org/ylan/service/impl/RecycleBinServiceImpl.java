@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.ylan.common.convention.exception.ServiceException;
 import org.ylan.mapper.*;
 import org.ylan.model.dto.req.RecycleBinPageReqDTO;
@@ -144,6 +145,7 @@ public class RecycleBinServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLin
         return true;
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public Boolean removeRecycleBin(RecycleBinRemoveReqDTO requestParam) {
 
