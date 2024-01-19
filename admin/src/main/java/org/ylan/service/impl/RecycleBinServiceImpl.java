@@ -2,8 +2,8 @@ package org.ylan.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -12,7 +12,7 @@ import org.ylan.common.convention.exception.ServiceException;
 import org.ylan.common.convention.result.Result;
 import org.ylan.mapper.GroupMapper;
 import org.ylan.model.entity.GroupDO;
-import org.ylan.remote.dto.ShortLinkRemoteService;
+import org.ylan.remote.ShortLinkOpenFeignRemoteService;
 import org.ylan.remote.dto.req.RecycleBinPageReqDTO;
 import org.ylan.remote.dto.resp.RecycleBinPageRespDTO;
 import org.ylan.service.RecycleBinService;
@@ -35,7 +35,7 @@ public class RecycleBinServiceImpl implements RecycleBinService {
     /**
      * 短链接中台服务
      */
-    private final ShortLinkRemoteService shortLinkRemoteService;
+    private final ShortLinkOpenFeignRemoteService shortLinkOpenFeignRemoteService;
 
     /**
      * 分组Mapper
@@ -43,7 +43,7 @@ public class RecycleBinServiceImpl implements RecycleBinService {
     private final GroupMapper groupMapper;
 
     @Override
-    public Result<IPage<RecycleBinPageRespDTO>> pageRecycleBin(RecycleBinPageReqDTO requestParam) {
+    public Result<Page<RecycleBinPageRespDTO>> pageRecycleBin(RecycleBinPageReqDTO requestParam) {
         // 准备gid列表
         LambdaQueryWrapper<GroupDO> queryWrapper =
                 Wrappers.lambdaQuery(GroupDO.class).eq(GroupDO::getUsername, UserContext.getUsername());
@@ -53,7 +53,7 @@ public class RecycleBinServiceImpl implements RecycleBinService {
         }
         requestParam.setGidList(groupDOList.stream().map(GroupDO::getGid).toList());
 
-        return shortLinkRemoteService.pageRecycleBin(requestParam);
+        return shortLinkOpenFeignRemoteService.pageRecycleBin(requestParam);
     }
 
 }

@@ -1,6 +1,6 @@
 package org.ylan.service;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.ylan.common.convention.result.Result;
 import org.ylan.remote.dto.req.RecycleBinPageReqDTO;
 import org.ylan.remote.dto.resp.RecycleBinPageRespDTO;
@@ -19,5 +19,5 @@ public interface RecycleBinService {
      * @param requestParam 回收站短链接分页请求参数
      * @return 回收站短链接分页返回结果 失败抛异常
      */
-    Result<IPage<RecycleBinPageRespDTO>> pageRecycleBin(RecycleBinPageReqDTO requestParam);
+    Result<Page<RecycleBinPageRespDTO>> pageRecycleBin(RecycleBinPageReqDTO requestParam);
 }

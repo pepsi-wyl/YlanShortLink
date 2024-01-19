@@ -11,6 +11,7 @@ import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
@@ -864,25 +865,27 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
 
         // 用户访问记录
         List<String> userAccessLogsList = actualResult.getRecords().stream().map(ShortLinkStatsAccessRecordRespDTO::getUser).toList();
-        // 用户对应的访客信息-map
-        List<Map<String, Object>> uvTypeList = linkAccessLogsMapper.selectUvTypeByUsers(
-                requestParam.getGid(),
-                requestParam.getFullShortUrl(),
-                requestParam.getStartDate(),
-                requestParam.getEndDate(),
-                userAccessLogsList
-        );
+        if (CollectionUtils.isNotEmpty(userAccessLogsList)){
+            // 用户对应的访客信息-map
+            List<Map<String, Object>> uvTypeList = linkAccessLogsMapper.selectUvTypeByUsers(
+                    requestParam.getGid(),
+                    requestParam.getFullShortUrl(),
+                    requestParam.getStartDate(),
+                    requestParam.getEndDate(),
+                    userAccessLogsList
+            );
 
-        // 设置访客信息
-        actualResult.getRecords().forEach(shortLinkStatsAccessRecordRespDTO -> {
-            String uvType = uvTypeList.stream()
-                    .filter(item -> Objects.equals(shortLinkStatsAccessRecordRespDTO.getUser(), item.get("user").toString()))
-                    .findFirst()
-                    .map(item -> item.get("uvType"))
-                    .map(Object::toString)
-                    .orElse("旧访客");
-            shortLinkStatsAccessRecordRespDTO.setUvType(uvType);
-        });
+            // 设置访客信息
+            actualResult.getRecords().forEach(shortLinkStatsAccessRecordRespDTO -> {
+                String uvType = uvTypeList.stream()
+                        .filter(item -> Objects.equals(shortLinkStatsAccessRecordRespDTO.getUser(), item.get("user").toString()))
+                        .findFirst()
+                        .map(item -> item.get("uvType"))
+                        .map(Object::toString)
+                        .orElse("旧访客");
+                shortLinkStatsAccessRecordRespDTO.setUvType(uvType);
+            });
+        }
 
         return actualResult;
     }

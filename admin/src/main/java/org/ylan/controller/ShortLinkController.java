@@ -1,15 +1,14 @@
 package org.ylan.controller;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.ylan.common.convention.exception.ServiceException;
 import org.ylan.common.convention.result.Result;
-import org.ylan.common.convention.result.Results;
 import org.ylan.model.dto.req.ShortLinkUpdateReqDTO;
-import org.ylan.remote.dto.ShortLinkRemoteService;
+import org.ylan.remote.ShortLinkOpenFeignRemoteService;
 import org.ylan.remote.dto.req.ShortLinkBatchCreateReqDTO;
 import org.ylan.remote.dto.req.ShortLinkCreateReqDTO;
 import org.ylan.remote.dto.req.ShortLinkPageReqDTO;
@@ -38,14 +37,14 @@ public class ShortLinkController {
     /**
      * 短链接服务
      */
-    private final ShortLinkRemoteService shortLinkRemoteService;
+    private final ShortLinkOpenFeignRemoteService shortLinkOpenFeignRemoteService;
 
     /**
      * 创建短链接
      */
     @PostMapping("/create")
     public Result<ShortLinkCreateRespDTO> createShortLink(@RequestBody ShortLinkCreateReqDTO requestParam) {
-        return shortLinkRemoteService.createShortLink(requestParam);
+        return shortLinkOpenFeignRemoteService.createShortLink(requestParam);
     }
 
     /**
@@ -54,7 +53,7 @@ public class ShortLinkController {
     @SuppressWarnings("all")
     @PostMapping("/create/batch")
     public void batchCreateShortLink(@RequestBody ShortLinkBatchCreateReqDTO requestParam, HttpServletResponse response) {
-        Result<ShortLinkBatchCreateRespDTO> shortLinkBatchCreateRespDTOResult = shortLinkRemoteService.batchCreateShortLink(requestParam);
+        Result<ShortLinkBatchCreateRespDTO> shortLinkBatchCreateRespDTOResult = shortLinkOpenFeignRemoteService.batchCreateShortLink(requestParam);
         try {
             if (shortLinkBatchCreateRespDTOResult.isSuccess()) {
                 List<ShortLinkBaseInfoRespDTO> baseLinkInfos = shortLinkBatchCreateRespDTOResult.getData().getBaseLinkInfos();
@@ -74,15 +73,15 @@ public class ShortLinkController {
      */
     @PostMapping("/update")
     public Result<Boolean> updateShortLink(@RequestBody ShortLinkUpdateReqDTO requestParam) {
-        return shortLinkRemoteService.updateShortLink(requestParam);
+        return shortLinkOpenFeignRemoteService.updateShortLink(requestParam);
     }
 
     /**
      * 分页查询短链接
      */
     @GetMapping("/page")
-    public Result<IPage<ShortLinkPageRespDTO>> pageShortLink(ShortLinkPageReqDTO requestParam) {
-        return shortLinkRemoteService.pageShortLink(requestParam);
+    public Result<Page<ShortLinkPageRespDTO>> pageShortLink(ShortLinkPageReqDTO requestParam) {
+        return shortLinkOpenFeignRemoteService.pageShortLink(requestParam);
     }
 
 

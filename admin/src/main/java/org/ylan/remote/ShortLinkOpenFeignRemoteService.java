@@ -1,0 +1,172 @@
+package org.ylan.remote;
+
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.cloud.openfeign.SpringQueryMap;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.ylan.common.convention.result.Result;
+import org.ylan.model.dto.req.ShortLinkUpdateReqDTO;
+import org.ylan.remote.dto.req.ShortLinkStatsReqDTO;
+import org.ylan.remote.dto.req.*;
+import org.ylan.remote.dto.resp.*;
+
+import java.util.List;
+
+/**
+ * 远程调用短链接中台服务
+ *
+ * @author ylan
+ */
+
+@FeignClient("short-link-project")
+public interface ShortLinkOpenFeignRemoteService {
+
+    /**
+     * 创建短链接
+     *
+     * @param requestParam 创建短链接请求参数
+     * @return 短链接创建响应
+     */
+    @PostMapping("/api/short-link/v1/create")
+    Result<ShortLinkCreateRespDTO> createShortLink(@RequestBody ShortLinkCreateReqDTO requestParam);
+
+    /**
+     * 批量创建短链接
+     *
+     * @param requestParam 批量创建短链接请求参数
+     * @return 短链接批量创建响应
+     */
+    @PostMapping("/api/short-link/v1/create/batch")
+    Result<ShortLinkBatchCreateRespDTO> batchCreateShortLink(@RequestBody ShortLinkBatchCreateReqDTO requestParam);
+
+    /**
+     * 修改短链接
+     *
+     * @param requestParam 修改短链接请求参数
+     * @return 成功返回True 失败抛出异常
+     */
+    @PostMapping("/api/short-link/v1/update")
+    Result<Boolean> updateShortLink(@RequestBody ShortLinkUpdateReqDTO requestParam);
+
+    /**
+     * 分页查询短链接
+     *
+     * @param requestParam 分页短链接请求参数
+     * @return 查询短链接响应
+     */
+    @GetMapping("/api/short-link/v1/page")
+    Result<Page<ShortLinkPageRespDTO>> pageShortLink(@SpringQueryMap ShortLinkPageReqDTO requestParam);
+
+    /**
+     * 查询短链接分组内链接数量
+     *
+     * @param requestParam 查询短链接分组内数量请求参数
+     * @return 查询短链接分组内数量响应
+     * @return
+     */
+    @GetMapping("/api/short-link/v1/group/count")
+    Result<List<GroupCountQueryRespDTO>> listGroupShortLinkCount(@RequestParam("requestParam") List<String> requestParam);
+
+    /**
+     * 查询短链接分组是否可以删除
+     *
+     * @param gid 分组gid
+     * @return 可以删除返回True 不能删除抛异常
+     */
+    @GetMapping("/api/short-link/v1/group/delete")
+    Result<Boolean> deleteGroupShortLink(@RequestParam("gid") String gid);
+
+    /**
+     * 获取网页的Favicon图标
+     *
+     * @param url 目标网站地址
+     * @return 网站图标链接
+     */
+    @GetMapping("/api/short-link/v1/favicon")
+    Result<String> getFaviconByUrl(@RequestParam("url")String url);
+
+    /**
+     * 获取网页的Title标题
+     *
+     * @param url 目标网站地址
+     * @return 网站标题
+     */
+    @GetMapping("/api/short-link/v1/title")
+    Result<String> getTitleByUrl(@RequestParam("url") String url);
+
+    /**
+     * 移至回收站
+     *
+     * @param requestParam 移至回收站请求参数
+     * @return 成功返回True 失败抛异常
+     */
+    @PostMapping("/api/short-link/v1/recycle-bin/save")
+    Result<Boolean> saveRecycleBin(@RequestBody RecycleBinSaveReqDTO requestParam);
+
+    /**
+     * 移出回收站
+     *
+     * @param requestParam 移出回收站请求参数
+     * @return 成功返回True 失败抛异常
+     */
+    @PostMapping("/api/short-link/v1/recycle-bin/recover")
+    Result<Boolean> recoverRecycleBin(@RequestBody RecycleBinRecoverReqDTO requestParam);
+
+    /**
+     * 移除回收站
+     *
+     * @param requestParam 移除回收站请求参数
+     * @return 成功返回True 失败抛异常
+     */
+    @PostMapping("/api/short-link/v1/recycle-bin/remove")
+    Result<Boolean> removeRecycleBin(@RequestBody RecycleBinRemoveReqDTO requestParam);
+
+    /**
+     * 分页查询回收站短链接
+     *
+     * @param requestParam 回收站短链接分页请求参数
+     * @return 回收站短链接分页返回结果 失败抛异常
+     */
+    @GetMapping("/api/short-link/v1/recycle-bin/page")
+    Result<Page<RecycleBinPageRespDTO>> pageRecycleBin(@SpringQueryMap RecycleBinPageReqDTO requestParam);
+
+    /**
+     * 访问单个短链接指定时间内监控数据
+     *
+     * @param requestParam 访问短链接监控请求参数
+     * @return 短链接监控信息
+     */
+    @GetMapping("/api/short-link/v1/stats")
+    Result<ShortLinkStatsRespDTO> oneShortLinkStats(@SpringQueryMap ShortLinkStatsReqDTO requestParam);
+
+    /**
+     * 访问分组短链接指定时间内监控数据
+     *
+     * @param requestParam 访分组问短链接监控请求参数
+     * @return 分组短链接监控信息
+     */
+    @GetMapping("/api/short-link/v1/stats/group")
+    Result<ShortLinkStatsRespDTO> groupShortLinkStats(@SpringQueryMap ShortLinkGroupStatsReqDTO requestParam);
+
+    /**
+     * 访问单个短链接指定时间内监控访问记录数据
+     *
+     * @param requestParam 访问短链接监控访问记录请求参数
+     * @return 短链接监控访问记录信息
+     */
+    @GetMapping("/api/short-link/v1/stats/access-record")
+    Result<Page<ShortLinkStatsAccessRecordRespDTO>> shortLinkStatsAccessRecord(@SpringQueryMap ShortLinkStatsAccessRecordReqDTO requestParam);
+
+    /**
+     * 访问分组短链接指定时间内监控访问记录数据
+     *
+     * @param requestParam 访问分组短链接监控访问记录请求参数
+     * @return 分组短链接监控访问记录信息
+     */
+    @GetMapping("/api/short-link/v1/stats/access-record/group")
+    Result<Page<ShortLinkStatsAccessRecordRespDTO>> groupShortLinkStatsAccessRecord(@SpringQueryMap ShortLinkGroupStatsAccessRecordReqDTO requestParam);
+
+}

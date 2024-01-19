@@ -22,7 +22,7 @@ import org.ylan.model.dto.req.GroupSortReqDTO;
 import org.ylan.model.dto.req.GroupUpdateReqDTO;
 import org.ylan.model.dto.resp.GroupRespDTO;
 import org.ylan.model.entity.GroupDO;
-import org.ylan.remote.dto.ShortLinkRemoteService;
+import org.ylan.remote.ShortLinkOpenFeignRemoteService;
 import org.ylan.remote.dto.resp.GroupCountQueryRespDTO;
 import org.ylan.service.GroupService;
 import org.ylan.utils.RandomGeneratorUtils;
@@ -48,7 +48,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
     /**
      * 短链接中台服务
      */
-    private final ShortLinkRemoteService shortLinkRemoteService;
+    private final ShortLinkOpenFeignRemoteService shortLinkOpenFeignRemoteService;
 
     /**
      * redisson客户端
@@ -119,7 +119,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
                 .orderByDesc(GroupDO::getSortOrder, GroupDO::getUpdateTime);
         List<GroupDO> groupDOList = baseMapper.selectList(queryWrapper);
         // 查询每个分组下的短链数量
-        Result<List<GroupCountQueryRespDTO>> listResult = shortLinkRemoteService.listGroupShortLinkCount(groupDOList.stream().map(GroupDO::getGid).toList());
+        Result<List<GroupCountQueryRespDTO>> listResult = shortLinkOpenFeignRemoteService.listGroupShortLinkCount(groupDOList.stream().map(GroupDO::getGid).toList());
         // 进行链接数量设置
         List<GroupRespDTO> groupRespDTOList = BeanUtil.copyToList(groupDOList, GroupRespDTO.class);
         groupRespDTOList.forEach(groupRespDTO -> {
@@ -156,7 +156,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
     public Boolean deleteGroup(String gid) {
 
         // 删除分组 如果下面有链接 则不能删除
-        Result<Boolean> result = shortLinkRemoteService.deleteGroupShortLink(gid);
+        Result<Boolean> result = shortLinkOpenFeignRemoteService.deleteGroupShortLink(gid);
         if (!Objects.isNull(result) && !Result.SUCCESS_CODE.equals(result.getCode())){
             throw new ServiceException(result.getMessage());
         }
