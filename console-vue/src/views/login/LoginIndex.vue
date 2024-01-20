@@ -1,6 +1,6 @@
 <template>
   <div class="login-page">
-    <h1 class="title">短 链 接 平 台</h1>
+    <h1 class="title">S A S S - 短 链 接 平 台</h1>
     <div class="login-box">
       <!-- 登录 -->
       <div class="logon" :class="{ hidden: !isLogin }">
@@ -104,7 +104,7 @@
   </div>
   <el-dialog v-model="isWC" title="人机验证" width="40%" :before-close="handleClose">
     <div class="verification-flex">
-      <span>扫码下方二维码，关注后回复：短链接，获取拿个offer-12306在线购票系统人机验证码</span>
+      <span>人机验证码</span>
       <img class="img" src="@/assets/png/公众号二维码.png" alt="">
       <el-form class="form" :model="verification" :rules="verificationRule" ref="verificationRef">
         <el-form-item prop="code" label="验证码">
@@ -292,7 +292,7 @@ const login = (formEl) => {
         } else {
           ElMessage.warning('用户已在别处登录，请勿重复登录！')
         }
-      } else if (res1.data.message === '用户不存在') {
+      } else if (res1.data.message === '用户登录失败,用户名或密码错误') {
         ElMessage.error('请输入正确的账号密码!')
       }
     } else {
