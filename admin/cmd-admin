@@ -1,0 +1,6 @@
+# build img
+docker build -t ylan-arm64v8/short-link-admin:1.0.0 .
+# delete img
+docker rmi ylan-arm64v8/short-link-admin:1.0.0
+# run service
+docker run -p 8002:8002 --name short-link-admin --link redis:redis --link mysql:mysql --link nacos2:nacos2 ylan-arm64v8/short-link-admin:1.0.0
