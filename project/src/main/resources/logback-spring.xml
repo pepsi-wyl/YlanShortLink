@@ -6,7 +6,7 @@
               value="[YlanShortLinkProject] ===> [%-5level]-[%d{yyyy-MM-dd HH:mm:ss.SSS}]-[%thread]-[%X{traceId}]-[%L-%c.%M]-[%msg] %n"/>
 
     <!-- 日志文件保存路径属性 -->
-    <property name="LOG_HOME" value="/Users/ylan/dev/coding/IdeaProjects/YlanShortLink/logs"/>
+    <property name="LOG_HOME" value="logs"/>
 
     <!-- 日志输出到控制台 -->
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
