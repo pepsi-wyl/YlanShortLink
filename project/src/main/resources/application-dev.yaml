@@ -1,0 +1,57 @@
+server:
+  port: 8001
+
+spring:
+  application:
+    name: short-link-project
+  datasource:
+    driver-class-name: org.apache.shardingsphere.driver.ShardingSphereDriver
+    url: jdbc:shardingsphere:classpath:shardingsphere-config-dev.yaml
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 6379
+      password: 123456
+      channel-topic:
+        short-link-stats: 'short_link:stats-stream'
+        short-link-stats-group: 'short_link:stats-stream:only-group'
+  mvc:
+    view:
+      prefix: /templates/
+      suffix: .html
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+        username: nacos
+        password: nacos
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  mapper-locations: classpath:mapper/*.xml
+  global-config:
+    db-config:
+      logic-delete-field: delFlag   # 全局逻辑删除的实体字段名(since 3.3.0,配置后可以忽略不配置步骤2)
+      logic-delete-value: 1         # 逻辑已删除值(默认为 1)
+      logic-not-delete-value: 0     # 逻辑未删除值(默认为 0)
+  type-aliases-package:             # 配置MP别名扫描包
+    org.ylan.model.entity
+
+short-link:
+  # 统计配置
+  stats:
+    # 地区统计📉
+    locale:
+      amap-remote-url: https://restapi.amap.com/v3/ip
+      amap-key: 99abd5043626f39ca1f9c6e3e904dc26
+  domain:
+    default: yl.com:8001
+  #    default: yl.com
+  goto-domain:
+    white-list:
+      enable: false
+      names: '知乎,掘金,博客园'
+      details:
+        - zhihu.com
+        - juejin.cn
+        - cnblogs.com
