@@ -5,4 +5,4 @@ docker build -t ylan-arm64v8/short-link-vue:1.0.0 .
 # delete img
 docker rmi ylan-arm64v8/short-link-vue:1.0.0
 # run service
-docker run -p 80:80 --name short-link-vue --link short-link-admin:short-link-admin ylan-arm64v8/short-link-vue:1.0.0
+docker run -p 80:80 --name short-link-vue --link short-link-gateway:short-link-gateway ylan-arm64v8/short-link-vue:1.0.0
