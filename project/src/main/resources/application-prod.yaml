@@ -46,7 +46,7 @@ short-link:
       amap-key: 99abd5043626f39ca1f9c6e3e904dc26
   domain:
     default: yl.com:8001
-  #    default: yl.com
+#    default: yl.com
   goto-domain:
     white-list:
       enable: false
