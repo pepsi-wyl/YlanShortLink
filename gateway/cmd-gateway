@@ -1,6 +1,10 @@
 # build img
-docker build -t ylan-arm64v8/short-link-gateway:1.0.0 .
+docker build -t pepsiwyl920/short-link-gateway:1.0.0 .
 # delete img
-docker rmi ylan-arm64v8/short-link-gateway:1.0.0
+docker rmi pepsiwyl920/short-link-gateway:1.0.0
+# push img
+docker push pepsiwyl920/short-link-gateway:1.0.0
+# pull img
+docker pull pepsiwyl920/short-link-gateway:1.0.0
 # run service
-docker run -p 8000:8000 --name short-link-gateway --link redis:redis --link mysql:mysql --link nacos2:nacos2 ylan-arm64v8/short-link-gateway:1.0.0
+docker run -p 8000:8000 --name short-link-gateway --link redis:redis --link mysql:mysql --link nacos:nacos pepsiwyl920/short-link-gateway:1.0.0

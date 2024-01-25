@@ -1,8 +1,12 @@
 # 前端项目打包
 npm run build
 # build img
-docker build -t ylan-arm64v8/short-link-vue:1.0.0 .
+docker build -t pepsiwyl920/short-link-vue:1.0.0 .
 # delete img
-docker rmi ylan-arm64v8/short-link-vue:1.0.0
+docker rmi pepsiwyl920/short-link-vue:1.0.0
+# push img
+docker push pepsiwyl920/short-link-vue:1.0.0
+# pull img
+docker pull pepsiwyl920/short-link-vue:1.0.0
 # run service
-docker run -p 80:80 --name short-link-vue --link short-link-gateway:short-link-gateway ylan-arm64v8/short-link-vue:1.0.0
+docker run -p 80:80 --name short-link-vue --link short-link-gateway:short-link-gateway pepsiwyl920/short-link-vue:1.0.0
