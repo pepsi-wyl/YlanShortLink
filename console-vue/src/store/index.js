@@ -5,7 +5,10 @@ const store = createStore({
   state() {
     return {
       // domain: 'nurl.ink'
-      domain: 'yl.com:8001'
+      // dev
+      // domain: 'yl.com:8001'
+      // prod
+      domain: 'url.yl.com'
     }
   }
 })
