@@ -26,7 +26,7 @@ public class NetConstant {
     /**
      * 80端口
      */
-    public final static String PORT_80 = "80";
+    public final static int PORT_80 = 80;
 
     /**
      * 端口分隔符

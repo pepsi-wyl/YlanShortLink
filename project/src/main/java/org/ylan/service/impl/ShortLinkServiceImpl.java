@@ -193,11 +193,15 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
     @Override
     public void restoreUrl(String shortUri, ServletRequest request, ServletResponse response) {
         String domain = request.getServerName();
-        String serverPort = Optional.of(request.getServerPort())
-                .filter(port -> !Objects.equals(port, PORT_80)) // 80 端口过滤
-                .map(String::valueOf)
-                .map(port -> PORT_SPLIT + port)
-                .orElse(PORT_EMPTY);
+        String serverPort = PORT_EMPTY;
+        if (PORT_80 != request.getServerPort()){
+            serverPort = PORT_SPLIT + request.getServerPort();
+        }
+//        String serverPort = Optional.of(request.getServerPort())
+//                .filter(port -> !Objects.equals(port, PORT_80)) // 80 端口过滤
+//                .map(String::valueOf)
+//                .map(port -> PORT_SPLIT + port)
+//                .orElse(PORT_EMPTY);
         String fullShortUrl = domain + serverPort + URL_SPLIT + shortUri;
 
         // 利用 布隆过滤器 进行过滤 ，不存在的FullShortUrl 直接过滤 并跳转不存在
