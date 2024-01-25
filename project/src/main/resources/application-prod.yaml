@@ -22,7 +22,7 @@ spring:
   cloud:
     nacos:
       discovery:
-        server-addr: nacos2:8848
+        server-addr: nacos:8848
         username: nacos
         password: nacos
 mybatis-plus:
@@ -45,8 +45,7 @@ short-link:
       amap-remote-url: https://restapi.amap.com/v3/ip
       amap-key: 99abd5043626f39ca1f9c6e3e904dc26
   domain:
-    default: yl.com:8001
-#    default: yl.com
+    default: url.yl.com
   goto-domain:
     white-list:
       enable: false
