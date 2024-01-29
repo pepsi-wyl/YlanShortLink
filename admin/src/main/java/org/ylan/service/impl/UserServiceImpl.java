@@ -179,6 +179,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
         // 查询Redis中存储的用户信息，如果用户重复登陆则直接返回用户Token
         Map<Object ,Object> hasLoginMap = stringRedisTemplate.opsForHash().entries(LOGIN_PREFIX + requestParam.getUsername());
         if (CollUtil.isNotEmpty(hasLoginMap)) {
+            stringRedisTemplate.expire(LOGIN_PREFIX + requestParam.getUsername(), 30L, TimeUnit.MINUTES);
             String token = hasLoginMap.keySet().stream()
                     .findFirst()
                     .map(Object::toString)
