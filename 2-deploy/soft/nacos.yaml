@@ -1,0 +1,49 @@
+# Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: short-link-nacos-service
+  labels:
+    app: short-link-nacos
+spec:
+  selector:
+    app: short-link-nacos
+  type: NodePort
+  ports:
+    - name: short-link-nacos-server
+      protocol: TCP
+      port: 8848
+      targetPort: 8848
+      nodePort: 30848
+---
+# Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: short-link-nacos-deployment
+  labels:
+    app: short-link-nacos
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: short-link-nacos
+  template:
+    metadata:
+      labels:
+        app: short-link-nacos
+    spec:
+      containers:
+        - name: short-link-nacos
+          image: nacos/nacos-server:v2.1.1-slim
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8848
+          env:
+            # 不连接数据库
+            - name: MYSQL_DATABASE_NUM
+              value: "0"
+            # 单机模式启动
+            - name: MODE
+              value: "standalone"
+---

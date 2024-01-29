@@ -1,0 +1,108 @@
+---
+# ConfigMap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: short-link-mysql-config
+  labels:
+    app: short-link-mysql
+data:
+  my.cnf: |-
+    [client]
+    default-character-set=utf8mb4
+    [mysql]
+    default-character-set=utf8mb4
+    [mysqld] 
+    max_connections = 2000
+    secure_file_priv=/var/lib/mysql
+    sql_mode=STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION
+---
+# Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: short-link-mysql-service
+  labels:
+    app: short-link-mysql
+spec:
+  selector:
+    app: short-link-mysql
+  type: NodePort
+  ports:
+    - name: short-link-mysql
+      protocol: TCP
+      port: 3306
+      targetPort: 3306
+      nodePort: 30306
+---
+# Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: short-link-mysql-deployment
+  labels:
+    app: short-link-mysql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: short-link-mysql
+  template:
+    metadata:
+      labels:
+        app: short-link-mysql
+    spec:
+      containers:
+        - name: short-link-mysql
+          image: arm64v8/mysql:8.0.29
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3306
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: root
+          resources:
+            limits:
+              cpu: 200m
+              memory: 512Mi
+            requests:
+              cpu: 200m
+              memory: 512Mi
+          livenessProbe:
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 3
+            exec:
+              command: [ "mysqladmin", "-uroot", "-p${MYSQL_ROOT_PASSWORD}", "ping" ]
+          readinessProbe:
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 3
+            exec:
+              command: [ "mysqladmin", "-uroot", "-p${MYSQL_ROOT_PASSWORD}", "ping" ]
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/mysql
+            - name: config
+              mountPath: /etc/mysql/conf.d/my.cnf
+              subPath: my.cnf
+            - name: localtime
+              mountPath: /etc/localtime
+              readOnly: true
+      volumes:
+        - name: data
+          nfs:
+            server: 172.16.255.11
+            path: /nfs/data/soft/mysql/data
+        - name: config
+          configMap:
+            name: short-link-mysql-config
+        - name: localtime
+          hostPath:
+            type: File
+            path: /etc/localtime
+---
