@@ -1,0 +1,45 @@
+---
+# Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: short-link-vue-deployment
+  labels:
+    app: short-link-vue
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: short-link-vue
+  template:
+    metadata:
+      name: short-link-vue
+      labels:
+        app: short-link-vue
+    spec:
+      containers:
+        - name: short-link-vue
+          image: pepsiwyl920/short-link-vue:1.0.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+      restartPolicy: Always
+---
+# service
+apiVersion: v1
+kind: Service
+metadata:
+  name: short-link-vue-service
+  labels:
+    app: short-link-vue
+spec:
+  selector:
+    app: short-link-vue
+  type: NodePort
+  ports:
+    - name: short-link-vue
+      protocol: TCP
+      port: 80
+      targetPort: 80
+      nodePort: 30080
+---
