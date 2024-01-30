@@ -38,11 +38,19 @@ spring:
             - PreserveHostHeader     # 防止host被修改为localhost
             - name: TokenValidate    # Token过滤器
 
+        # restoreUrlNotfound
+        - id: short-link-restoreUrlNotfound  # 跳转服务
+          uri: lb://short-link-project/page/notfound
+          predicates:
+            - Path=/page/notfound
+          filters:
+            - PreserveHostHeader     # 防止host被修改为localhost
+
         # restoreUrl
         - id: short-link-restoreUrl  # 跳转服务
-          uri: lb://short-link-project/**
+          uri: lb://short-link-project/*
           predicates:
-            - Path=/**
+            - Path=/*
           filters:
             - PreserveHostHeader     # 防止host被修改为localhost
 logging:
