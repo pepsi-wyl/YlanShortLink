@@ -6,9 +6,9 @@ const store = createStore({
     return {
       // domain: 'nurl.ink'
       // dev
-      // domain: 'yl.com:8001'
+      domain: 'url.yl.com:8000'
       // prod
-      domain: 'url.yl.com'
+      // domain: 'url.yl.com'
     }
   }
 })
