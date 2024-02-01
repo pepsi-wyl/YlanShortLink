@@ -1,0 +1,125 @@
+# docker 部署 基于Centos7.6_X86
+
+
+#1.----------------------------------------------------部署中间件---------------------------------------------------------
+
+# mysql    密码:Upl0U11p0XvzJv@0Qfm
+mkdir /root/mysql
+mkdir /root/mysql/data
+docker run \
+         -p 3306:3306 \
+         -e MYSQL_ROOT_PASSWORD=Upl0U11p0XvzJv@0Qfm \
+         -v /root/mysql/data:/var/lib/mysql \
+         -d \
+         --name mysql \
+         mysql:8.0.24
+
+# redis    密码:Upl0U11p0XvzJv@0Qfm
+mkdir /root/redis
+mkdir /root/redis/data
+docker run \
+         -p 6379:6379 \
+         -v /root/redis/data:/data \
+         -d \
+         --restart=always \
+         --name redis \
+         redis:5.0.10 \
+         redis-server --appendonly yes --requirepass Upl0U11p0XvzJv@0Qfm
+
+# nacos    账号：nacos 密码：Upl0U11p0XvzJv@0Qfm
+docker run \
+    -d -p 8848:8848 \
+    -p 9848:9848 \
+    --name nacos \
+    -e MODE=standalone \
+    -e TIME_ZONE='Asia/Shanghai' \
+    nacos/nacos-server:v2.1.1
+
+
+#2.----------------------------------------------------初始化数据---------------------------------------------------------
+# 执行初始化脚本
+
+#3.----------------------------------------------------部署后端服务-------------------------------------------------------
+# 1.创建日志文件目录
+mkdir /root/logs
+
+# 2.执行maven-docker环境打包命令 注意修改 可能要 修改配置
+
+# 3.上传jar包到服务器
+mkdir /root/app
+mkdir /root/app/project
+mkdir /root/app/admin
+mkdir /root/app/gateway
+
+# 4.执行Dockerfile构建镜像命令
+
+cd /root/app/project
+# build img
+docker build -t project:0.0.1 .
+# delete img
+docker rmi project:0.0.1
+
+cd /root/app/admin
+# build img
+docker build -t admin:0.0.1 .
+# delete img
+docker rmi admin:0.0.1
+
+cd /root/app/gateway
+# build img
+docker build -t gateway:0.0.1 .
+# delete img
+docker rmi gateway:0.0.1
+
+# 5.运行容器
+docker run \
+    -d -p 8001:8001 \
+    --name project \
+    --link redis:redis \
+    --link mysql:mysql \
+    --link nacos:nacos \
+    -v /root/logs:/app/logs \
+    project:0.0.1
+
+docker run \
+    -d -p 8002:8002 \
+    --name admin \
+    --link redis:redis \
+    --link mysql:mysql \
+    --link nacos:nacos \
+    -v /root/logs:/app/logs \
+    admin:0.0.1
+
+docker run \
+    -d -p 8000:8000 \
+    --name gateway \
+    --link redis:redis \
+    --link mysql:mysql \
+    --link nacos:nacos \
+    -v /root/logs:/app/logs \
+    gateway:0.0.1
+
+#4.----------------------------------------------------部署前端服务-------------------------------------------------------
+# 1.前端项目打包
+修改前端传的默认短链接域名
+npm run build
+
+# 2.上传前端代码到服务器
+mkdir /root/app
+mkdir /root/app/vue
+
+# 3.执行Dockerfile构建镜像命令
+cd /root/app/vue
+# build img
+docker build -t vue:0.0.1 .
+# delete img
+docker rmi vue:0.0.1
+
+# 4.运行容器
+docker run \
+    -d -p 80:80 \
+    --name vue \
+    --link gateway:gateway \
+    vue:0.0.1
+
+#5.----------------------------------------------------绑定域名----------------------------------------------------------

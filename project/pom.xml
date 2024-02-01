@@ -110,6 +110,12 @@
                 <surroundings>prod</surroundings>
             </properties>
         </profile>
+        <profile>
+            <id>docker</id>
+            <properties>
+                <surroundings>docker</surroundings>
+            </properties>
+        </profile>
     </profiles>
 
     <build>
@@ -134,8 +140,10 @@
                 <excludes>
                     <exclude>application-dev.yaml</exclude>
                     <exclude>application-prod.yaml</exclude>
+                    <exclude>application-docker.yaml</exclude>
                     <exclude>shardingsphere-config-dev.yaml</exclude>
                     <exclude>shardingsphere-config-prod.yaml</exclude>
+                    <exclude>shardingsphere-config-docker.yaml</exclude>
                 </excludes>
             </resource>
             <resource>

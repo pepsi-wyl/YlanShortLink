@@ -1,0 +1,40 @@
+server:
+  port: 8002
+
+spring:
+  application:
+    name: short-link-admin
+  datasource:
+    driver-class-name: org.apache.shardingsphere.driver.ShardingSphereDriver
+    url: jdbc:shardingsphere:classpath:shardingsphere-config-docker.yaml
+  data:
+    redis:
+      host: redis
+      port: 6379
+      password: Upl0U11p0XvzJv@0Qfm
+  cloud:
+    nacos:
+      discovery:
+        server-addr: nacos:8848
+        username: nacos
+        password: Upl0U11p0XvzJv@0Qfm
+
+mybatis-plus:
+  global-config:
+    db-config:
+      logic-delete-field: delFlag   # 全局逻辑删除的实体字段名(since 3.3.0,配置后可以忽略不配置步骤2)
+      logic-delete-value: 1         # 逻辑已删除值(默认为 1)
+      logic-not-delete-value: 0     # 逻辑未删除值(默认为 0)
+short-link:
+  # 短链接分组最大数量
+  group:
+    max-num: 15
+  # 短链接流量风控
+  flow-limit:
+    enable: true
+    time-window: 1
+    max-access-count: 20
+
+logging:
+  level:
+    org.ylan.remote: debug
