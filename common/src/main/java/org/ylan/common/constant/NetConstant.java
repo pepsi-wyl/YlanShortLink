@@ -44,6 +44,11 @@ public class NetConstant {
     public final static String X_FORWARDED_FOR = "X-Forwarded-For";
 
     /**
+     * X-Real-IP
+     */
+    public final static String X_REAL_IP = "X-Real-IP";
+
+    /**
      * Proxy-Client-IP
      */
     public final static String PROXY_CLIENT_IP = "Proxy-Client-IP";

@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 
 import java.net.URI;
 import java.util.Date;
+import java.util.Objects;
 import java.util.Optional;
 
 import static org.ylan.common.constant.NetConstant.*;
@@ -41,6 +42,9 @@ public class LinkUtil {
     public static String getActualIp(HttpServletRequest request) {
         String ipAddress = request.getHeader(X_FORWARDED_FOR);
         if (ipAddress == null || ipAddress.isEmpty() || IP_UNKNOWN.equalsIgnoreCase(ipAddress)) {
+            ipAddress = request.getHeader(X_REAL_IP);
+        }
+        if (ipAddress == null || ipAddress.isEmpty() || IP_UNKNOWN.equalsIgnoreCase(ipAddress)) {
             ipAddress = request.getHeader(PROXY_CLIENT_IP);
         }
         if (ipAddress == null || ipAddress.isEmpty() || IP_UNKNOWN.equalsIgnoreCase(ipAddress)) {
@@ -54,6 +58,10 @@ public class LinkUtil {
         }
         if (ipAddress == null || ipAddress.isEmpty() || IP_UNKNOWN.equalsIgnoreCase(ipAddress)) {
             ipAddress = request.getRemoteAddr();
+        }
+        // 多个代理的情况，第一个IP为客户端真实IP
+        if (!Objects.isNull(ipAddress)){
+            ipAddress = ipAddress.split(",")[0].trim();
         }
         return ipAddress;
     }
