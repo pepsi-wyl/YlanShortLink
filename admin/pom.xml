@@ -99,9 +99,9 @@
             </activation>
         </profile>
         <profile>
-            <id>prod</id>
+            <id>k8s</id>
             <properties>
-                <surroundings>prod</surroundings>
+                <surroundings>k8s</surroundings>
             </properties>
         </profile>
         <profile>
@@ -133,10 +133,10 @@
                 <directory>src/main/resources</directory>
                 <excludes>
                     <exclude>application-dev.yaml</exclude>
-                    <exclude>application-prod.yaml</exclude>
+                    <exclude>application-k8s.yaml</exclude>
                     <exclude>application-docker.yaml</exclude>
                     <exclude>shardingsphere-config-dev.yaml</exclude>
-                    <exclude>shardingsphere-config-prod.yaml</exclude>
+                    <exclude>shardingsphere-config-k8s.yaml</exclude>
                     <exclude>shardingsphere-config-docker.yaml</exclude>
                 </excludes>
             </resource>
