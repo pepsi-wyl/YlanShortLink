@@ -3,6 +3,9 @@ server:
 spring:
   application:
     name: short-link-gateway
+  datasource:
+    driver-class-name: org.apache.shardingsphere.driver.ShardingSphereDriver
+    url: jdbc:shardingsphere:classpath:shardingsphere-config-@surroundings@.yaml
   data:
     redis:
       host: redis
