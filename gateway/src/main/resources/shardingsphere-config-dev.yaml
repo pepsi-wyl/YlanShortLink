@@ -1,0 +1,24 @@
+dataSources:
+  ds_0:
+    dataSourceClassName: com.zaxxer.hikari.HikariDataSource
+    driverClassName: com.mysql.cj.jdbc.Driver
+    jdbcUrl: jdbc:mysql://127.0.0.1:3306/link_logs?useUnicode=true&characterEncoding=UTF-8&rewriteBatchedStatements=true&allowMultiQueries=true&serverTimezone=Asia/Shanghai
+    username: root
+    password: root
+
+rules:
+  - !SHARDING
+    tables:
+      t_link_gateway_log:
+        actualDataNodes: ds_0.t_link_gateway_log_${0..9}
+        tableStrategy:
+          standard:
+            shardingColumn: trace_id
+            shardingAlgorithmName: link_gateway_log_table_hash_mod
+    shardingAlgorithms:
+      link_gateway_log_table_hash_mod:
+        type: HASH_MOD
+        props:
+          sharding-count: 10
+props:
+  sql-show: true
