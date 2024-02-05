@@ -33,8 +33,8 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.server.HandlerStrategies;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.server.ServerWebExchange;
-import org.ylan.mapper.GatewayLogMapper;
 import org.ylan.model.entity.GatewayLogDO;
+import org.ylan.service.GatewayLogService;
 import org.ylan.utils.NetUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -60,9 +60,9 @@ import static org.ylan.common.constant.LogsConstant.TRACE_ID;
 public class GatewayLogFilter implements GlobalFilter, Ordered {
 
     /**
-     * 网关日志持久层
+     * 网关日志接口层
      */
-    private final GatewayLogMapper gatewayLogMapper;
+    private final GatewayLogService gatewayLogService;
 
     private static final List<HttpMessageReader<?>> messageReaders = HandlerStrategies.withDefaults().messageReaders();
 
@@ -279,7 +279,7 @@ public class GatewayLogFilter implements GlobalFilter, Ordered {
      */
     private void writeAccessLog(GatewayLogDO gatewayLog) {
         log.info(gatewayLog.toString());
-        gatewayLogMapper.insert(gatewayLog);
+        gatewayLogService.addGatewayLog(gatewayLog);
     }
 
 }
