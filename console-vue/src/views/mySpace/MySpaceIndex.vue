@@ -503,9 +503,7 @@
                 <Connection />
               </el-icon>
               <span>随机跳转</span>
-            </span> </template
-          >暂未开发</el-tab-pane
-        >
+            </span> </template>暂未开发</el-tab-pane>
       </el-tabs>
     </el-dialog>
     <!-- 修改短链信息弹框 -->
@@ -766,12 +764,9 @@ const queryPage = async () => {
   nums.value = editableTabs.value?.[selectedIndex.value]?.shortLinkCount || 0
   console.log('------', editableTabs.value, selectedIndex.value)
   const res = await API.smallLinkPage.queryPage(pageParams)
-  if (res?.data.success) {
-    tableData.value = res.data?.data?.records
-    totalNums.value = +res.data?.data?.total
-  } else {
-    ElMessage.error(res?.data.message)
-  }
+  tableData.value = res.data?.data?.records
+  totalNums.value = +res.data?.data?.total
+  // console.log('获取到的页面数据', res)
 }
 
 const handleSizeChange = () => {
@@ -839,7 +834,7 @@ const addGroup = async () => {
     ElMessage.success('添加成功')
     getGroupInfo(queryPage)
   } else {
-    ElMessage.error(res1?.data.message)
+    ElMessage.error('添加失败')
   }
   isAddGroup.value = false
   addGroupLoading.value = false
@@ -1002,6 +997,8 @@ const removeLink = (data) => {
 }
 
 .options-box {
+  display: flex;
+  flex-direction: column;
   position: relative;
   height: 100%;
   width: 190px;
@@ -1288,7 +1285,16 @@ const removeLink = (data) => {
   vertical-align: middle;
   margin-left: 4px;
 }
+
 .orderIndex {
   color: #3677c2;
+}
+
+.sortOptions {
+  height: calc(100% - 50px);
+  margin-bottom: 50px;
+  // height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 </style>
