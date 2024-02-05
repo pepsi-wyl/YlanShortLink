@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.collect.Queues;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,7 +26,13 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class GatewayLogServiceImpl extends ServiceImpl<GatewayLogMapper, GatewayLogDO> implements GatewayLogService {
+
+    /**
+     * 网关日志持久层
+     */
+    private final GatewayLogMapper gatewayLogMapper;
 
     /**
      * 是否运行
@@ -74,7 +81,8 @@ public class GatewayLogServiceImpl extends ServiceImpl<GatewayLogMapper, Gateway
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean batchSaveGatewayLog(List<GatewayLogDO> gatewayLogList) {
-        return saveBatch(gatewayLogList);
+        if (gatewayLogList.isEmpty()) return false;
+        return gatewayLogMapper.batchSaveGatewayLog(gatewayLogList) > 0;
     }
 
     @Override
