@@ -11,10 +11,16 @@
     <packaging>pom</packaging>
 
     <modules>
+        <!--公共模块-->
         <module>common</module>
+        <!--后管模块-->
         <module>admin</module>
+        <!--中台模块-->
         <module>project</module>
+        <!--网关模块-->
         <module>gateway</module>
+        <!--任务模块-->
+        <module>task</module>
     </modules>
 
     <properties>

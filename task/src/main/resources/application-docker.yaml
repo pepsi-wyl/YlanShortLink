@@ -1,0 +1,12 @@
+server:
+  port: 8003
+
+spring:
+  application:
+    name: short-link-task
+  cloud:
+    nacos:
+      discovery:
+        server-addr: nacos:8848
+        username: nacos
+        password: Upl0U11p0XvzJv@0Qfm
