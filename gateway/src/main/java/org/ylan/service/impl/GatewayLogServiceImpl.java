@@ -35,7 +35,7 @@ public class GatewayLogServiceImpl extends ServiceImpl<GatewayLogMapper, Gateway
     private final GatewayLogMapper gatewayLogMapper;
 
     /**
-     * 是否运行
+     * 是否运行 保证可见行+禁止指令重排
      */
     volatile boolean isRunning = true;
 
