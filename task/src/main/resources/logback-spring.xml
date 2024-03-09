@@ -22,7 +22,7 @@
         <!-- 日志输出的路径名称报存时间配置 -->
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- 日志文件输出的文件名 -->
-            <FileNamePattern>${LOG_HOME}/%d{yyyy-MM-dd}/YlanShortLinkTask-%d{yyyy-MM-dd}-%i.log</FileNamePattern>
+            <FileNamePattern>${LOG_HOME}/%d{yyyy-MM-dd}/YLanShortLinkTask-%d{yyyy-MM-dd}-%i.log</FileNamePattern>
             <!--日志文件保留天数-->
             <MaxHistory>30</MaxHistory>
             <!--最大日志归档文件大小-->
