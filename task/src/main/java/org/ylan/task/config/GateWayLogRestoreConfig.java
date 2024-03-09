@@ -17,7 +17,7 @@ public class GateWayLogRestoreConfig {
     @Bean
     public JobDetail gateWayLogRestoreJobDetail() {
         return JobBuilder.newJob(GateWayLogRestoreJob.class)
-                .withIdentity("GateWayLogRestoreJob")
+                .withIdentity("GateWayLogRestoreJobDetail","GateWayLogRestoreJobDetail-Group")
                 .withDescription("任务描述：网关日志数据备份迁移任务")
                 .storeDurably()
                 .build();
@@ -29,10 +29,12 @@ public class GateWayLogRestoreConfig {
     public Trigger gateWayLogRestoreJobTrigger() {
         return TriggerBuilder.newTrigger()
                 .forJob(gateWayLogRestoreJobDetail())
+                .withIdentity("GateWayLogRestoreJobTrigger", "GateWayLogRestoreJobTrigger-Group")
                 .withSchedule(
                         CronScheduleBuilder
-                                .cronSchedule("0/2 * * * * ?")
+                                .cronSchedule("0/10 0 0,1,2,3,4,5,6,7,23 * * ?")
                 )
+                .startNow()
                 .build();
     }
 
