@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.ylan.mapper.GatewayLogMapper">
+
+    <select id="getBatchGatewayLog" resultType="GatewayLogDO">
+        SELECT *
+        FROM t_link_gateway_log
+        WHERE to_days(now()) - to_days(request_time) > 10 ORDER BY request_time ASC LIMIT 1000;
+    </select>
+
+    <delete id="deleteBatchGatewayLogByTraceIds">
+        DELETE
+        FROM
+        t_link_gateway_log WHERE trace_id in
+        <foreach collection="traceIds" item="traceId" separator="," open="(" close=")">
+                #{traceId}
+        </foreach>
+    </delete>
+
+</mapper>

@@ -1,5 +1,6 @@
 package org.ylan;
 
+import org.mybatis.spring.annotation.MapperScan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
@@ -15,6 +16,7 @@ import static org.ylan.common.Date.DateFormatConstant.DATE_FORMAT_HH_MM_SS;
  * @author ylan
  */
 
+@MapperScan("org.ylan.mapper")
 @SpringBootApplication
 public class YlanShortLinkTaskApplication {
 

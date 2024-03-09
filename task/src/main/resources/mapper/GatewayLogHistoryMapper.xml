@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.ylan.mapper.GatewayLogHistoryMapper">
+
+    <insert id="batchSaveGatewayLog">
+        INSERT INTO t_link_gateway_log_history
+        (trace_id,
+        ip,
+        `schema`,
+        request_method,
+        request_path,
+        request_content_type,
+        request_body,
+        response_content_type,
+        response_data,
+        request_time,
+        response_time,
+        execute_time,
+        target_server,
+        route_config
+        )
+        VALUES
+        <foreach collection="gatewayLogHistoryList" separator="," item="gatewayLogHistory">
+            ( #{gatewayLogHistory.traceId},
+            #{gatewayLogHistory.ip},
+            #{gatewayLogHistory.schema},
+            #{gatewayLogHistory.requestMethod},
+            #{gatewayLogHistory.requestPath},
+            #{gatewayLogHistory.requestContentType},
+            #{gatewayLogHistory.requestBody},
+            #{gatewayLogHistory.responseContentType},
+            #{gatewayLogHistory.responseData},
+            #{gatewayLogHistory.requestTime},
+            #{gatewayLogHistory.responseTime},
+            #{gatewayLogHistory.executeTime},
+            #{gatewayLogHistory.targetServer},
+            #{gatewayLogHistory.routeConfig}
+            )
+        </foreach>
+    </insert>
+</mapper>
