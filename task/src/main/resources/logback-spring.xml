@@ -3,7 +3,7 @@
 
     <!-- 日志输出内容的格式 -->
     <property name="pattern"
-              value="[YlanShortLinkTask] ===> [%-5level]-[%d{yyyy-MM-dd HH:mm:ss.SSS}]-[%thread]-[%X{traceId}]-[%L-%c.%M]-[%msg] %n"/>
+              value="[YLanShortLinkTask] ===> [%-5level]-[%d{yyyy-MM-dd HH:mm:ss.SSS}]-[%thread]-[%X{traceId}]-[%L-%c.%M]-[%msg] %n"/>
 
     <!-- 日志文件保存路径属性 -->
     <property name="LOG_HOME" value="logs"/>
