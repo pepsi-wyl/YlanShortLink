@@ -106,7 +106,7 @@ public class NetConstant {
     public final static String CHROME = "chrome";
     public final static String SAFARI = "safari";
     public final static String FIREFOX = "firefox";
-    public final static String OPERA = "opera";
+    public final static String OPERA = "opr";
     public final static String IE = "msie";
     public final static String IE11 = "trident";
 

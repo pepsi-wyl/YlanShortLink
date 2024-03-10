@@ -103,16 +103,28 @@ public class LinkUtil {
     public static String getBrowser(HttpServletRequest request) {
         String userAgent = request.getHeader(USR_AGENT);
         log.info("getBrowser-userAgent:{}", userAgent);
-        if (userAgent.toLowerCase().contains(EDGE)) {
+        // ===============移动端扫码=================
+        if (userAgent.toLowerCase().contains("wechat")) {
+            return "wechat";
+        }else if (userAgent.toLowerCase().contains("micromessenger")) {
+            return "wechat";
+        } else if (userAgent.toLowerCase().contains("qq")) {
+            return "qq";
+        } else if (userAgent.toLowerCase().contains("alipay")) {
+            return "alipay";
+        } else if (userAgent.toLowerCase().contains("dingtalk")) {
+            return "dingtalk";
+        // ===============浏览器=================
+        } else if (userAgent.toLowerCase().contains(EDGE)) {   // chrome safari edge
             return EDGE_BROWSER;
-        } else if (userAgent.toLowerCase().contains(CHROME)) {
-            return CHROME_BROWSER;
-        } else if (userAgent.toLowerCase().contains(SAFARI)) {
-            return SAFARI_BROWSER;
-        } else if (userAgent.toLowerCase().contains(FIREFOX)) {
-            return FIREFOX_BROWSER;
-        } else if (userAgent.toLowerCase().contains(OPERA)) {
+        } else if (userAgent.toLowerCase().contains(OPERA)) {  // chrome safari opr
             return OPERA_BROWSER;
+        } else if (userAgent.toLowerCase().contains(CHROME)) { // chrome safari
+            return CHROME_BROWSER;
+        } else if (userAgent.toLowerCase().contains(SAFARI)) { // safari
+            return SAFARI_BROWSER;
+        } else if (userAgent.toLowerCase().contains(FIREFOX)) {// firefox
+            return FIREFOX_BROWSER;
         } else if (userAgent.toLowerCase().contains(IE) || userAgent.toLowerCase().contains(IE11)) {
             return IE_BROWSER;
         } else {
