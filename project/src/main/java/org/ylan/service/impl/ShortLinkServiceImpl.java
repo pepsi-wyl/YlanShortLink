@@ -456,7 +456,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
             ShortLinkDO shortLinkDO = builder
                     .describe(requestParam.getDescribe())
                     .validDateType(requestParam.getValidDateType())
-                    .validDate(requestParam.getValidDate())
+                    .validDate(VailDateTypeEnum.PERMANENT.getType().equals(requestParam.getValidDateType()) ? null : requestParam.getValidDate())
                     .build();
             // 修改短链接信息
             baseMapper.update(shortLinkDO, updateWrapper);
@@ -489,7 +489,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                     .fullShortUrl(hasShortLinkDO.getFullShortUrl())
                     .createdType(hasShortLinkDO.getCreatedType())
                     .validDateType(requestParam.getValidDateType())
-                    .validDate(requestParam.getValidDate())
+                    .validDate(VailDateTypeEnum.PERMANENT.getType().equals(requestParam.getValidDateType()) ? null : requestParam.getValidDate())
                     .describe(requestParam.getDescribe())
                     .favicon(getFaviconByUrl(requestParam.getOriginUrl()))
                     .title(getTitleByUrl(requestParam.getOriginUrl()))
