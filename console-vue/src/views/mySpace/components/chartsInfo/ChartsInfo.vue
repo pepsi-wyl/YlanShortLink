@@ -203,7 +203,7 @@ import KeyValue from './KeyValue.vue'
 import ProgressLine from './ProgressLine.vue'
 import ProgressPie from './ProgressPie.vue'
 import edge from '@/assets/png/edge.png'
-import Andriod from '@/assets/png/Andriod.png'
+import Android from '@/assets/png/Android.png'
 import Chorme from '@/assets/png/Chorme.png'
 import firefox from '@/assets/png/firefox.png'
 import iOS from '@/assets/png/iOS.png'
@@ -296,8 +296,8 @@ const getUrl2 = (img) => {
   if (img) {
     img = img.toLowerCase()
   }
-  if (img?.includes('andriod')) {
-    return Andriod
+  if (img?.includes('android')) {
+    return Android
   } else if (img?.includes('ios')) {
     return iOS
   } else if (img?.includes('mac')) {

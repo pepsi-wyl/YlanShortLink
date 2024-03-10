@@ -82,7 +82,7 @@ public class NetConstant {
      * User-Agent OS标识
      */
     public final static String WINDOWS = "windows";
-    public final static String MAC = "mac";
+    public final static String MAC = "macintosh";
     public final static String LINUX = "linux";
     public final static String ANDROID = "android";
     public final static String IPHONE = "iphone";
@@ -96,7 +96,7 @@ public class NetConstant {
     public final static String LINUX_OS = "Linux";
     public final static String ANDROID_OS = "Android";
     public final static String IPHONE_OS = "IOS";
-    public final static String IPAD_OS = "IPad OS";
+    public final static String IPAD_OS = "IOS";
     public final static String UNKNOWN_OS = "Unknown";
 
     /**

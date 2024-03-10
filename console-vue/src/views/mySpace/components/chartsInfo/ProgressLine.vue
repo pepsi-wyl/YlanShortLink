@@ -28,7 +28,7 @@
 
 <script setup>
 import edge from '@/assets/png/edge.png'
-import Andriod from '@/assets/png/Andriod.png'
+import Andriod from '@/assets/png/Android.png'
 import Chorme from '@/assets/png/Chorme.png'
 import firefox from '@/assets/png/firefox.png'
 import iOS from '@/assets/png/iOS.png'

@@ -4,6 +4,7 @@ import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 
 import java.net.URI;
 import java.util.Date;
@@ -19,6 +20,7 @@ import static org.ylan.common.constant.ShortLinkConstant.DEFAULT_CACHE_VALID_TIM
  * @author ylan
  */
 
+@Slf4j
 public class LinkUtil {
 
     /**
@@ -74,18 +76,19 @@ public class LinkUtil {
      */
     public static String getOs(HttpServletRequest request) {
         String userAgent = request.getHeader(USR_AGENT);
+        log.info("getOs-userAgent:{}", userAgent);
         if (userAgent.toLowerCase().contains(WINDOWS)) {
             return WINDOWS_OS;
         } else if (userAgent.toLowerCase().contains(MAC)) {
             return MAC_OS;
-        } else if (userAgent.toLowerCase().contains(LINUX)) {
-            return LINUX_OS;
         } else if (userAgent.toLowerCase().contains(ANDROID)) {
             return ANDROID_OS;
         } else if (userAgent.toLowerCase().contains(IPHONE)) {
             return IPHONE_OS;
         } else if (userAgent.toLowerCase().contains(IPAD)) {
             return IPAD_OS;
+        } else if (userAgent.toLowerCase().contains(LINUX)) {
+            return LINUX_OS;
         } else {
             return UNKNOWN_OS;
         }
@@ -99,6 +102,7 @@ public class LinkUtil {
      */
     public static String getBrowser(HttpServletRequest request) {
         String userAgent = request.getHeader(USR_AGENT);
+        log.info("getBrowser-userAgent:{}", userAgent);
         if (userAgent.toLowerCase().contains(EDGE)) {
             return EDGE_BROWSER;
         } else if (userAgent.toLowerCase().contains(CHROME)) {
@@ -124,6 +128,7 @@ public class LinkUtil {
      */
     public static String getDevice(HttpServletRequest request) {
         String userAgent = request.getHeader(USR_AGENT);
+        log.info("getDevice-userAgent:{}", userAgent);
         if (userAgent.toLowerCase().contains(MOBILE)) {
             return MOBILE_DEVICE;
         }
