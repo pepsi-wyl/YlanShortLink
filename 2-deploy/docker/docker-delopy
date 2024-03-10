@@ -50,6 +50,7 @@ mkdir /root/app
 mkdir /root/app/project
 mkdir /root/app/admin
 mkdir /root/app/gateway
+mkdir /root/app/task
 
 # 4.执行Dockerfile构建镜像命令
 
@@ -64,6 +65,12 @@ cd /root/app/admin
 docker build -t admin:0.0.1 .
 # delete img
 docker rmi admin:0.0.1
+
+cd /root/app/task
+# build img
+docker build -t task:0.0.1 .
+# delete img
+docker rmi task:0.0.1
 
 cd /root/app/gateway
 # build img
@@ -89,6 +96,15 @@ docker run \
     --link nacos:nacos \
     -v /root/logs:/app/logs \
     admin:0.0.1
+
+docker run \
+    -d -p 8003:8003 \
+    --name task \
+    --link redis:redis \
+    --link mysql:mysql \
+    --link nacos:nacos \
+    -v /root/logs:/app/logs \
+    task:0.0.1
 
 docker run \
     -d -p 8000:8000 \
