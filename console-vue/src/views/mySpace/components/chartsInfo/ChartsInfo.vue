@@ -119,7 +119,7 @@
           <TitleContent class="chart-item" title="一周分布" style="width: 390px">
             <template #content>
               <BarChart style="height: 100%; width: 100%" :chartData="{
-                xAxis: ['周一', '周二', '周三', '周四', '周无', '周六', '周日'],
+                xAxis: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
                 value: props.info?.weekdayStats || new Array(7).fill(0)
               }"></BarChart>
             </template>
@@ -211,6 +211,9 @@ import macOS from '@/assets/png/macOS.png'
 import other from '@/assets/png/other.png'
 import Safair from '@/assets/png/Safair.png'
 import WeChat from '@/assets/png/WeChat.png'
+import Qq from '@/assets/png/qq.png'
+import Alipay from '@/assets/png/alipay.png'
+import Dingtalk from '@/assets/png/dingtalk.png'
 import Windows from '@/assets/png/Windows.png'
 import linux from '@/assets/png/linux.png'
 import wifi from '@/assets/png/wifi.png'
@@ -279,10 +282,16 @@ const getUrl1 = (img) => {
     return firefox
   } else if (img?.includes('safari')) {
     return Safair
-  } else if (img?.includes('wechat') || img?.includes('微信')) {
-    return WeChat
   } else if (img?.includes('opera')) {
     return opera
+  } else if (img?.includes('wechat')) {
+    return WeChat
+  } else if (img?.includes('qq')) {
+    return Qq
+  } else if (img?.includes('alipay')) {
+    return Alipay
+  } else if (img?.includes('dingtalk')) {
+    return Dingtalk
   }
   else if (img?.includes('internet')) {
     return IE
@@ -921,6 +930,7 @@ watch(
     height: 300px;
     min-width: 300px;
     margin: 10px;
+    overflow-y: auto;
   }
 }
 

@@ -40,6 +40,9 @@ import Windows from '@/assets/png/Windows.png'
 import linux from '@/assets/png/linux.png'
 import opera from '@/assets/png/opera.png'
 import IE from '@/assets/png/IE.png'
+import Qq from "@/assets/png/qq.png";
+import Alipay from "@/assets/png/alipay.png";
+import Dingtalk from "@/assets/png/dingtalk.png";
 
 defineProps({
   dataLists: {
@@ -86,20 +89,20 @@ const getUrl = (img1, img2) => {
     return Windows
   } else if (img1?.includes('opera') || img2?.includes('opera')) {
     return opera
-  }
-   else if (img1?.includes('internet') || img2?.includes('internet')) {
+  } else if (img1?.includes('internet') || img2?.includes('internet')) {
     return IE
-  }
-  else if (
-    img1?.includes('wechat') ||
-    img1?.includes('微信') ||
-    img2?.includes('wechat') ||
-    img2?.includes('微信')
-  ) {
-    return WeChat
   } else if (img1?.includes('linux') || img2?.includes('linux')) {
     return linux
-  } else {
+  } else if (img1?.includes('wechat') || img2?.includes('wechat')) {
+    return WeChat
+  }else if (img1?.includes('qq') || img2?.includes('qq')) {
+    return Qq
+  } else if (img1?.includes('alipay') || img2?.includes('alipay')) {
+    return Alipay
+  }else if (img1?.includes('dingtalk') || img2?.includes('dingtalk')) {
+    return Dingtalk
+  }
+  else {
     return other
   }
 }
