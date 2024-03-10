@@ -23,7 +23,8 @@ public class GateWayLogRestoreConfig {
                 .build();
     }
 
-    // 0/10 0 0,1,2,3,4,5,6,7,23 * * ?
+    // 0/30 0 0-2 * * ?
+    // 0 0 0-8 ? * MON-FRI 周一至周五的 0 点到 8 点之间每小时执行一次
     // 0/2 * * * * ?
     @Bean
     public Trigger gateWayLogRestoreJobTrigger() {
@@ -32,7 +33,7 @@ public class GateWayLogRestoreConfig {
                 .withIdentity("GateWayLogRestoreJobTrigger", "GateWayLogRestoreJobTrigger-Group")
                 .withSchedule(
                         CronScheduleBuilder
-                                .cronSchedule("0/10 0 0,1,2,3,4,5,6,7,23 * * ?")
+                                .cronSchedule("0 0 0-8 ? * MON-FRI")
                 )
                 .startNow()
                 .build();
