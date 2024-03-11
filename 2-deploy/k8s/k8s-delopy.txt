@@ -1,0 +1,220 @@
+k8s部署 基于Centos_7.9_ARM64 K8s_v1.17.4
+
+#1.----------------------------------------------------部署中间件---------------------------------------------------------
+
+## 配置 NFS
+### 服务端
+# 1.安装NFS服务
+yum install -y nfs-utils
+# 2.创建目录
+mkdir -p /nfs/data
+# 3.暴露目录
+echo "/nfs/data/ *(insecure,rw,sync,no_root_squash)" > /etc/exports
+# 4.配置启动服务并开机自启动
+systemctl enable rpcbind --now
+systemctl enable nfs-server --now
+# 5.配置生效
+exportfs -r
+# 6.查看共享情况
+exportfs
+### 客户端
+# 1.安装NFS服务
+yum install -y nfs-utils
+# 2.创建目录
+mkdir -p /nfs/data
+# 3.查看NFS可挂载目录
+showmount -e k8s-node1
+# 4.挂载目录
+mount -t nfs k8s-node1:/nfs/data /nfs/data
+# 5.取消挂载
+umount -f -l /nfs/data
+
+## 安装MySQL
+# 1.创建数据目录
+mkdir /nfs/data/soft/mysql/data
+# 2.编写并上传mysql.yaml部署文件到 /k8s/soft
+# 3.部署MySQL
+cd /k8s/soft
+kubectl apply -f mysql.yaml
+# 4.查看部署状态
+kubectl get deploy,svc,pods -o wide
+# 5.删除MySQL
+cd /k8s/soft
+kubectl delete -f mysql.yaml
+
+## 安装Redis
+# 1.创建数据目录
+mkdir /nfs/data/soft/redis/data
+# 2.编写并上传redis.yaml部署文件到 /k8s/soft
+# 3.部署Redis
+cd /k8s/soft
+kubectl apply -f redis.yaml
+# 4.查看部署状态
+kubectl get deploy,svc,pods -o wide
+# 5.删除Redis
+cd /k8s/soft
+kubectl delete -f redis.yaml
+
+## 安装Nacos
+# 1.编写并上传nacos.yaml部署文件到 /k8s/soft
+# 2.部署Nacos
+cd /k8s/soft
+kubectl apply -f nacos.yaml
+# 4.查看部署状态
+kubectl get deploy,svc,pods -o wide
+# 5.删除Nacos
+cd /k8s/soft
+kubectl delete -f nacos.yaml
+
+#2.----------------------------------------------------初始化数据---------------------------------------------------------
+# 执行数据库初始化脚本 link.sql link_logs.sql link_quartz.sql
+
+#3.----------------------------------------------------部署后端服务---------------------------------------------------------
+# 部署后端服务
+
+## 本地 和 K8s集群 分别登陆DockerHub
+docker login -u pepsiwyl920 -p xxxxxx
+## 创建后端服务日志数据目录
+mkdir /nfs/data/app/logs
+
+## Project服务
+# 1.配置文件修改为 K8s 环境，进行Maven打包
+# 2.编写 Dockerfile
+# 3.生成Docker镜像
+cd project
+docker build -t pepsiwyl920/short-link-project:1.0.0 .
+# 4.上传Docker镜像
+docker push pepsiwyl920/short-link-project:1.0.0
+# 5.删除Docker镜像
+docker rmi pepsiwyl920/short-link-project:1.0.0
+# 6.拉取Docker镜像
+docker pull pepsiwyl920/short-link-project:1.0.0
+# 7.编写并上传project-deploy.yml部署文件到 /k8s/app
+# 8.部署Project
+cd /k8s/app
+kubectl apply -f project-deploy.yml
+# 4.查看部署状态
+kubectl get deploy,svc,pods -o wide
+# 5.删除Project
+cd /k8s/app
+kubectl delete -f project-deploy.yml
+
+## Admin服务
+# 1.配置文件修改为 K8s 环境，进行Maven打包
+# 2.编写 Dockerfile
+# 3.生成Docker镜像
+cd admin
+docker build -t pepsiwyl920/short-link-admin:1.0.0 .
+# 4.上传Docker镜像
+docker push pepsiwyl920/short-link-admin:1.0.0
+# 5.删除Docker镜像
+docker rmi pepsiwyl920/short-link-admin:1.0.0
+# 6.拉取Docker镜像
+docker pull pepsiwyl920/short-link-admin:1.0.0
+# 7.编写并上传admin-deploy.yml部署文件到 /k8s/app
+# 8.部署Admin
+cd /k8s/app
+kubectl apply -f admin-deploy.yml
+# 4.查看部署状态
+kubectl get deploy,svc,pods -o wide
+# 5.删除Admin
+cd /k8s/app
+kubectl delete -f admin-deploy.yml
+
+## Task服务
+# 1.配置文件修改为 K8s 环境，进行Maven打包
+# 2.编写 Dockerfile
+# 3.生成Docker镜像
+cd task
+docker build -t pepsiwyl920/short-link-task:1.0.0 .
+# 4.上传Docker镜像
+docker push pepsiwyl920/short-link-task:1.0.0
+# 5.删除Docker镜像
+docker rmi pepsiwyl920/short-link-task:1.0.0
+# 6.拉取Docker镜像
+docker pull pepsiwyl920/short-link-task:1.0.0
+# 7.编写并上传task-deploy.yml部署文件到 /k8s/app
+# 8.部署Task
+cd /k8s/app
+kubectl apply -f task-deploy.yml
+# 4.查看部署状态
+kubectl get deploy,svc,pods -o wide
+# 5.删除Task
+cd /k8s/app
+kubectl delete -f task-deploy.yml
+
+## GateWay服务
+# 1.配置文件修改为 K8s 环境，进行Maven打包
+# 2.编写 Dockerfile
+# 3.生成Docker镜像
+cd gateway
+docker build -t pepsiwyl920/short-link-gateway:1.0.0 .
+# 4.上传Docker镜像
+docker push pepsiwyl920/short-link-gateway:1.0.0
+# 5.删除Docker镜像
+docker rmi pepsiwyl920/short-link-gateway:1.0.0
+# 6.拉取Docker镜像
+docker pull pepsiwyl920/short-link-gateway:1.0.0
+# 7.编写并上传admin-deploy.yml部署文件到 /k8s/app
+# 8.部署Gateway
+cd /k8s/app
+kubectl apply -f gateway-deploy.yml
+# 4.查看部署状态
+kubectl get deploy,svc,pods -o wide
+# 5.删除Gateway
+cd /k8s/app
+kubectl delete -f gateway-deploy.yml
+
+#4.----------------------------------------------------部署前端服务-------------------------------------------------------
+
+# 1.修改前端配置文件
+修改前端传的默认短链接域名 ===> url.yl.com
+# 2.前端项目打包
+cd console-vue
+npm run build
+# 3.编写Nginx配置文件
+# 4.编写Dockerfile
+# 4.生成Docker镜像
+cd console-vue
+docker build -t pepsiwyl920/short-link-vue:1.0.0 .
+# 5.上传Docker镜像
+docker push pepsiwyl920/short-link-vue:1.0.0
+# 6.删除Docker镜像
+docker rmi pepsiwyl920/short-link-vue:1.0.0
+# 7.拉取Docker镜像
+docker pull pepsiwyl920/short-link-vue:1.0.0
+# 7.编写并上传vue-deploy.yml部署文件到 /k8s/app
+# 8.部署Vue
+cd /k8s/app
+kubectl apply -f vue-deploy.yml
+# 4.查看部署状态
+kubectl get deploy,svc,pods -o wide
+# 5.删除Vue
+cd /k8s/app
+kubectl delete -f vue-deploy.yml
+
+#5.----------------------------------------------------部署LB服务--------------------------------------------------------
+# 1.创建文件目录
+mkdir /nfs/data/lb/
+mkdir /nfs/data/lb/conf
+mkdir /nfs/data/lb/logs
+# 2.启动lb服务 并复制默认需要的配置和文件 停止并删除容器
+docker run \
+         -p 80:80 \
+         -d \
+         --name lb \
+         nginx:1.19
+docker cp lb:/etc/nginx/nginx.conf  /nfs/data/lb/conf
+docker cp lb:/usr/share/nginx/html  /nfs/data/lb
+docker rm -f lb
+# 3.编写LB配置文件
+# 4.将LB配置文件中内容替换至nginx.conf
+# 5.重启lb服务
+docker run \
+         -p 80:80 \
+         -d  \
+         -v /nfs/data/lb/conf/nginx.conf:/etc/nginx/nginx.conf  \
+         -v /nfs/data/lb/html:/usr/share/nginx/html \
+         -v /nfs/data/lb/logs:/var/log/nginx \
+         --name lb \
+         nginx:1.19
