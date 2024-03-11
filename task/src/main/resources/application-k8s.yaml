@@ -4,9 +4,71 @@ server:
 spring:
   application:
     name: short-link-task
+  datasource:
+    # Quartz 数据源配置
+    quartz:
+      username: root
+      password: root
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      url: jdbc:mysql://short-link-mysql-service:3306/link_quartz?useSSL=true&useUnicode=true&characterEncoding=utf8&serverTimezone=UTC&rewriteBatchedStatements=true
+    # mybatisplus 数据源配置
+    mybatisplus:
+      username: root
+      password: root
+      url: jdbc:mysql://short-link-mysql-service:3306/link_logs?useUnicode=true&characterEncoding=UTF-8&rewriteBatchedStatements=true&allowMultiQueries=true&serverTimezone=Asia/Shanghai
+      driver-class-name: com.mysql.cj.jdbc.Driver
   cloud:
     nacos:
       discovery:
         server-addr: short-link-nacos-service:8848
         username: nacos
         password: nacos
+  # Quartz 配置
+  quartz:
+    # 相同 Scheduler 名字的节点，形成一个 Quartz 集群s
+    scheduler-name: short-link-task
+    # Job 存储器类型  memory 内存 (默认) | jdbc 数据库
+    job-store-type: jdbc
+    # Quartz 是否自动启动
+    auto-startup: true
+    # 延迟 N 秒启动
+    startup-delay: 0
+    # 应用关闭时，是否等待定时任务执行完成。  默认：false 为了实现 Quartz 的优雅关闭，建议：true
+    wait-for-jobs-to-complete-on-shutdown: true
+    # 是否覆盖已有 Job 的配置
+    overwrite-existing-jobs: false
+    # Quartz JDBC 配置
+    jdbc:
+      # 是否自动使用 SQL脚本 初始化 Quartz 表结构  我们手动创建表结构，设置never
+      initialize-schema: never
+    # 添加Quartz Scheduler附加属性  文档 http://www.quartz-scheduler.org/documentation/2.4.0-SNAPSHOT/configuration.html
+    properties:
+      org:
+        quartz:
+          # JobStore相关配置
+          jobStore:
+            # 使用的数据源
+            dataSource: quartzDataSource
+            # JobStore 实现类
+            # class: org.quartz.impl.jdbcjobstore.JobStoreTX # SpringBoot 2.5.6 以上版本需要注释掉
+            driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
+            # Quartz 表前缀
+            tablePrefix: QRTZ_
+            # 集群模式的配置
+            isClustered: true
+            clusterCheckinInterval: 1000
+            useProperties: false
+          # 线程池相关配置
+          threadPool:
+            # 线程池大小 默认10
+            threadCount: 25
+            # 线程优先级
+            threadPriority: 5
+            # 线程池类型
+            class: org.quartz.simpl.SimpleThreadPool
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package:
+    org.ylan.model.entity
