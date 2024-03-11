@@ -154,12 +154,13 @@ public class LinkUtil {
      * @return 用户访问网络
      */
     public static String getNetwork(HttpServletRequest request) {
-        String actualIp = getActualIp(request);
-        return
-                actualIp.startsWith(WIFI_IP_1)
-                        || actualIp.startsWith(WIFI_IP_2)
-                        || actualIp.startsWith(WIFI_IP_3)
-                        ? "WIFI" : "Mobile";
+        String userAgent = request.getHeader(USR_AGENT);
+        log.info("getBrowser-userAgent:{}", userAgent);
+        String userAgentLowerCase = userAgent.toLowerCase();
+        if (userAgentLowerCase.contains("5g") || userAgentLowerCase.contains("4g") || userAgentLowerCase.contains("3g") || userAgentLowerCase.contains("3gnet") || userAgentLowerCase.contains("2g")){
+            return "MobileNet";
+        }
+        return "WIFI";
     }
 
     /**
