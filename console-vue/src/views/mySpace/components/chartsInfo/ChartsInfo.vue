@@ -949,7 +949,7 @@ watch(
   justify-content: space-between;
 
   .top10 {
-    padding: 15px 30px;
+    padding: 15px 15px;
     width: 400px;
     height: 270px;
     display: flex;
