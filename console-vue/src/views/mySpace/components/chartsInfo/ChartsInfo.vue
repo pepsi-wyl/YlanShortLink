@@ -219,7 +219,7 @@ import linux from '@/assets/png/linux.png'
 import wifi from '@/assets/png/wifi.png'
 import PC from '@/assets/png/电脑.png'
 import Mobile from '@/assets/png/移动设备.png'
-import MobileDevices from '@/assets/png/移动设备.png'
+import MobileNet from '@/assets/png/移动网络.png'
 import defaultImg from '@/assets/png/短链默认图标.png'
 import opera from '@/assets/png/opera.png'
 import IE from '@/assets/png/IE.png'
@@ -335,8 +335,8 @@ const getUrl4 = (img) => {
   if (img) {
     img = img.toLowerCase()
   }
-  if (img?.includes('Mobile')) {
-    return MobileDevices
+  if (img?.includes('mobilenet')) {
+    return MobileNet
   } else {
     return wifi
   }
@@ -906,10 +906,10 @@ watch(
       netWorkList.value = [0, 0]
       // 对访问设备类型的数据进行转化
       props.info?.networkStats?.forEach((item) => {
-        if (item.device === 'Mobile') {
-          netWorkList.value[1] = item.cnt
-        } else {
+        if (item.network === 'WIFI') {
           netWorkList.value[0] = item.cnt
+        } else {
+          netWorkList.value[1] = item.cnt
         }
       })
     },
