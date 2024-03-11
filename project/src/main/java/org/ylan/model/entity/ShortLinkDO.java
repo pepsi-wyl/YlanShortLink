@@ -1,5 +1,6 @@
 package org.ylan.model.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldStrategy;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
@@ -92,6 +93,7 @@ public class ShortLinkDO extends BaseDO {
     /**
      * 有效期
      */
+    @TableField(updateStrategy= FieldStrategy.IGNORED, insertStrategy = FieldStrategy.IGNORED)
     private Date validDate;
 
     /**

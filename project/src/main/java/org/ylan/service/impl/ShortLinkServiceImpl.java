@@ -314,7 +314,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                 .fullShortUrl(fullShortUrl)
                 .createdType(requestParam.getCreatedType())
                 .validDateType(requestParam.getValidDateType())
-                .validDate(requestParam.getValidDate())
+                .validDate(VailDateTypeEnum.PERMANENT.getType().equals(requestParam.getValidDateType()) ? null : requestParam.getValidDate())
                 .describe(requestParam.getDescribe())
                 .favicon(getFaviconByUrl(requestParam.getOriginUrl()))
                 .title(getTitleByUrl(requestParam.getOriginUrl()))
