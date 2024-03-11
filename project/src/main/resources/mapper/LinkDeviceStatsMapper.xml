@@ -86,7 +86,9 @@
           AND date BETWEEN #{param.startDate}
           AND #{param.endDate}
         GROUP BY
-            full_short_url, gid, device;
+            full_short_url, gid, device
+        ORDER BY
+            cnt DESC;
     </select>
 
     <select id="listDeviceStatsByGroup" resultType="LinkDeviceStatsDO">

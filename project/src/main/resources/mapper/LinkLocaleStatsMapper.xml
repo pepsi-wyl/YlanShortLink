@@ -104,7 +104,9 @@
           AND date BETWEEN #{param.startDate}
           AND #{param.endDate}
         GROUP BY
-            full_short_url, gid, province;
+            full_short_url, gid, province
+        ORDER BY
+            cnt DESC;
     </select>
 
     <select id="listLocaleByGroup" resultType="LinkLocaleStatsDO">

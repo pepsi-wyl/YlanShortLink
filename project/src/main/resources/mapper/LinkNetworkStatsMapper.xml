@@ -88,7 +88,9 @@
           AND date BETWEEN #{param.startDate}
           AND #{param.endDate}
         GROUP BY
-            full_short_url, gid, network;
+            full_short_url, gid, network
+        ORDER BY
+            cnt DESC;
     </select>
 
     <select id="listNetworkStatsByGroup" resultType="LinkNetworkStatsDO">
