@@ -1,0 +1,55 @@
+---
+# Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: short-link-task-deployment
+  labels:
+    app: short-link-task
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: short-link-task
+  template:
+    metadata:
+      name: short-link-task
+      labels:
+        app: short-link-task
+    spec:
+      containers:
+        - name: short-link-task
+          image: pepsiwyl920/short-link-task:1.0.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8003
+          volumeMounts:
+            - mountPath: /app/logs
+              name: logs
+      volumes:
+        - name: logs
+          nfs:
+            # NFS 服务 地址 选取k8s-node1
+            server: 172.16.255.11
+            # NFS 服务 共享目录 下 /app/logs
+            path: /nfs/data/app/logs
+      restartPolicy: Always
+---
+# service
+apiVersion: v1
+kind: Service
+metadata:
+  name: short-link-task-service
+  labels:
+    app: short-link-task
+spec:
+  selector:
+    app: short-link-task
+  type: NodePort
+  ports:
+    - name: short-link-task
+      protocol: TCP
+      port: 80
+      targetPort: 8003
+      nodePort: 30003
+---
