@@ -117,7 +117,9 @@
           AND date BETWEEN #{param.startDate}
           AND #{param.endDate}
         GROUP BY
-            gid, province;
+            gid, province
+        ORDER BY
+            cnt DESC;
     </select>
 
 </mapper>

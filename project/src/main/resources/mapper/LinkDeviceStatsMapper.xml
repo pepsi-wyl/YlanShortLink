@@ -99,7 +99,9 @@
           AND date BETWEEN #{param.startDate}
           AND #{param.endDate}
         GROUP BY
-            gid, device;
+            gid, device
+        ORDER BY
+            cnt DESC;
     </select>
 
 </mapper>

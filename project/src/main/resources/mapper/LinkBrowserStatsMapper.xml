@@ -103,7 +103,9 @@
           AND date BETWEEN #{param.startDate}
           AND #{param.endDate}
         GROUP BY
-            gid, browser;
+            gid, browser
+        ORDER BY
+            count DESC;
     </select>
 
 </mapper>

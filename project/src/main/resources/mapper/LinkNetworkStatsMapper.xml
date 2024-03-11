@@ -103,7 +103,9 @@
           AND date BETWEEN #{param.startDate}
           AND #{param.endDate}
         GROUP BY
-            gid, network;
+            gid, network
+        ORDER BY
+            cnt DESC;
     </select>
 
 </mapper>
