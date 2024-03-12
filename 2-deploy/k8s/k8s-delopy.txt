@@ -31,7 +31,7 @@ umount -f -l /nfs/data
 
 ## 安装MySQL
 # 1.创建数据目录
-mkdir /nfs/data/soft/mysql/data
+mkdir -p /nfs/data/soft/mysql/data
 # 2.编写并上传mysql.yaml部署文件到 /k8s/soft
 # 3.部署MySQL
 cd /k8s/soft
@@ -44,7 +44,7 @@ kubectl delete -f mysql.yaml
 
 ## 安装Redis
 # 1.创建数据目录
-mkdir /nfs/data/soft/redis/data
+mkdir -p /nfs/data/soft/redis/data
 # 2.编写并上传redis.yaml部署文件到 /k8s/soft
 # 3.部署Redis
 cd /k8s/soft
@@ -75,7 +75,7 @@ kubectl delete -f nacos.yaml
 ## 本地 和 K8s集群 分别登陆DockerHub
 docker login -u pepsiwyl920 -p xxxxxx
 ## 创建后端服务日志数据目录
-mkdir /nfs/data/app/logs
+mkdir -p /nfs/data/app/logs
 
 ## Project服务
 # 1.配置文件修改为 K8s 环境，进行Maven打包
@@ -195,9 +195,9 @@ kubectl delete -f vue-deploy.yml
 
 #5.----------------------------------------------------部署LB服务--------------------------------------------------------
 # 1.创建文件目录
-mkdir /nfs/data/lb/
-mkdir /nfs/data/lb/conf
-mkdir /nfs/data/lb/logs
+mkdir -p /nfs/data/lb/
+mkdir -p /nfs/data/lb/conf
+mkdir -p /nfs/data/lb/logs
 # 2.启动lb服务 并复制默认需要的配置和文件 停止并删除容器
 docker run \
          -p 80:80 \
