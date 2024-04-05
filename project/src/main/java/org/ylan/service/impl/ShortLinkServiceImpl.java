@@ -343,6 +343,10 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
             }
         } catch (DuplicateKeyException ex) {
             log.error("短链接：{} 重复入库，ex：{}", fullShortUrl, ex.getMessage());
+            // 首先判断是否存在布隆过滤器，如果不存在直接新增
+            if (!shortUriCreateCachePenetrationBloomFilter.contains(fullShortUrl)) {
+                shortUriCreateCachePenetrationBloomFilter.add(fullShortUrl);
+            }
             throw new ServiceException(SHORT_LINK_GENERATE_REPEAT_ERROR);
         }
 
