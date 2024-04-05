@@ -80,11 +80,13 @@ public class UserFlowRiskControlFilter implements Filter {
                 log.error("执行用户请求流量限制LUA脚本出错", ex);
                 // 执行结果异常，则返回错误信息
                 returnJson((HttpServletResponse) response, JSON.toJSONString(Results.failure(new ClientException(FLOW_LIMIT_ERROR))));
+                return;
             }
 
             // 执行结果为空或者超出限额，则返回错误信息
             if (Objects.isNull(result) || result > maxAccessCount) {
                 returnJson((HttpServletResponse) response, JSON.toJSONString(Results.failure(new ClientException(FLOW_LIMIT_ERROR))));
+                return;
             }
         }
 
