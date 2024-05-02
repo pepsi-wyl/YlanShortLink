@@ -218,3 +218,43 @@ docker run \
          -v /nfs/data/lb/logs:/var/log/nginx \
          --name lb \
          nginx:1.19
+
+
+#6.重启服务
+# 卸载服务
+cd /k8s/soft
+kubectl delete -f mysql.yaml
+kubectl delete -f redis.yaml
+kubectl delete -f nacos.yaml
+kubectl get deploy,svc,pods -o wide
+cd /k8s/app
+kubectl delete -f project-deploy.yml
+kubectl delete -f admin-deploy.yml
+kubectl delete -f gateway-deploy.yml
+kubectl delete -f vue-deploy.yml
+kubectl get deploy,svc,pods -o wide
+docker rm -f lb
+
+# 重新启动
+cd /k8s/soft
+kubectl apply -f mysql.yaml
+kubectl apply -f redis.yaml
+kubectl apply -f nacos.yaml
+kubectl get deploy,svc,pods -o wide
+#!连接下Mysql数据库，不然可能服务会连不上
+cd /k8s/app
+kubectl apply -f project-deploy.yml
+kubectl apply -f admin-deploy.yml
+kubectl apply -f gateway-deploy.yml
+kubectl apply -f vue-deploy.yml
+kubectl get deploy,svc,pods -o wide
+docker run \
+         -p 80:80 \
+         -d  \
+         -v /nfs/data/lb/conf/nginx.conf:/etc/nginx/nginx.conf  \
+         -v /nfs/data/lb/html:/usr/share/nginx/html \
+         -v /nfs/data/lb/logs:/var/log/nginx \
+         --name lb \
+         nginx:1.19
+
+cd /nfs/data/app/logs
