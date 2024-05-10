@@ -6,11 +6,11 @@ const store = createStore({
     return {
       // domain: 'nurl.ink'
       // dev
-      // domain: 'url.yl.com:8000'
-      // prod
+      domain: '127.0.0.1:8000'
+      // K8s
       // domain: 'url.yl.com'
       // docker
-      domain: 'url.ylan.site'
+      // domain: 'url.ylan.site'
     }
   }
 })
